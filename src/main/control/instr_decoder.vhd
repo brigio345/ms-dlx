@@ -10,21 +10,23 @@ entity instr_decoder is
 		-- from ID stage
 		I_FUNC:		in std_logic_vector(FUNC_SIZE - 1 downto 0);
 		I_OPCODE:	in std_logic_vector(OPCODE_SIZE - 1 downto 0);
-
+		
 		-- to ID stage
 		O_BRANCH:	out branch_t;
 
 		-- to EX stage
 		O_ALUOP:	out aluop_t;
-		O_OP1:		out std_logic; -- alu op1
-		O_OP2:		out std_logic; -- alu op2
+		O_SEL_B_IMM:	out std_logic;
 
 		-- to MEM stage
 		O_LD:		out std_logic;
 		O_STR:		out std_logic;
 
 		-- to WB stage
-		O_WB_DST:	out std_logic_vector(R_DST_SIZE - 1 downto 0)
+		O_WB_DST:	out std_logic_vector(R_DST_SIZE - 1 downto 0);
+
+		-- to CU
+		O_INST_TYPE:	out inst_t
 	);
 end instr_decoder;
 
@@ -35,16 +37,16 @@ begin
 		-- typical I-TYPE instruction as default values
 		-- (since they are the most common instructions this
 		-- just reduces code size)
-		O_OP1	<= '1';	-- A
-		O_OP2	<= '1';	-- IMM
-		O_BRANCH<= BRANCH_NO;
-		O_LD	<= '0'; -- no load
-		O_STR	<= '0'; -- no store
+		O_INST_TYPE	<= INST_IMM;
+		O_SEL_B_IMM	<= '1';	-- IMM
+		O_BRANCH	<= BRANCH_NO;
+		O_LD		<= '0'; -- no load
+		O_STR		<= '0'; -- no store
 		O_WB_DST<= I_INST(I_DST_RANGE);
 		case (I_OPCODE) is
 			when OPCODE_RTYPE	=>
-				O_OP1	<= '1';	-- A
-				O_OP2	<= '0';	-- B
+				O_INST_TYPE	<= INST_REG;
+				O_SEL_B_IMM	<= '0';	-- B
 				O_WB_DST<= I_INST(R_DST_RANGE);
 				case (I_FUNC) is
 					FUNC_SLL	=>
@@ -133,48 +135,48 @@ begin
 
 			-- Jump instructions
 			when OPCODE_J		=>
-				O_OP1	<= '0';	-- NPC
-				O_OP2	<= '1';	-- IMM
-				O_BRANCH<= BRANCH_UNC;
-				O_WB_DST<= (others => '0'); -- no writeback
-				O_ALUOP	<= ALUOP_ADD;
+				O_INST_TYPE	<= INST_JMP;
+				O_SEL_B_IMM	<= '1';	-- IMM
+				O_BRANCH	<= BRANCH_UNC;
+				O_WB_DST	<= (others => '0'); -- no writeback
+				O_ALUOP		<= ALUOP_ADD;
 			when OPCODE_JAL		=>
-				O_OP1	<= '0';	-- NPC
-				O_OP2	<= '1';	-- IMM
-				O_BRANCH<= BRANCH_UNC;
-				O_WB_DST<= (others => '0'); -- no writeback
-				O_ALUOP	<= ALUOP_ADD;
+				O_INST_TYPE	<= INST_JMP;
+				O_SEL_B_IMM	<= '1';	-- IMM
+				O_BRANCH	<= BRANCH_UNC;
+				O_WB_DST	<= (others => '0'); -- no writeback
+				O_ALUOP		<= ALUOP_ADD;
 			when OPCODE_BEQZ	=>
-				O_OP1	<= '0';	-- NPC
-				O_OP2	<= '1';	-- IMM
-				O_BRANCH<= BRANCH_EQ0;
-				O_WB_DST<= (others => '0'); -- no writeback
-				O_ALUOP	<= ALUOP_ADD;
+				O_SEL_B_IMM	<= '1';	-- IMM
+				O_BRANCH	<= BRANCH_EQ0;
+				O_WB_DST	<= (others => '0'); -- no writeback
+				O_ALUOP		<= ALUOP_ADD;
 			when OPCODE_BNEZ	=>
-				O_OP1	<= '0';	-- NPC
-				O_OP2	<= '1';	-- IMM
-				O_BRANCH<= BRANCH_NE0;
-				O_WB_DST<= (others => '0'); -- no writeback
-				O_ALUOP	<= ALUOP_ADD;
+				O_SEL_B_IMM	<= '1';	-- IMM
+				O_BRANCH	<= BRANCH_NE0;
+				O_WB_DST	<= (others => '0'); -- no writeback
+				O_ALUOP		<= ALUOP_ADD;
 			when OPCODE_JR		=>
-				O_OP1	<= '0';	-- NPC
-				O_OP2	<= '1';	-- IMM
-				O_BRANCH<= BRANCH_UNC;
-				O_WB_DST<= (others => '0'); -- no writeback
-				O_ALUOP	<= ALUOP_ADD;
+				O_INST_TYPE	<= INST_JMP;
+				O_SEL_B_IMM	<= '1';	-- IMM
+				O_BRANCH	<= BRANCH_UNC;
+				O_WB_DST	<= (others => '0'); -- no writeback
+				O_ALUOP		<= ALUOP_ADD;
 			when OPCODE_JALR	=>
-				O_OP1	<= '0';	-- NPC
-				O_OP2	<= '1';	-- IMM
-				O_BRANCH<= BRANCH_UNC;
-				O_WB_DST<= (others => '0'); -- no writeback
-				O_ALUOP	<= ALUOP_ADD;
+				O_INST_TYPE	<= INST_JMP;
+				O_SEL_B_IMM	<= '1';	-- IMM
+				O_BRANCH	<= BRANCH_UNC;
+				O_WB_DST	<= (others => '0'); -- no writeback
+				O_ALUOP		<= ALUOP_ADD;
 
 			-- General instructions
 			when OPCODE_NOP		=>
+				O_INST_TYPE	<= INST_NOP;
 				O_WB_DST	<= (others => '0');
 
 			-- NOP when an unsupported instruction is detected
 			when others		=>
+				O_INST_TYPE	<= INST_NOP;
 				O_WB_DST	<= (others => '0');
 		end case;
 	end process;
