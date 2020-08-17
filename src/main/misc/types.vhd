@@ -1,23 +1,8 @@
 package types is
-	type aluop_t is (
-		ALUOP_SLL,
-		ALUOP_SRL,
-		ALUOP_SRA,
-		ALUOP_ADD,
-		ALUOP_SUB,
-		ALUOP_AND,
-		ALUOP_OR,
-		ALUOP_XOR,
-		ALUOP_SEQ,
-		ALUOP_SNE,
-		ALUOP_SLT,
-		ALUOP_SGT,
-		ALUOP_SLE,
-		ALUOP_SGE,
-		ALUOP_SLTU,
-		ALUOP_SGTU,
-		ALUOP_SLEU,
-		ALUOP_SGEU
+	type inst_t is (
+		INST_REG,
+		INST_IMM,
+		INST_JMP
 	);
 
 	type branch_t is (
@@ -28,9 +13,12 @@ package types is
 		BRANCH_NE0
 	);
 
-	type result_t is (
-		RES_EX,
-		RES_LD
+	type source_t is (
+		SRC_RF,
+		SRC_ALU_EX,
+		SRC_ALU_MEM,
+		SRC_LD_EX,
+		SRC_LD_MEM
 	);
 end types;
 

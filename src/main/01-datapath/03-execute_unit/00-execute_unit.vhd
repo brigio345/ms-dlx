@@ -7,7 +7,7 @@ use work.types.all;
 entity execute_unit is
 	port (
 		-- from CU
-		I_ALUOP:	in aluop_t;
+		I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 		I_SEL_A:	in reg_status_t;
 		I_SEL_B:	in reg_status_t;
 		I_SEL_R_IMM:	in std_logic;
@@ -33,7 +33,7 @@ architecture MIXED of execute_unit is
 			N_BIT:	integer := 32;
 		)
 		port (
-			I_OP:	in aluop_t;
+			I_OP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 			I_A:	in std_logic_vector(N_BIT - 1 downto 0);
 			I_B:	in std_logic_vector(N_BIT - 1 downto 0);
 			O_DATA:	out std_logic_vector(N_BIT - 1 downto 0)

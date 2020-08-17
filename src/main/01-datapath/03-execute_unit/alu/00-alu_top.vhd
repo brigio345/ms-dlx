@@ -1,14 +1,14 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.aluops.all;
+use work.coding.all;
 
 entity alu is
 	generic (
 		N_BIT:	integer := 32
 	);
 	port (
-		I_OP:		in aluop_t;
+		I_OP:		in std_logic_vector(FUNC_SZ - 1 downto 0);
 		I_A:		in std_logic_vector(N_BIT - 1 downto 0);
 		I_B:		in std_logic_vector(N_BIT - 1 downto 0);
 		O_DATA:		out std_logic_vector(N_BIT - 1 downto 0)
@@ -106,39 +106,39 @@ begin
 	begin
 		O_DATA <= (others => '0');
 		case I_OP is
-			when ALUOP_SLL	=>
+			when FUNC_SLL	=>
 				O_DATA	<= to_stdlogicvector(to_bitvector(I_A) SLL B_INT);
-			when ALUOP_SRL	=>
+			when FUNC_SRL	=>
 				O_DATA	<= to_stdlogicvector(to_bitvector(I_A) SRL B_INT);
-			when ALUOP_SRA	=>
+			when FUNC_SRA	=>
 				O_DATA	<= to_stdlogicvector(to_bitvector(I_A) SRA B_INT);
-			when ALUOP_ADD | ALUOP_SUB	=>
+			when FUNC_ADD | FUNC_SUB	=>
 				O_DATA <= SUM;
-			when ALUOP_AND	=>
+			when FUNC_AND	=>
 				O_DATA	<= (I_A AND I_B);
-			when ALUOP_OR	=>
+			when FUNC_OR	=>
 				O_DATA	<= (I_A OR I_B);
-			when ALUOP_XOR	=>
+			when FUNC_XOR	=>
 				O_DATA	<= (I_A XOR I_B);
-			when ALUOP_SEQ	=>
+			when FUNC_SEQ	=>
 				O_DATA(0) <= EQ;
-			when ALUOP_SNE	=>
+			when FUNC_SNE	=>
 				O_DATA(0) <= (NOT EQ);
-			when ALUOP_SLT	=>
+			when FUNC_SLT	=>
 				O_DATA(0) <= LT_S;
-			when ALUOP_SLE	=>
+			when FUNC_SLE	=>
 				O_DATA(0) <= (LT_S OR EQ);
-			when ALUOP_SGE	=>
+			when FUNC_SGE	=>
 				O_DATA(0) <= (GT_S OR EQ);
-			when ALUOP_SGT	=>
+			when FUNC_SGT	=>
 				O_DATA(0) <= GT_S;
-			when ALUOP_SLTU	=>
+			when FUNC_SLTU	=>
 				O_DATA(0) <= LT_U;
-			when ALUOP_SLEU =>
+			when FUNC_SLEU	=>
 				O_DATA(0) <= (LT_U OR EQ);
-			when ALUOP_SGEU =>
+			when FUNC_SGEU	=>
 				O_DATA(0) <= (GT_U OR EQ);
-			when ALUOP_SGTU=>
+			when FUNC_SGTU	=>
 				O_DATA(0) <= GT_U;
 			when others	=>
 				null;

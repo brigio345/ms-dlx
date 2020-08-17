@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 use work.specs.all;
 use work.utilities.all;
 
-entity datapath_top is
+entity datapath is
 	port (
 		I_CLK:		in std_logic;
 		I_RST:		in std_logic;
@@ -28,9 +28,9 @@ entity datapath_top is
 		O_D_WR:		out std_logic;
 		O_D_WR_DATA:	out std_logic_vector(REG_SZ - 1 downto 0)
 	);
-end datapath_top;
+end datapath;
 
-architecture STRUCTURAL of datapath_top is
+architecture STRUCTURAL of datapath is
 	component fetch_unit is
 		port (
 			-- I_PC: from ID stage; can be NPC or target of a branch

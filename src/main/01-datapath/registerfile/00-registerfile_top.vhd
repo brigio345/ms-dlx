@@ -7,9 +7,8 @@ use work.utilities.all;
 
 -- IMPLEMENTATION DETAILS:
 --	* all control signals are active high
---	* writes are performed at clock rising edge, while reads are performed
---		at clock falling edge (when the same register is accessed in the
---		same clock period, reads are performed after the writes)
+--	* writes are performed at clock rising edge
+--	* reads are performed asynchronously
 --	* NLINE can be a non-power-of-2 number (thus addresses are expressed on
 --		log2_ceil bits): if an out-of-bound address is provided
 --		the corresponding R/W access is aborted
@@ -21,7 +20,6 @@ entity register_file is
 	port (
 		CLK: 		IN std_logic;
 		RESET: 		IN std_logic;
-		ENABLE: 	IN std_logic;
 		RD1: 		IN std_logic;
 		RD2: 		IN std_logic;
 		WR: 		IN std_logic;
@@ -40,36 +38,32 @@ architecture BEHAVIORAL of register_file is
 
 	signal REGISTERS:	REG_ARRAY; 
 begin
-	write: process(CLK, RESET, ENABLE, WR, ADD_WR, DATAIN)
+	write: process(CLK, RESET, WR, ADD_WR, DATAIN)
 	begin
 		if (CLK = '1' and CLK'event) then
 			if (RESET = '1') then
 				REGISTERS <= (others => (others => '0'));
-			elsif (ENABLE = '1' and WR = '1' and unsigned(ADD_WR) < NLINE) then
+			elsif (WR = '1' and unsigned(ADD_WR) < NLINE) then
 				REGISTERS(to_integer(unsigned(ADD_WR))) <= DATAIN;
 			end if;
 		end if;
 	end process write;
 
-	read1: process(CLK, ENABLE, RD1, ADD_RD1, REGISTERS)
+	read1: process(CLK, RD1, ADD_RD1, REGISTERS)
 	begin
-		if (CLK = '0' and CLK'event) then
-			if (ENABLE = '1' and RD1 = '1' and unsigned(ADD_RD1) < NLINE) then
-				OUT1 <= REGISTERS(to_integer(unsigned(ADD_RD1)));
-			else
-				OUT1 <= (others => '0');
-			end if;
+		if (RD1 = '1' and unsigned(ADD_RD1) < NLINE) then
+			OUT1 <= REGISTERS(to_integer(unsigned(ADD_RD1)));
+		else
+			OUT1 <= (others => '0');
 		end if;
 	end process read1;
 
-	read2: process(CLK, ENABLE, RD2, ADD_RD2, REGISTERS)
+	read2: process(CLK, RD2, ADD_RD2, REGISTERS)
 	begin
-		if (CLK = '0' and CLK'event) then
-			if (ENABLE = '1' and RD2 = '1' and unsigned(ADD_RD2) < NLINE) then
-				OUT2 <= REGISTERS(to_integer(unsigned(ADD_RD2)));
-			else
-				OUT2 <= (others => '0');
-			end if;
+		if (RD2 = '1' and unsigned(ADD_RD2) < NLINE) then
+			OUT2 <= REGISTERS(to_integer(unsigned(ADD_RD2)));
+		else
+			OUT2 <= (others => '0');
 		end if;
 	end process read2;
 end BEHAVIORAL;

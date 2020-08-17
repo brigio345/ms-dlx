@@ -39,26 +39,27 @@ entity decode_unit is
 		O_RD2:		out std_logic_vector(REG_SZ - 1 downto 0);
 		O_IMM:		out std_logic_vector(REG_SZ - 1 downto 0);
 
-		-- O_PC: to IF stage; address of next instruction
-		O_PC:		out std_logic_vector(REG_SZ - 1 downto 0);
+		-- O_TARGET: to IF stage; address of next instruction
+		O_TARGET:	out std_logic_vector(REG_SZ - 1 downto 0);
 		
-		-- O_TAKEN: to CU
+		-- O_TAKEN: to CU and IF stage
 		O_TAKEN:	out std_logic
 	);
 end decode_unit;
 
 architecture MIXED of decode_unit is
-	component pc_updater is
+	component target_computer is
 		port (
 			I_BRANCH:	in branch_t;
 			I_NPC:		in std_logic_vector(REG_SZ - 1 downto 0);
 			I_ABS:		in std_logic_vector(REG_SZ - 1 downto 0);
 			I_IMM:		in std_logic_vector(REG_SZ - 1 downto 0);
 			I_OFF:		in std_logic_vector(REG_SZ - 1 downto 0);
-			O_PC:		out std_logic_vector(REG_SZ - 1 downto 0);
+
+			O_TARGET:	out std_logic_vector(REG_SZ - 1 downto 0);
 			O_TAKEN:	out std_logic
 		);
-	end component pc_updater;
+	end component target_computer;
 
 	signal IMM:	std_logic_vector(O_PC'range);
 	signal OFF:	std_logic_vector(O_PC'range);
@@ -67,14 +68,14 @@ begin
 	IMM <= (REG_SZ - 1 downto IMM_SZ => I_IR(I_IMM_START)) & I_IR(I_IMM_RANGE);
 	OFF <= (REG_SZ - 1 downto OFF_SZ => I_IR(J_OFF_START)) & I_IR(J_OFF_RANGE);
 
-	pc_updater_0: pc_updater
+	target_computer_0: target_computer
 		port map (
 			I_BRANCH=> I_BRANCH,
 			I_NPC	=> I_NPC,
 			I_ABS	=> I_RD1_DATA,
 			I_IMM	=> IMM,
 			I_OFF	=> OFF,
-			O_PC	=> O_PC,
+			O_TARGET=> O_TARGET,
 			O_TAKEN	=> O_TAKEN
 		);
 
