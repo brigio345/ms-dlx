@@ -9,6 +9,8 @@ entity inst_decoder is
 		-- from ID stage
 		I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
 		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
+		I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to ID stage
 		O_BRANCH:	out branch_t;
@@ -22,7 +24,7 @@ entity inst_decoder is
 		O_STR:		out std_logic;
 
 		-- to WB stage
-		O_DST:		out std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to CU
 		O_INST_TYPE:	out inst_t;
@@ -41,16 +43,17 @@ begin
 		O_BRANCH	<= BRANCH_NO;
 		O_LD		<= '0'; -- no load
 		O_STR		<= '0'; -- no store
-		O_DST		<= I_INST(I_DST_RANGE);
+		O_DST		<= I_DST_I;
+		O_ALUOP		<= FUNC_ADD;
 		case (I_OPCODE) is
 			when OPCODE_RTYPE	=>
 				O_INST_TYPE	<= INST_REG;
 				O_SEL_B_IMM	<= '0';	-- B
-				O_DST		<= I_INST(R_DST_RANGE);
+				O_DST		<= I_DST_R;
 				O_ALUOP	<= I_FUNC;
 			when OPCODE_ADDI | OPCODE_ADDUI	=>
 				O_ALUOP	<= FUNC_ADD;
-			when OPCODE_SUBI | OPCODE_SUBI	=>
+			when OPCODE_SUBI | OPCODE_SUBUI	=>
 				O_ALUOP	<= FUNC_SUB;
 			when OPCODE_ANDI	=>
 				O_ALUOP	<= FUNC_AND;
@@ -65,7 +68,6 @@ begin
 			when OPCODE_SRAI	=>
 				O_ALUOP	<= FUNC_SRA;
 			when OPCODE_SEQI	=>
-				O_DST	<= I_INST(I_DST_RANGE);
 				O_ALUOP	<= FUNC_SEQ;
 			when OPCODE_SNEI	=>
 				O_ALUOP	<= FUNC_SNE;
@@ -98,13 +100,13 @@ begin
 			when OPCODE_J		=>
 				O_INST_TYPE	<= INST_JMP;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_UNC;
+				O_BRANCH	<= BRANCH_U_R;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JAL		=>
 				O_INST_TYPE	<= INST_JMP;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_UNC;
+				O_BRANCH	<= BRANCH_U_R;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_BEQZ	=>
@@ -120,13 +122,13 @@ begin
 			when OPCODE_JR		=>
 				O_INST_TYPE	<= INST_JMP;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_UNC;
+				O_BRANCH	<= BRANCH_U_A;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JALR	=>
 				O_INST_TYPE	<= INST_JMP;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_UNC;
+				O_BRANCH	<= BRANCH_U_A;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 

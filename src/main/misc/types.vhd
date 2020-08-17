@@ -2,7 +2,8 @@ package types is
 	type inst_t is (
 		INST_REG,
 		INST_IMM,
-		INST_JMP
+		INST_JMP,
+		INST_NOP
 	);
 
 	type branch_t is (

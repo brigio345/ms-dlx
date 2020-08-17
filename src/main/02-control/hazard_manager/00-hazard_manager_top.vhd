@@ -7,10 +7,10 @@ entity hazard_manager is
 	port (
 		-- from ID stage
 		I_INST_TYPE:	in inst_t;
-		I_SRC_A:	in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
-		I_SRC_B:	in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+		I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_TAKEN:	in std_logic;
-		I_DST:		in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_STR:		in std_logic;
 		I_BRANCH:	in branch_t;
 
@@ -26,7 +26,7 @@ entity hazard_manager is
 		O_SEL_A:	out source_t;
 		O_SEL_B:	out source_t;
 		O_BRANCH:	out branch_t;
-		O_DST:		out std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		O_STR:		out std_logic
 	);
 end hazard_manager;
@@ -35,15 +35,15 @@ architecture MIXED of hazard_manager is
 	component source_selector is
 		port (
 			-- from ID stage
-			I_SRC_A:	in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
-			I_SRC_B:	in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+			I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- from EX stage
-			I_DST_EX:	in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+			I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_LD_EX:	in std_logic;
 
 			-- from MEM stage
-			I_DST_MEM:	in std_logic_vector(R_SRC_DST_SZ - 1 downto 0);
+			I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_LD_MEM:	in std_logic;
 
 			O_SEL_A:	out source_t;

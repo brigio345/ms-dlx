@@ -1,22 +1,23 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use work.specs.all;
+use work.coding.all;
+use work.types.all;
 
--- target_computer: compute next PC
-entity target_computer is
+-- pc_computer: compute next PC
+entity pc_computer is
 	port (
 		I_BRANCH:	in branch_t;
-		I_NPC:		in std_logic_vector(REG_SZ - 1 downto 0);
-		I_ABS:		in std_logic_vector(REG_SZ - 1 downto 0);
-		I_IMM:		in std_logic_vector(REG_SZ - 1 downto 0);
-		I_OFF:		in std_logic_vector(REG_SZ - 1 downto 0);
+		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_ABS:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_OFF:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
-		O_TARGET:	out std_logic_vector(REG_SZ - 1 downto 0);
+		O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_TAKEN:	out std_logic
 	);
-end target_computer;
+end pc_computer;
 
-architecture MIXED of target_computer is
+architecture MIXED of pc_computer is
 	component P4_ADDER is
 		generic (
 			NBIT:		integer := 32;
@@ -37,7 +38,7 @@ architecture MIXED of target_computer is
 begin
 	adder: p4_adder
 		generic map (
-			NBIT		=> REG_SZ,
+			NBIT		=> RF_DATA_SZ,
 			NBIT_PER_BLOCK	=> 4
 		)
 		port map (

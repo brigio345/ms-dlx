@@ -99,8 +99,8 @@ begin
 	-- perform A + B when an ADD is required,
 	-- otherwise perform A - B
 	-- ((NOT B) + 1 = -B)
-	B_ADDER	<= I_B when (I_OP = ALUOP_ADD) else NOT I_B;
-	C_IN	<= '0' when (I_OP = ALUOP_ADD) else '1';
+	B_ADDER	<= I_B when (I_OP = FUNC_ADD) else NOT I_B;
+	C_IN	<= '0' when (I_OP = FUNC_ADD) else '1';
 
 	output_sel: process(I_OP, I_A, I_B, SUM, EQ, LT_S, GT_S, LT_U, GT_U)
 	begin
