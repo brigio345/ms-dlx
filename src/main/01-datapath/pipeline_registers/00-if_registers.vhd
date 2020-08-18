@@ -9,12 +9,10 @@ entity if_registers is
 		I_RST:		in std_logic;
 
 		-- from IF stage
-		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_TARGET:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_TAKEN:	in std_logic;
 
 		-- to ID stage
-		O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_TAKEN:	out std_logic
 	);
@@ -26,11 +24,9 @@ begin
 	begin
 		if (I_CLK = '1' AND I_CLK'event) then
 			if (I_RST = '1') then
-				O_NPC	<= (others => '0');
 				O_TARGET<= (others => '0');
 				O_TAKEN	<= '0';
 			else
-				O_NPC	<= I_NPC;
 				O_TARGET<= I_TARGET;
 				O_TAKEN	<= I_TAKEN;
 			end if;

@@ -10,11 +10,11 @@ entity if_id_registers is
 
 		-- from IF stage
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		I_IR:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_IR:		in std_logic_vector(INST_SZ - 1 downto 0);
 
 		-- to ID stage
 		O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		O_IR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_IR:		out std_logic_vector(INST_SZ - 1 downto 0);
 	);
 end if_id_registers;
 

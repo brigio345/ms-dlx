@@ -11,8 +11,25 @@ entity datapath is
 
 		-- from i-memory
 		I_INST:		in std_logic_vector(INST_SZ - 1 downto 0);
+
 		-- from d-memory
-		I_D_RD_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+		-- from CU, to ID stage
+		I_BRANCH:	in branch_t;
+		I_SEL_A:	in source_t;
+		I_SEL_B:	in source_t;
+
+		-- from CU, to EX stage
+		I_SEL_B_IMM:	in std_logic;
+		I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
+
+		-- from CU, to MEM stage
+		I_LD:		in std_logic;
+		I_STR:		in std_logic;
+
+		-- from CU, to WB stage
+		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to i-memory
 		O_PC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -21,7 +38,23 @@ entity datapath is
 		O_D_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_D_RD:		out std_logic;
 		O_D_WR:		out std_logic;
-		O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+		O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+		-- to CU, from ID stage
+		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
+		O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
+		O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_SRC_B:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_DST_ID:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_TAKEN:	out std_logic;
+
+		-- to CU, from EX stage
+		O_DST_EX:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_LD_EX:	out std_logic;
+
+		-- to CU, from MEM stage
+		O_DST_MEM:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_LD_MEM:	out std_logic
 	);
 end datapath;
 
@@ -81,9 +114,7 @@ architecture STRUCTURAL of datapath is
 			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			
 			-- O_TAKEN: to CU and IF stage
-			O_TAKEN:	out std_logic;
-
-			O_PC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+			O_TAKEN:	out std_logic
 		);
 	end component decode_unit;
 
@@ -163,12 +194,10 @@ architecture STRUCTURAL of datapath is
 			I_RST:		in std_logic;
 
 			-- from IF stage
-			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_TARGET:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_TAKEN:	in std_logic;
 
 			-- to ID stage
-			O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_TAKEN:	out std_logic
 		);
@@ -181,11 +210,11 @@ architecture STRUCTURAL of datapath is
 
 			-- from IF stage
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			I_IR:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_IR:		in std_logic_vector(INST_SZ - 1 downto 0);
 
 			-- to ID stage
 			O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_IR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_IR:		out std_logic_vector(INST_SZ - 1 downto 0);
 		);
 	end component if_id_registers;
 
@@ -201,6 +230,8 @@ architecture STRUCTURAL of datapath is
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
+			I_SEL_A:	in source_t;
+			I_SEL_B:	in source_t;
 			I_SEL_B_IMM:	in std_logic;
 			I_LD:		in std_logic;
 			I_STR:		in std_logic;
@@ -212,6 +243,8 @@ architecture STRUCTURAL of datapath is
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
+			O_SEL_A:	out source_t;
+			O_SEL_B:	out source_t;
 			O_SEL_B_IMM:	out std_logic;
 			O_LD:		out std_logic;
 			O_STR:		out std_logic
@@ -225,7 +258,7 @@ architecture STRUCTURAL of datapath is
 
 			-- from EX stage
 			I_ADDR:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
@@ -234,7 +267,7 @@ architecture STRUCTURAL of datapath is
 
 			-- to MEM stage
 			O_ADDR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_DATA:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
@@ -274,7 +307,6 @@ architecture STRUCTURAL of datapath is
 		port (
 			CLK: 		IN std_logic;
 			RESET: 		IN std_logic;
-			ENABLE: 	IN std_logic;
 			RD1: 		IN std_logic;
 			RD2: 		IN std_logic;
 			WR: 		IN std_logic;
@@ -287,187 +319,228 @@ architecture STRUCTURAL of datapath is
 		);
 	end component register_file;
 
+	signal TARGET_ID:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal TARGET_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal TAKEN_ID:	std_logic;
+	signal TAKEN_ID_REG:	std_logic;
+	signal RD1_ADDR_ID:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal RD2_ADDR_ID:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal FUNC_ID:		std_logic_vector(FUNC_SZ - 1 downto 0);
+	signal RD1_ID:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal RD1_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal RD2_ID:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal RD2_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IMM_ID:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IMM_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal DST_ID:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal DST_ID_REG:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+
 	signal NPC_IF:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal NPC_IF_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal NPC_ID:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal NPC_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal INST:	std_logic_vector(INST_SZ - 1 downto 0);
-	signal ADDR:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal NPC:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal IR:	std_logic_vector(INST_SZ - 1 downto 0);
-	signal RD_ADDR1:std_logic_vector(log2_ceil(N_REGS) - 1 downto 0);
-	signal RD_ADDR2:std_logic_vector(log2_ceil(N_REGS) - 1 downto 0);
-	signal ALUOP:	aluop_t;
-	signal OP1:	std_logic;
-	signal OP2:	std_logic;
-	signal A:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal B:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal IMM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal BRANCH:	std_logic;
-	signal LD:	std_logic;
-	signal STR:	std_logic;
-	signal WB_DST:	std_logic_vector(SRC_DST_R_SZ - 1 downto 0);
-	signal ALUOUT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IR_IF:		std_logic_vector(INST_SZ - 1 downto 0);
+	signal IR_IF_REG:	std_logic_vector(INST_SZ - 1 downto 0);
+
+	signal ALUOUT_EX:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal ALUOUT_EX_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal LD_EX_REG:	std_logic;
+	signal STR_EX_REG:	std_logic;
+	signal DST_EX_REG:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal DATA_EX_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+	signal ALUOUT_MEM_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal LOADED_MEM_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal LOADED_MEM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal LD_MEM_REG:	std_logic;
+	signal DST_MEM_REG:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal WR_MEM:		std_logic;
+	signal WR_ADDR_MEM:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal WR_DATA_MEM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+	signal RD1_DATA_RF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal RD2_DATA_RF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+	signal ALUOP_CU_REG:	std_logic_vector(FUNC_SZ - 1 downto 0);
+	signal SEL_A_CU_REG:	source_t;
+	signal SEL_B_CU_REG:	source_t;
+	signal SEL_B_IMM_CU_REG:std_logic;
+	signal LD_CU_REG:	std_logic;
+	signal STR_CU_REG:	std_logic;
 begin
 	fetch_unit_0: fetch_unit
 		port map (
-			I_NPC		=> NPC_ID_REG,
-			I_TARGET	=> TARGET_REG,
-			I_TAKEN		=> TAKEN_REG,
+			I_NPC		=> NPC_IF_REG,
+			I_TARGET	=> TARGET_ID_REG,
+			I_TAKEN		=> TAKEN_ID_REG,
 			I_IR		=> I_INST,
 			O_PC		=> O_PC,
 			O_NPC		=> NPC_IF,
-			O_IR		=> IR
+			O_IR		=> IR_IF
 		);
 
 	decode_unit_0: decode_unit
 		port map (
-			I_IR		=> IR_REG,
+			I_IR		=> IR_IF_REG,
 			I_NPC		=> NPC_IF_REG,
-			I_RD1_DATA	=> RD1_DATA,
-			I_RD2_DATA	=> RD2_DATA,
+			I_RD1_DATA	=> RD1_DATA_RF,
+			I_RD2_DATA	=> RD2_DATA_RF,
 			I_BRANCH	=> I_BRANCH,
-			O_RD1_ADDR	=> RD1_ADDR,
-			O_RD2_ADDR	=> RD2_ADDR,
+			O_RD1_ADDR	=> RD1_ADDR_ID,
+			O_RD2_ADDR	=> RD2_ADDR_ID,
 			O_DST		=> DST_ID,
-			O_OPCODE	=> OPCODE,
-			O_FUNC		=> FUNC,
-			O_RD1		=> RD1,
-			O_RD2		=> RD2,
-			O_IMM		=> IMM,
-			O_TARGET	=> TARGET,
-			O_TAKEN		=> TAKEN,
-			O_PC		=> NPC_ID
+			O_OPCODE	=> O_OPCODE,
+			O_FUNC		=> FUNC_ID,
+			O_RD1		=> RD1_ID,
+			O_RD2		=> RD2_ID,
+			O_IMM		=> IMM_ID,
+			O_TARGET	=> TARGET_ID,
+			O_TAKEN		=> TAKEN_ID
 		);
+
+	O_SRC_A	<= RD1_ADDR_ID;
+	O_SRC_B	<= RD2_ADDR_ID;
+	O_DST_ID<= DST_ID;
+	O_FUNC	<= FUNC_ID;
+	O_TAKEN	<= TAKEN_ID;
 
 	execute_unit_0: execute_unit
 		port map (
-			I_ALUOP		=> I_ALUOP,
-			I_SEL_A		=> I_SEL_A,
-			I_SEL_B		=> I_SEL_B,
-			I_SEL_R_IMM	=> I_SEL_R_IMM,
-			I_RD1		=> RD1_REG,
-			I_RD2		=> RD2_REG,
-			I_IMM		=> IMM_REG,
+			I_ALUOP		=> ALUOP_CU_REG,
+			I_SEL_A		=> SEL_A_CU_REG,
+			I_SEL_B		=> SEL_B_CU_REG,
+			I_SEL_R_IMM	=> SEL_B_IMM_CU_REG,
+			I_RD1		=> RD1_ID_REG,
+			I_RD2		=> RD2_ID_REG,
+			I_IMM		=> IMM_ID_REG,
 			I_ALUOUT_EX	=> ALUOUT_EX_REG,
 			I_ALUOUT_MEM	=> ALUOUT_MEM_REG,
 			I_LOADED	=> LOADED_MEM_REG,
-			O_ALUOUT	=> ALUOUT
+			O_ALUOUT	=> ALUOUT_EX
 		);
 
 	memory_unit_0: memory_unit
 		port map (
-			I_LD		=> LD_MEM_REG,
-			I_STR		=> STR_MEM_REG,
-			I_ADDR		=> DST_MEM_REG,
-			I_DATA		=> ,
+			I_LD		=> LD_EX_REG,
+			I_STR		=> STR_EX_REG,
+			I_ADDR		=> ALUOUT_EX_REG,
+			I_DATA		=> DATA_EX_REG,
 			I_RD_DATA	=> I_D_RD_DATA,
 			O_ADDR		=> O_D_ADDR,
 			O_RD		=> O_D_RD,
 			O_WR		=> O_D_WR,
 			O_WR_DATA	=> O_D_WR_DATA,
-			O_LOADED	=> 
+			O_LOADED	=> LOADED_MEM
 		);
 
 	write_unit_0: write_unit
 		port map (
-			I_LD		=> ,
-			I_DST		=> ,
-			I_ALUOUT	=> ,
-			I_LOADED	=> ,
-			O_WR		=> ,
-			O_WR_ADDR	=> ,
-			O_WR_DATA	=> 
+			I_LD		=> LD_MEM_REG,
+			I_DST		=> DST_MEM_REG,
+			I_ALUOUT	=> ALUOUT_MEM_REG,
+			I_LOADED	=> LOADED_MEM_REG,
+			O_WR		=> WR_MEM,
+			O_WR_ADDR	=> WR_ADDR_MEM,
+			O_WR_DATA	=> WR_DATA_MEM
 		);
 
 	if_registers_0: if_registers
 		port map (
 			I_CLK		=> I_CLK,
 			I_RST		=> I_RST,
-			I_NPC		=> ,
-			I_TARGET	=> ,
-			I_TAKEN		=> ,
-			O_NPC		=> ,
-			O_TARGET	=> ,
-			O_TAKEN		=> 
+			I_TARGET	=> TARGET_ID,
+			I_TAKEN		=> TAKEN_ID,
+			O_TARGET	=> TARGET_ID_REG,
+			O_TAKEN		=> TAKEN_ID_REG
 		);
 
 	if_id_registers_0: if_id_registers
 		port map (
 			I_CLK	=> I_CLK,
 			I_RST	=> I_RST,
-			I_NPC	=> ,
-			I_IR	=> ,
-			O_NPC	=> ,
-			O_IR	=> 
+			I_NPC	=> NPC_IF,
+			I_IR	=> IR_IF,
+			O_NPC	=> NPC_IF_REG,
+			O_IR	=> IR_IF_REG
 		);
 
 	id_ex_registers_0: id_ex_registers
 		port map (
 			I_CLK		=> I_CLK,
 			I_RST		=> I_RST,
-			I_A		=> ,
-			I_B		=> ,
-			I_IMM		=> ,
-			I_DST		=> ,
-			I_ALUOP		=> ,
-			I_SEL_B_IMM	=> ,
-			I_LD		=> ,
-			I_STR		=> ,
-			O_A		=> ,
-			O_B		=> ,
-			O_IMM		=> ,
-			O_DST		=> ,
-			O_ALUOP		=> ,
-			O_SEL_B_IMM	=> ,
-			O_LD		=> ,
-			O_STR		=>
+			I_A		=> RD1_ID,
+			I_B		=> RD2_ID,
+			I_IMM		=> IMM_ID,
+			I_DST		=> I_DST,
+			I_ALUOP		=> I_ALUOP,
+			I_SEL_A		=> I_SEL_A,
+			I_SEL_B		=> I_SEL_B,
+			I_SEL_B_IMM	=> I_SEL_B_IMM,
+			I_LD		=> I_LD,
+			I_STR		=> I_STR,
+			O_A		=> RD1_ID_REG,
+			O_B		=> RD2_ID_REG,
+			O_IMM		=> IMM_ID_REG,
+			O_DST		=> DST_ID_REG,
+			O_ALUOP		=> ALUOP_CU_REG,
+			O_SEL_A		=> SEL_A_CU_REG,
+			O_SEL_B		=> SEL_B_CU_REG,
+			O_SEL_B_IMM	=> SEL_B_IMM_CU_REG,
+			O_LD		=> LD_CU_REG,
+			O_STR		=> STR_CU_REG
 		);
+
+	O_DST_EX	<= DST_ID_REG;
+	O_LD_EX		<= LD_CU_REG;
 
 	ex_mem_registers_0: ex_mem_registers
 		port map (
 			I_CLK	=> I_CLK,
 			I_RST	=> I_RST,
-			I_ADDR	=> ,
-			I_IMM	=> ,
-			I_DST	=> ,
-			I_LD	=> ,
-			I_STR	=> ,
-			O_ADDR	=> ,
-			O_IMM	=> ,
-			O_DST	=> ,
-			O_LD	=> ,
-			O_STR	=> 
+			I_ADDR	=> ALUOUT_EX,
+			I_DATA	=> RD1_ID_REG,
+			I_DST	=> DST_ID_REG,
+			I_LD	=> LD_CU_REG,
+			I_STR	=> STR_CU_REG,
+			O_ADDR	=> ALUOUT_EX_REG,
+			O_DATA	=> DATA_EX_REG,
+			O_DST	=> DST_EX_REG,
+			O_LD	=> LD_EX_REG,
+			O_STR	=> STR_EX_REG
 		);
+
+	O_DST_MEM	<= DST_EX_REG;
+	O_LD_MEM	<= LD_EX_REG;
 
 	mem_wb_registers_0: mem_wb_registers
 		port map (
 			I_CLK		=> I_CLK,
 			I_RST		=> I_RST,
-			I_LOADED	=> ,
-			I_ALUOUT	=> ,
-			I_DST		=> ,
-			I_LD		=> ,
-			O_LOADED	=> ,
-			O_ALUOUT	=> ,
-			O_DST		=> ,
-			O_LD		=> 
+			I_LOADED	=> LOADED_MEM,
+			I_ALUOUT	=> ALUOUT_EX_REG,
+			I_DST		=> DST_EX_REG,
+			I_LD		=> LD_EX_REG,
+			O_LOADED	=> LOADED_MEM_REG,
+			O_ALUOUT	=> ALUOUT_MEM_REG,
+			O_DST		=> DST_MEM_REG,
+			O_LD		=> LD_MEM_REG
 		);
 
-	registerfile_0: registerfile
+	register_file_0: register_file
+		generic map (
+			NBIT	=> RF_DATA_SZ,
+			NLINE	=> RF_ADDR_SZ ** 2
+		)
 		port map (
 			CLK	=> I_CLK,
 			RESET	=> I_RST,
-			ENABLE	=> '1',
-			RD1	=> ,
-			RD2	=> ,
-			WR	=> ,
-			ADD_WR	=> ,
-			ADD_RD1	=> ,
-			ADD_RD2	=> ,
-			DATAIN	=> ,
-			OUT1	=> ,
-			OUT2	=>
+			RD1	=> '1',
+			RD2	=> '1',
+			WR	=> WR_MEM,
+			ADD_WR	=> WR_ADDR_MEM,
+			ADD_RD1	=> RD1_ADDR_ID,
+			ADD_RD2	=> RD2_ADDR_ID,
+			DATAIN	=> WR_DATA_MEM,
+			OUT1	=> RD1_DATA_RF,
+			OUT2	=> RD2_DATA_RF
 		);
 end STRUCTURAL;
 

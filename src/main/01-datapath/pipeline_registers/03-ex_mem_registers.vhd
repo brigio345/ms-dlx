@@ -10,7 +10,7 @@ entity ex_mem_registers is
 
 		-- from EX stage
 		I_ADDR:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
@@ -19,7 +19,7 @@ entity ex_mem_registers is
 
 		-- to MEM stage
 		O_ADDR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_DATA:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
@@ -35,13 +35,13 @@ begin
 		if (I_CLK = '1' AND I_CLK'event) then
 			if (I_RST = '1') then
 				O_ADDR	<= (others => '0');
-				O_IMM	<= (others => '0');
+				O_DATA	<= (others => '0');
 				O_DST	<= (others => '0');
 				O_LD	<= '0';
 				O_STR	<= '0';
 			else
 				O_ADDR	<= I_ADDR;
-				O_IMM	<= I_IMM;
+				O_DATA	<= I_DATA;
 				O_DST	<= I_DST;
 				O_LD	<= I_LD;
 				O_STR	<= I_STR;

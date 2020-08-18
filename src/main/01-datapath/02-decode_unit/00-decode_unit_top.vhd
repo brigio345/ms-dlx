@@ -44,13 +44,11 @@ entity decode_unit is
 		
 		-- O_TAKEN: to CU and IF stage
 		O_TAKEN:	out std_logic;
-
-		O_PC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 	);
 end decode_unit;
 
 architecture MIXED of decode_unit is
-	component target_computer is
+	component pc_computer is
 		port (
 			I_BRANCH:	in branch_t;
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -61,18 +59,18 @@ architecture MIXED of decode_unit is
 			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_TAKEN:	out std_logic
 		);
-	end component target_computer;
+	end component pc_computer;
 
-	signal IMM:	std_logic_vector(O_PC'range);
-	signal OFF:	std_logic_vector(O_PC'range);
+	signal IMM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal OFF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
 	-- sign extend
-	IMM <= (RF_DATA_SZ - 1 downto IMM_SZ => I_IR(I_IMM_START)) &
+	IMM <= (RF_DATA_SZ - 1 downto IMM_SZ => I_IR(I_IMM_END)) &
 		I_IR(I_IMM_END downto I_IMM_START);
-	OFF <= (RF_DATA_SZ - 1 downto OFF_SZ => I_IR(J_OFF_START)) &
+	OFF <= (RF_DATA_SZ - 1 downto OFF_SZ => I_IR(J_OFF_END)) &
 		I_IR(J_OFF_END downto J_OFF_START);
 
-	target_computer_0: target_computer
+	pc_computer_0: pc_computer
 		port map (
 			I_BRANCH=> I_BRANCH,
 			I_NPC	=> I_NPC,
