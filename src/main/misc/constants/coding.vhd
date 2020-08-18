@@ -6,7 +6,7 @@ package coding is
 	constant INST_SZ:	integer := 32;
 	constant OPCODE_SZ:	integer := 6;
 	constant RF_ADDR_SZ:	integer := 5;
-	constant RF_DATA_SZ:	integer := 5;
+	constant RF_DATA_SZ:	integer := 32;
 
 	constant OPCODE_START:	integer := 0;
 	constant OPCODE_END:	integer := OPCODE_START + OPCODE_SZ - 1;

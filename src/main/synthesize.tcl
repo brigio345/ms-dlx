@@ -10,9 +10,9 @@ proc analyze_all {dir} {
 	foreach component $components {
 		analyze_all "$component"
 
-		puts "Analyzing $component..."
-		set src_files [lsort -decreasing [glob $dir/*.vhd]]
+		set src_files [lsort -decreasing [glob $component/*.vhd]]
 		foreach src_file $src_files {
+			puts "Analyzing $src_file..."
 			analyze -library WORK -format vhdl $src_file
 		}
 	}
