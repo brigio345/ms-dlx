@@ -12,6 +12,11 @@ architecture TB_ARCH of tb_datapath is
 			I_CLK:		in std_logic;
 			I_RST:		in std_logic;
 
+			-- I_ENDIAN: specify endianness of data and instruction memories
+			--	- '0' => BIG endian
+			--	- '1' => LITTLE endian
+			I_ENDIAN:	in std_logic;
+
 			-- from i-memory
 			I_INST:		in std_logic_vector(INST_SZ - 1 downto 0);
 
@@ -65,6 +70,7 @@ architecture TB_ARCH of tb_datapath is
 
 	signal CLK:		std_logic;
 	signal RST:		std_logic;
+	signal ENDIAN:		std_logic;
 	signal INST:		std_logic_vector(INST_SZ - 1 downto 0);
 	signal D_RD_DATA:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal BRANCH:		branch_t;
@@ -95,6 +101,7 @@ begin
 		port map (
 			I_CLK		=> CLK,
 			I_RST		=> RST,
+			I_ENDIAN	=> ENDIAN,
 			I_INST		=> INST,
 			I_D_RD_DATA	=> D_RD_DATA,
 			I_BRANCH	=> BRANCH,
@@ -133,6 +140,7 @@ begin
 	stimuli: process
 	begin
 		RST		<= '1';
+		ENDIAN		<= '0';
 		INST		<= (others => '0');
 		D_RD_DATA	<= (others => '0');
 		BRANCH		<= BRANCH_NO;

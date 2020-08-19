@@ -2,7 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
 use work.types.all;
-use work.utilities.all;
 
 -- decode_unit:
 --	* extract data from encoded instruction
@@ -11,11 +10,6 @@ use work.utilities.all;
 --	* compute next PC
 entity decode_unit is
 	port (
-		-- I_ENDIAN: specify endianness of instruction memory
-		--	- '0' => BIG endian
-		--	- '1' => LITTLE endian
-		I_ENDIAN:	in std_logic;
-
 		-- I_IR: from IF stage; encoded instruction
 		I_IR:		in std_logic_vector(INST_SZ - 1 downto 0);
 		-- I_NPC: from IF stage; next PC value if instruction is
@@ -58,8 +52,11 @@ architecture MIXED of decode_unit is
 		port (
 			I_BRANCH:	in branch_t;
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			I_ABS:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			-- I_A: value loaded from rf
+			I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			-- I_IMM: offset extracted by I-type instruction
 			I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			-- I_OFF: offset extracted by J-type instruction
 			I_OFF:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -67,24 +64,20 @@ architecture MIXED of decode_unit is
 		);
 	end component pc_computer;
 
-	signal IR:	std_logic_vector(INST_SZ - 1 downto 0);
 	signal IMM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal OFF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
-	-- convert IR to little endian, if instruction memory is big endian
-	IR <= I_IR when (I_ENDIAN = '1') else swap_bytes(I_IR);
-
 	-- sign extend
-	IMM <= (RF_DATA_SZ - 1 downto IMM_SZ => IR(I_IMM_END)) &
-		IR(I_IMM_END downto I_IMM_START);
-	OFF <= (RF_DATA_SZ - 1 downto OFF_SZ => IR(J_OFF_END)) &
-		IR(J_OFF_END downto J_OFF_START);
+	IMM <= (RF_DATA_SZ - 1 downto IMM_SZ => I_IR(I_IMM_END)) &
+		I_IR(I_IMM_END downto I_IMM_START);
+	OFF <= (RF_DATA_SZ - 1 downto OFF_SZ => I_IR(J_OFF_END)) &
+		I_IR(J_OFF_END downto J_OFF_START);
 
 	pc_computer_0: pc_computer
 		port map (
 			I_BRANCH=> I_BRANCH,
 			I_NPC	=> I_NPC,
-			I_ABS	=> I_RD1_DATA,
+			I_A	=> I_RD1_DATA,
 			I_IMM	=> IMM,
 			I_OFF	=> OFF,
 			O_TARGET=> O_TARGET,
@@ -92,16 +85,16 @@ begin
 		);
 
 	-- rf addresses
-	O_RD1_ADDR	<= IR(R_SRC1_END downto R_SRC1_START);
-	O_RD2_ADDR	<= IR(R_SRC2_END downto R_SRC2_START);
-	O_DST		<= IR(R_DST_END downto R_DST_START);
+	O_RD1_ADDR	<= I_IR(R_SRC1_END downto R_SRC1_START);
+	O_RD2_ADDR	<= I_IR(R_SRC2_END downto R_SRC2_START);
+	O_DST		<= I_IR(R_DST_END downto R_DST_START);
 
 	O_RD1 <= I_RD1_DATA;
 	O_RD2 <= I_RD2_DATA;
 
 	O_IMM	<= IMM;
 
-	O_OPCODE	<= IR(OPCODE_END downto OPCODE_START);
-	O_FUNC		<= IR(FUNC_END downto FUNC_START);
+	O_OPCODE	<= I_IR(OPCODE_END downto OPCODE_START);
+	O_FUNC		<= I_IR(FUNC_END downto FUNC_START);
 end MIXED;
 

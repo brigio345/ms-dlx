@@ -8,10 +8,10 @@ package types is
 
 	type branch_t is (
 		BRANCH_NO,
-		BRANCH_U_R,
-		BRANCH_U_A,
-		BRANCH_EQ0,
-		BRANCH_NE0
+		BRANCH_U_R,	-- J, JAL
+		BRANCH_U_A,	-- JR, JALR
+		BRANCH_EQ0,	-- BEQZ
+		BRANCH_NE0	-- BNEZ
 	);
 
 	type source_t is (

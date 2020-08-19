@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.coding.all;
+use work.utilities.all;
 
 -- fetch_unit: 
 --	* select PC (NPC or branch target)
@@ -9,6 +10,11 @@ use work.coding.all;
 --	* compute Next PC (PC + 4)
 entity fetch_unit is
 	port (
+		-- I_ENDIAN: specify endianness of instruction memory
+		--	- '0' => BIG endian
+		--	- '1' => LITTLE endian
+		I_ENDIAN:	in std_logic;
+
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from ID stage
@@ -34,6 +40,8 @@ begin
 	O_NPC	<= std_logic_vector(unsigned(PC) + 4);
 
 	O_PC	<= PC;		-- forward to i_mem
-	O_IR	<= I_IR;	-- forward from i_mem
+
+	-- convert IR to big endian if instruction memory is big endian
+	O_IR	<= I_IR when (I_ENDIAN = '1') else swap_bytes(I_IR);	-- forward from i_mem
 end BEHAVIORAL;
 

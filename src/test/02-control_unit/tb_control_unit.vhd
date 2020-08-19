@@ -99,6 +99,8 @@ begin
 		DST_MEM	<= (others => '0');
 		LD_MEM	<= '0';
 
+		wait for WAIT_TIME;
+
 		wait;
 	end process stimuli;
 end TB_ARCH;
