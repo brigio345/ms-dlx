@@ -50,7 +50,7 @@ begin
 			O_OF	=> open
 		);
 
-	op_sel: process(I_BRANCH, I_NPC, I_ABS)
+	op_sel: process(I_BRANCH, I_NPC, I_ABS, I_IMM, I_OFF)
 	begin
 		-- default values: branch not taken (O_TARGET = I_NPC + 0)
 		A	<= I_NPC;

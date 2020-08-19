@@ -30,7 +30,7 @@ end execute_unit;
 architecture MIXED of execute_unit is
 	component alu is
 		generic (
-			N_BIT:	integer := 32;
+			N_BIT:	integer := 32
 		);
 		port (
 			I_OP:	in std_logic_vector(FUNC_SZ - 1 downto 0);

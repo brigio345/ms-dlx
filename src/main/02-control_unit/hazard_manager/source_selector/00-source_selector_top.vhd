@@ -20,7 +20,7 @@ entity source_selector is
 		I_LD_MEM:	in std_logic;
 
 		O_SEL_A:	out source_t;
-		O_SEL_B:	out source_t;
+		O_SEL_B:	out source_t
 	);
 end source_selector;
 

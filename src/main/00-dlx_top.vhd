@@ -8,8 +8,13 @@ entity dlx is
 		I_CLK:		in std_logic;
 		I_RST:		in std_logic;
 
+		-- I_ENDIAN: specify endianness of data and instruction memories
+		--	- '0' => BIG endian
+		--	- '1' => LITTLE endian
+		I_ENDIAN:	in std_logic;
+
 		I_I_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
-		I_D_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
+		I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		O_I_RD_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -25,6 +30,11 @@ architecture STRUCTURAL of dlx is
 		port (
 			I_CLK:		in std_logic;
 			I_RST:		in std_logic;
+
+			-- I_ENDIAN: specify endianness of data and instruction memories
+			--	- '0' => BIG endian
+			--	- '1' => LITTLE endian
+			I_ENDIAN:	in std_logic;
 
 			-- from i-memory
 			I_INST:		in std_logic_vector(INST_SZ - 1 downto 0);
@@ -111,6 +121,19 @@ architecture STRUCTURAL of dlx is
 		);
 	end component control_unit;
 
+	component config_register is
+		port (
+			I_CLK:		in std_logic;
+			I_RST:		in std_logic;
+			I_LD:		in std_logic;
+
+			I_ENDIAN:	in std_logic;
+
+			O_ENDIAN:	out std_logic
+		);
+	end component config_register;
+
+	signal ENDIAN:		std_logic;
 	signal BRANCH:		branch_t;
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
@@ -134,6 +157,7 @@ begin
 		port map (
 			I_CLK		=> I_CLK,
 			I_RST		=> I_RST,
+			I_ENDIAN	=> ENDIAN,
 			I_INST		=> I_I_RD_DATA,
 			I_D_RD_DATA	=> I_D_RD_DATA,
 			I_BRANCH	=> BRANCH,
@@ -181,6 +205,16 @@ begin
 			O_LD		=> LD,
 			O_STR		=> STR,
 			O_DST		=> DST
+		);
+
+	-- loaded during reset
+	config_register_0: config_register
+		port map (
+			I_CLK	=> I_CLK,
+			I_RST	=> '0',
+			I_LD	=> I_RST,
+			I_ENDIAN=> I_ENDIAN,
+			O_ENDIAN=> ENDIAN
 		);
 end STRUCTURAL;
 

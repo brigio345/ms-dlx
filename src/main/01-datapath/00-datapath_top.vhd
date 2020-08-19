@@ -9,6 +9,11 @@ entity datapath is
 		I_CLK:		in std_logic;
 		I_RST:		in std_logic;
 
+		-- I_ENDIAN: specify endianness of data and instruction memories
+		--	- '0' => BIG endian
+		--	- '1' => LITTLE endian
+		I_ENDIAN:	in std_logic;
+
 		-- from i-memory
 		I_INST:		in std_logic_vector(INST_SZ - 1 downto 0);
 
@@ -61,6 +66,11 @@ end datapath;
 architecture STRUCTURAL of datapath is
 	component fetch_unit is
 		port (
+			-- I_ENDIAN: specify endianness of instruction memory
+			--	- '0' => BIG endian
+			--	- '1' => LITTLE endian
+			I_ENDIAN:	in std_logic;
+
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from ID stage
@@ -143,6 +153,11 @@ architecture STRUCTURAL of datapath is
 
 	component memory_unit is
 		port (
+			-- I_ENDIAN: specify endianness of data memory
+			--	- '0' => BIG endian
+			--	- '1' => LITTLE endian
+			I_ENDIAN:	in std_logic;
+
 			-- from CU
 			I_LD:		in std_logic;
 			I_STR:		in std_logic;
@@ -214,7 +229,7 @@ architecture STRUCTURAL of datapath is
 
 			-- to ID stage
 			O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_IR:		out std_logic_vector(INST_SZ - 1 downto 0);
+			O_IR:		out std_logic_vector(INST_SZ - 1 downto 0)
 		);
 	end component if_id_registers;
 
@@ -295,7 +310,7 @@ architecture STRUCTURAL of datapath is
 			O_ALUOUT:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-			O_LD:		out std_logic;
+			O_LD:		out std_logic
 		);
 	end component mem_wb_registers;
 
@@ -368,6 +383,7 @@ architecture STRUCTURAL of datapath is
 begin
 	fetch_unit_0: fetch_unit
 		port map (
+			I_ENDIAN	=> I_ENDIAN,
 			I_NPC		=> NPC_IF_REG,
 			I_TARGET	=> TARGET_ID_REG,
 			I_TAKEN		=> TAKEN_ID_REG,
@@ -419,6 +435,7 @@ begin
 
 	memory_unit_0: memory_unit
 		port map (
+			I_ENDIAN	=> I_ENDIAN,
 			I_LD		=> LD_EX_REG,
 			I_STR		=> STR_EX_REG,
 			I_ADDR		=> ALUOUT_EX_REG,
@@ -527,7 +544,7 @@ begin
 	register_file_0: register_file
 		generic map (
 			NBIT	=> RF_DATA_SZ,
-			NLINE	=> RF_ADDR_SZ ** 2
+			NLINE	=> 2 ** RF_ADDR_SZ
 		)
 		port map (
 			CLK	=> I_CLK,

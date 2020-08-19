@@ -2,12 +2,36 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 
 package utilities is
+	function swap_bytes(i_data: std_logic_vector) return std_logic_vector;
 	function std_logic_vector_image (a: std_logic_vector) return string;
 	function log2(i : natural) return integer;
 	function log2_ceil(i : natural) return integer;
 end package utilities;
 
 package body utilities is
+	function swap_bytes (
+		i_data:	std_logic_vector
+	)
+	return std_logic_vector is
+		variable o_data:std_logic_vector(i_data'range);
+		variable l_in:	integer;
+		variable r_in:	integer;
+		variable l_out:	integer;
+		variable r_out:	integer;
+	begin
+		for i in 0 to i_data'length / 8 - 1 loop
+			r_in := i * 8;
+			l_in := r_in + 7;
+			
+			l_out := i_data'length - r_in - 1;
+			r_out := l_out - 7;
+
+			o_data(l_out downto r_out) := i_data(l_in downto r_in);
+		end loop;
+
+		return o_data;
+	end function swap_bytes;
+
 	function std_logic_vector_image (
 		a:	 std_logic_vector
 	) return string is

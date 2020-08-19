@@ -27,7 +27,7 @@ entity inst_decoder is
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to CU
-		O_INST_TYPE:	out inst_t;
+		O_INST_TYPE:	out inst_t
 	);
 end inst_decoder;
 

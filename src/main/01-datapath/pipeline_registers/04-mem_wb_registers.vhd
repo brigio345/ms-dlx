@@ -22,7 +22,7 @@ entity mem_wb_registers is
 		O_ALUOUT:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-		O_LD:		out std_logic;
+		O_LD:		out std_logic
 	);
 end mem_wb_registers;
 
