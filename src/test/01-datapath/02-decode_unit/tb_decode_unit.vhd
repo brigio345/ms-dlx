@@ -21,6 +21,7 @@ architecture TB_ARCH of tb_decode_unit is
 
 			-- from CU
 			I_BRANCH:	in branch_t;
+			I_SIGNED:	in std_logic;
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
 			O_RD1_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -53,6 +54,7 @@ architecture TB_ARCH of tb_decode_unit is
 	signal RD1_DATA:std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal RD2_DATA:std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal BRANCH:	branch_t;
+	signal S_SIGNED:std_logic;
 	signal RD1_ADDR:std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal RD2_ADDR:std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal DST:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -60,9 +62,10 @@ architecture TB_ARCH of tb_decode_unit is
 	signal FUNC:	std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal RD1:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal RD2:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal IMM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IMM_EXT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal TARGET:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal TAKEN:	std_logic;
+
 begin
 	dut: decode_unit
 		port map (
@@ -71,6 +74,7 @@ begin
 			I_RD1_DATA	=> RD1_DATA,
 			I_RD2_DATA	=> RD2_DATA,
 			I_BRANCH	=> BRANCH,
+			I_SIGNED	=> S_SIGNED,
 			O_RD1_ADDR	=> RD1_ADDR,
 			O_RD2_ADDR	=> RD2_ADDR,
 			O_DST		=> DST,
@@ -78,18 +82,28 @@ begin
 			O_FUNC		=> FUNC,
 			O_RD1		=> RD1,
 			O_RD2		=> RD2,
-			O_IMM		=> IMM,
+			O_IMM		=> IMM_EXT,
 			O_TARGET	=> TARGET,
 			O_TAKEN		=> TAKEN
 		);
 
 	stimuli: process
+		variable RS1:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		variable RS2:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		variable RD:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		variable IMM:	std_logic_vector(IMM_SZ - 1 downto 0);
 	begin
-		IR	<= (others => '0');
-		NPC	<= (others => '0');
+		RS1	:= "00100";
+		RS2	:= "00010";
+		RD	:= "00000";
+		IMM	:= "0011000011101001";
+		
+		IR	<= OPCODE_BNEZ & RS1 & RS2 & IMM;
+		NPC	<= x"01234567";
 		RD1_DATA<= (others => '0');
 		RD2_DATA<= (others => '0');
-		BRANCH	<= BRANCH_NO;
+		BRANCH	<= BR_NO;
+		S_SIGNED<= '0';
 
 		wait for WAIT_TIME;
 

@@ -20,8 +20,12 @@ entity datapath is
 		-- from d-memory
 		I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
+		-- from CU, to IF stage
+		I_IF_EN:	in std_logic;
+
 		-- from CU, to ID stage
 		I_BRANCH:	in branch_t;
+		I_SIGNED:	in std_logic;
 		I_SEL_A:	in source_t;
 		I_SEL_B:	in source_t;
 
@@ -51,7 +55,7 @@ entity datapath is
 		O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		O_SRC_B:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		O_DST_ID:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_TAKEN:	out std_logic;
+		O_TAKEN_PREV:	out std_logic;
 
 		-- to CU, from EX stage
 		O_DST_EX:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -103,6 +107,7 @@ architecture STRUCTURAL of datapath is
 
 			-- from CU
 			I_BRANCH:	in branch_t;
+			I_SIGNED:	in std_logic;
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
 			O_RD1_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -203,10 +208,11 @@ architecture STRUCTURAL of datapath is
 		);
 	end component write_unit;
 
-	component if_registers is
+	component id_if_registers is
 		port (
 			I_CLK:		in std_logic;
 			I_RST:		in std_logic;
+			I_EN:		in std_logic;
 
 			-- from IF stage
 			I_TARGET:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -216,12 +222,13 @@ architecture STRUCTURAL of datapath is
 			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_TAKEN:	out std_logic
 		);
-	end component if_registers;
+	end component id_if_registers;
 
 	component if_id_registers is
 		port (
 			I_CLK:		in std_logic;
 			I_RST:		in std_logic;
+			I_EN:		in std_logic;
 
 			-- from IF stage
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -400,6 +407,7 @@ begin
 			I_RD1_DATA	=> RD1_DATA_RF,
 			I_RD2_DATA	=> RD2_DATA_RF,
 			I_BRANCH	=> I_BRANCH,
+			I_SIGNED	=> I_SIGNED,
 			O_RD1_ADDR	=> RD1_ADDR_ID,
 			O_RD2_ADDR	=> RD2_ADDR_ID,
 			O_DST		=> DST_ID,
@@ -416,7 +424,6 @@ begin
 	O_SRC_B	<= RD2_ADDR_ID;
 	O_DST_ID<= DST_ID;
 	O_FUNC	<= FUNC_ID;
-	O_TAKEN	<= TAKEN_ID;
 
 	execute_unit_0: execute_unit
 		port map (
@@ -459,20 +466,24 @@ begin
 			O_WR_DATA	=> WR_DATA_MEM
 		);
 
-	if_registers_0: if_registers
+	id_if_registers_0: id_if_registers
 		port map (
 			I_CLK		=> I_CLK,
 			I_RST		=> I_RST,
+			I_EN		=> I_IF_EN,
 			I_TARGET	=> TARGET_ID,
 			I_TAKEN		=> TAKEN_ID,
 			O_TARGET	=> TARGET_ID_REG,
 			O_TAKEN		=> TAKEN_ID_REG
 		);
 
+	O_TAKEN_PREV <= TAKEN_ID_REG;
+
 	if_id_registers_0: if_id_registers
 		port map (
 			I_CLK	=> I_CLK,
 			I_RST	=> I_RST,
+			I_EN	=> I_IF_EN,
 			I_NPC	=> NPC_IF,
 			I_IR	=> IR_IF,
 			O_NPC	=> NPC_IF_REG,

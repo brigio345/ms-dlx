@@ -11,7 +11,7 @@ entity control_unit is
 		I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_TAKEN:	in std_logic;
+		I_TAKEN_PREV:	in std_logic;
 
 		-- from EX stage
 		I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -21,8 +21,12 @@ entity control_unit is
 		I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_LD_MEM:	in std_logic;
 
+		-- to IF stage
+		O_IF_EN:	out std_logic;
+
 		-- to ID stage
 		O_BRANCH:	out branch_t;
+		O_SIGNED:	out std_logic;
 		O_SEL_A:	out source_t;
 		O_SEL_B:	out source_t;
 
@@ -39,7 +43,7 @@ entity control_unit is
 	);
 end control_unit;
 
-architecture STRUCTURAL of control_unit is
+architecture MIXED of control_unit is
 	component inst_decoder is
 		port (
 			-- from ID stage
@@ -50,6 +54,7 @@ architecture STRUCTURAL of control_unit is
 
 			-- to ID stage
 			O_BRANCH:	out branch_t;
+			O_SIGNED:	out std_logic;
 
 			-- to EX stage
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -67,16 +72,11 @@ architecture STRUCTURAL of control_unit is
 		);
 	end component inst_decoder;
 	
-	component hazard_manager is
+	component data_forwarder is
 		port (
 			-- from ID stage
-			I_INST_TYPE:	in inst_t;
 			I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_TAKEN:	in std_logic;
-			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_STR:		in std_logic;
-			I_BRANCH:	in branch_t;
 
 			-- from EX stage
 			I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -86,19 +86,20 @@ architecture STRUCTURAL of control_unit is
 			I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_LD_MEM:	in std_logic;
 
-			-- to ID stage
 			O_SEL_A:	out source_t;
-			O_SEL_B:	out source_t;
-			O_BRANCH:	out branch_t;
-			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_STR:		out std_logic
+			O_SEL_B:	out source_t
 		);
-	end component hazard_manager;
+	end component data_forwarder;
 
 	signal INST_TYPE:	inst_t;
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal STR:		std_logic;
 	signal BRANCH:		branch_t;
+	signal SEL_A:		source_t;
+	signal SEL_B:		source_t;
+	signal A_NEEDED:	std_logic;
+	signal B_NEEDED:	std_logic;
+	signal DATA_HAZ:	std_logic;
 begin
 	inst_decoder_0: inst_decoder
 		port map (
@@ -107,6 +108,7 @@ begin
 			I_DST_R		=> I_DST_R,
 			I_DST_I		=> I_SRC_B,
 			O_BRANCH	=> BRANCH,
+			O_SIGNED	=> O_SIGNED,
 			O_ALUOP		=> O_ALUOP,
 			O_SEL_B_IMM	=> O_SEL_B_IMM,
 			O_LD		=> O_LD,
@@ -115,24 +117,59 @@ begin
 			O_INST_TYPE	=> INST_TYPE
 		);
 
-	hazard_manager_0: hazard_manager
+	data_forwarder_0: data_forwarder
 		port map (
-			I_INST_TYPE	=> INST_TYPE,
 			I_SRC_A		=> I_SRC_A,
 			I_SRC_B		=> I_SRC_B,
-			I_TAKEN		=> I_TAKEN,
-			I_DST		=> DST,
-			I_STR		=> STR,
-			I_BRANCH	=> BRANCH,
 			I_DST_EX	=> I_DST_EX,
 			I_LD_EX		=> I_LD_EX,
 			I_DST_MEM	=> I_DST_MEM,
 			I_LD_MEM	=> I_LD_MEM,
-			O_SEL_A		=> O_SEL_A,
-			O_SEL_B		=> O_SEL_B,
-			O_BRANCH	=> O_BRANCH,
-			O_DST		=> O_DST,
-			O_STR		=> O_STR
+			O_SEL_A		=> SEL_A,
+			O_SEL_B		=> SEL_B
 		);
-end STRUCTURAL;
+
+	O_SEL_A <= SEL_A;
+	O_SEL_B <= SEL_B;
+
+	A_NEEDED <= '1' when (INST_TYPE /= INST_JMP_ABS) else '0';
+	B_NEEDED <= '1' when (INST_TYPE = INST_REG) else '0';
+
+	-- data hazard occurs when a needed source operand has to be loaded
+	-- by the instruction which currently is in EX stage
+	DATA_HAZ <= '1' when (((SEL_A = SRC_LD_EX) AND (A_NEEDED = '1')) OR
+		    ((SEL_B = SRC_LD_EX) AND (B_NEEDED = '1')))
+		    else '0';
+
+	stall_gen: process (I_TAKEN_PREV, DATA_HAZ, BRANCH, STR, DST)
+	begin
+		if (I_TAKEN_PREV = '1') then
+			-- stall: disable branches and writes (to memory and rf)
+			--	so that current instruction will not have any
+			--	effect
+			-- 	IF can proceed, since PC has been updated with
+			--	the right instruction
+			O_BRANCH	<= BR_NO;
+			O_STR		<= '0';
+			O_DST		<= (others => '0');
+			O_IF_EN		<= '1';
+		elsif (DATA_HAZ = '1') then
+			-- stall: disable branches and writes (to memory and rf)
+			--	so that current instruction will not have any
+			--	effect
+			--	IF cannot proceed, since current instruction
+			--	must wait for its operands and then executed
+			O_BRANCH	<= BR_NO;
+			O_STR		<= '0';
+			O_DST		<= (others => '0');
+			O_IF_EN		<= '0';
+		else
+			-- no stall: output decoded data
+			O_BRANCH	<= BRANCH;
+			O_STR		<= STR;
+			O_DST		<= DST;
+			O_IF_EN		<= '1';
+		end if;
+	end process stall_gen;
+end MIXED;
 

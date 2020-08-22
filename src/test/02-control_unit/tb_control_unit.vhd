@@ -15,7 +15,7 @@ architecture TB_ARCH of tb_control_unit is
 			I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_TAKEN:	in std_logic;
+			I_TAKEN_PREV:	in std_logic;
 
 			-- from EX stage
 			I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -25,8 +25,12 @@ architecture TB_ARCH of tb_control_unit is
 			I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_LD_MEM:	in std_logic;
 
+			-- to IF stage
+			O_IF_EN:	out std_logic;
+
 			-- to ID stage
 			O_BRANCH:	out branch_t;
+			O_SIGNED:	out std_logic;
 			O_SEL_A:	out source_t;
 			O_SEL_B:	out source_t;
 
@@ -50,12 +54,13 @@ architecture TB_ARCH of tb_control_unit is
 	signal SRC_A:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal SRC_B:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal DST_R:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal TAKEN:		std_logic;
+	signal TAKEN_PREV:	std_logic;
 	signal DST_EX:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal LD_EX:		std_logic;
 	signal DST_MEM:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal LD_MEM:		std_logic;
 	signal BRANCH:		branch_t;
+	signal S_SIGNED:	std_logic;
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
 	signal SEL_B_IMM:	std_logic;
@@ -71,12 +76,13 @@ begin
 			I_SRC_A		=> SRC_A,
 			I_SRC_B		=> SRC_B,
 			I_DST_R		=> DST_R,
-			I_TAKEN		=> TAKEN,
+			I_TAKEN_PREV	=> TAKEN_PREV,
 			I_DST_EX	=> DST_EX,
 			I_LD_EX		=> LD_EX,
 			I_DST_MEM	=> DST_MEM,
 			I_LD_MEM	=> LD_MEM,
 			O_BRANCH	=> BRANCH,
+			O_SIGNED	=> S_SIGNED,
 			O_SEL_A		=> SEL_A,
 			O_SEL_B		=> SEL_B,
 			O_SEL_B_IMM	=> SEL_B_IMM,
@@ -88,16 +94,16 @@ begin
 
 	stimuli: process
 	begin
-		OPCODE	<= (others => '0');
-		FUNC	<= (others => '0');
-		SRC_A	<= (others => '0');
-		SRC_B	<= (others => '0');
-		DST_R	<= (others => '0');
-		TAKEN	<= '0';
-		DST_EX	<= (others => '0');
-		LD_EX	<= '0';
-		DST_MEM	<= (others => '0');
-		LD_MEM	<= '0';
+		OPCODE		<= (others => '0');
+		FUNC		<= (others => '0');
+		SRC_A		<= (others => '0');
+		SRC_B		<= (others => '0');
+		DST_R		<= (others => '0');
+		TAKEN_PREV	<= '0';
+		DST_EX		<= (others => '0');
+		LD_EX		<= '0';
+		DST_MEM		<= (others => '0');
+		LD_MEM		<= '0';
 
 		wait for WAIT_TIME;
 

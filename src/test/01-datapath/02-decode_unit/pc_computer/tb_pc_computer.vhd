@@ -44,7 +44,7 @@ begin
 
 	stimuli: process
 	begin
-		BRANCH	<= BRANCH_NO;
+		BRANCH	<= BR_NO;
 		NPC	<= x"00000040";
 		A	<= x"00000020";
 		IMM	<= x"00000008";
@@ -55,7 +55,7 @@ begin
 		assert ((TARGET = NPC) AND (TAKEN = '0'))
 			report "error detected with BRANCH_NO";
 
-		BRANCH	<= BRANCH_U_R;
+		BRANCH	<= BR_UNC_REL;
 		NPC	<= x"00000040";
 		A	<= x"00000020";
 		IMM	<= x"00000008";
@@ -65,9 +65,9 @@ begin
 
 		assert ((TARGET = std_logic_vector(unsigned(NPC) + unsigned(OFF)))
 				AND (TAKEN = '1'))
-			report "error detected with BRANCH_U_R";
+			report "error detected with BR_UNC_REL";
 
-		BRANCH 	<= BRANCH_U_A;
+		BRANCH 	<= BR_UNC_ABS;
 		NPC	<= x"00000040";
 		A	<= x"00000020";
 		IMM	<= x"00000008";
@@ -76,9 +76,9 @@ begin
 		wait for WAIT_TIME;
 
 		assert ((TARGET = A) AND (TAKEN = '1'))
-			report "error detected with BRANCH_U_A";
+			report "error detected with BR_UNC_ABS";
 
-		BRANCH	<= BRANCH_EQ0;
+		BRANCH	<= BR_EQ0_REL;
 		NPC	<= x"00000040";
 		A	<= x"00000020";
 		IMM	<= x"00000008";
@@ -87,9 +87,9 @@ begin
 		wait for WAIT_TIME;
 
 		assert ((TARGET = NPC) AND (TAKEN = '0'))
-			report "error detected with untaken BRANCH_EQ0";
+			report "error detected with untaken BR_EQ0_REL";
 
-		BRANCH	<= BRANCH_NE0;
+		BRANCH	<= BR_NE0_REL;
 		NPC	<= x"00000040";
 		A	<= x"00000020";
 		IMM	<= x"00000008";
@@ -99,7 +99,7 @@ begin
 
 		assert ((TARGET = std_logic_vector(unsigned(NPC) + unsigned(IMM)))
 				AND (TAKEN = '1'))
-			report "error detected with taken BRANCH_NE0";
+			report "error detected with taken BR_NE0_REL";
 
 		wait;
 	end process stimuli;

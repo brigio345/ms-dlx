@@ -61,19 +61,19 @@ begin
 		O_TAKEN	<= '0';
 
 		case (I_BRANCH) is
-			when BRANCH_U_R	=>
+			when BR_UNC_REL	=>
 				-- unconditional relative branch (O_TARGET = I_NPC + I_OFF)
 				-- (J, JAL)
 				OP1	<= I_NPC;
 				OP2	<= I_OFF;
 				O_TAKEN	<= '1';
-			when BRANCH_U_A =>
+			when BR_UNC_ABS =>
 				-- unconditional absolute branch (O_TARGET = I_A + 0)
 				-- (JALR, JR)
 				OP1	<= I_A;
 				OP2	<= (OP2'range => '0');
 				O_TAKEN	<= '1';
-			when BRANCH_EQ0	=>
+			when BR_EQ0_REL	=>
 				-- conditional (if 0) relative branch (O_TARGET = I_NPC + I_IMM)
 				-- (BEQZ)
 				if (I_A = (I_A'range => '0')) then
@@ -81,7 +81,7 @@ begin
 					OP2	<= I_IMM;
 					O_TAKEN	<= '1';
 				end if;
-			when BRANCH_NE0 =>
+			when BR_NE0_REL =>
 				-- conditional (if not 0) relative branch (O_TARGET = I_NPC + I_IMM)
 				-- (BNEZ)
 				if (I_A /= (I_A'range => '0')) then

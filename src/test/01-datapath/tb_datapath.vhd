@@ -143,7 +143,7 @@ begin
 		ENDIAN		<= '0';
 		INST		<= (others => '0');
 		D_RD_DATA	<= (others => '0');
-		BRANCH		<= BRANCH_NO;
+		BRANCH		<= BR_NO;
 		SEL_A		<= SRC_RF;
 		SEL_B		<= SRC_RF;
 		SEL_B_IMM	<= '0';

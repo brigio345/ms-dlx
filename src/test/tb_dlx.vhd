@@ -24,6 +24,18 @@ architecture TB_ARCH of tb_dlx is
 		);
 	end component dlx;
 
+	component inst_mem is
+		generic (
+			RAM_DEPTH:	integer := 48;
+			I_SIZE:		integer := 32
+		);
+		port (
+			I_RST:	in std_logic;
+			I_ADDR:	in std_logic_vector(I_SIZE - 1 downto 0);
+			O_DATA:	out std_logic_vector(I_SIZE - 1 downto 0)
+		);
+	end component inst_mem;
+
 	constant CLK_PERIOD:	time := 2 ns;
 
 	signal CLK:		std_logic;
@@ -51,6 +63,17 @@ begin
 			O_D_WR_DATA	=> D_WR_DATA
 		);
 
+	inst_mem_0: inst_mem
+		generic map (
+			RAM_DEPTH	=> 48,
+			I_SIZE		=> RF_DATA_SZ
+		)
+		port map (
+			I_RST	=> RST,
+			I_ADDR	=> I_RD_ADDR,
+			O_DATA	=> I_RD_DATA
+		);
+
 	clock: process
 	begin
 		CLK <= '0';
@@ -63,7 +86,6 @@ begin
 	begin
 		RST		<= '1';
 		ENDIAN		<= '1';
-		I_RD_DATA	<= (others => '0');
 		D_RD_DATA	<= (others => '0');
 
 		wait for CLK_PERIOD;
@@ -71,8 +93,6 @@ begin
 		RST		<= '0';
 
 		wait for CLK_PERIOD;
-
-		I_RD_DATA	<= OPCODE_ADDI & "00000"& "00001" & "0000000000000100";
 
 		wait for CLK_PERIOD;
 

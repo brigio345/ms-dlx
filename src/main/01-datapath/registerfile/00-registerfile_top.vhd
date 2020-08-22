@@ -40,7 +40,7 @@ architecture BEHAVIORAL of register_file is
 begin
 	write: process(CLK, RESET, WR, ADD_WR, DATAIN)
 	begin
-		if (CLK = '1' and CLK'event) then
+		if (CLK = '0' and CLK'event) then
 			if (RESET = '1') then
 				REGISTERS <= (others => (others => '0'));
 			elsif (WR = '1' and unsigned(ADD_WR) < NLINE) then

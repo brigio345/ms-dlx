@@ -14,6 +14,7 @@ entity inst_decoder is
 
 		-- to ID stage
 		O_BRANCH:	out branch_t;
+		O_SIGNED:	out std_logic;
 
 		-- to EX stage
 		O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -33,14 +34,15 @@ end inst_decoder;
 
 architecture BEHAVIORAL of inst_decoder is
 begin
-	process (I_FUNC, I_OPCODE)
+	process (I_FUNC, I_OPCODE, I_DST_R, I_DST_I)
 	begin
 		-- typical I-TYPE instruction as default values
 		-- (since they are the most common instructions this
 		-- just reduces inst_decoder code size)
 		O_INST_TYPE	<= INST_IMM;
 		O_SEL_B_IMM	<= '1';	-- IMM
-		O_BRANCH	<= BRANCH_NO;
+		O_BRANCH	<= BR_NO;
+		O_SIGNED	<= '1';	-- signed
 		O_LD		<= '0'; -- no load
 		O_STR		<= '0'; -- no store
 		O_DST		<= I_DST_I;
@@ -50,22 +52,37 @@ begin
 				O_INST_TYPE	<= INST_REG;
 				O_SEL_B_IMM	<= '0';	-- B
 				O_DST		<= I_DST_R;
-				O_ALUOP	<= I_FUNC;
-			when OPCODE_ADDI | OPCODE_ADDUI	=>
+				O_ALUOP		<= I_FUNC;
+				-- O_SIGNED is used for data extension only:
+				--	there is no need to specify it with
+				--	R-type instructions
+			when OPCODE_ADDI	=>
 				O_ALUOP	<= FUNC_ADD;
-			when OPCODE_SUBI | OPCODE_SUBUI	=>
+			when OPCODE_ADDUI	=>
+				O_SIGNED <= '0';
+				O_ALUOP	<= FUNC_ADD;
+			when OPCODE_SUBI	=>
+				O_ALUOP	<= FUNC_SUB;
+			when OPCODE_SUBUI	=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_SUB;
 			when OPCODE_ANDI	=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_AND;
 			when OPCODE_ORI		=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_OR;
 			when OPCODE_XORI	=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_XOR;
 			when OPCODE_SLLI	=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_SLL;
 			when OPCODE_SRLI	=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_SRL;
 			when OPCODE_SRAI	=>
+				O_SIGNED <= '0';
 				O_ALUOP	<= FUNC_SRA;
 			when OPCODE_SEQI	=>
 				O_ALUOP	<= FUNC_SEQ;
@@ -98,38 +115,36 @@ begin
 
 			-- Jump/branch instructions
 			when OPCODE_J		=>
-				O_INST_TYPE	<= INST_JMP;
+				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_U_R;
+				O_BRANCH	<= BR_UNC_REL;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JAL		=>
-				O_INST_TYPE	<= INST_JMP;
+				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_U_R;
-				O_DST		<= (others => '0'); -- no writeback
+				O_BRANCH	<= BR_UNC_REL;
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_BEQZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_EQ0;
+				O_BRANCH	<= BR_EQ0_REL;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_BNEZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_NE0;
+				O_BRANCH	<= BR_NE0_REL;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JR		=>
-				O_INST_TYPE	<= INST_JMP;
+				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_U_A;
+				O_BRANCH	<= BR_UNC_ABS;
 				O_DST		<= (others => '0'); -- no writeback
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JALR	=>
-				O_INST_TYPE	<= INST_JMP;
+				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BRANCH_U_A;
-				O_DST		<= (others => '0'); -- no writeback
+				O_BRANCH	<= BR_UNC_ABS;
 				O_ALUOP		<= FUNC_ADD;
 
 			-- General instructions

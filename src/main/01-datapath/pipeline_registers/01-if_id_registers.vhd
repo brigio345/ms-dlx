@@ -7,6 +7,7 @@ entity if_id_registers is
 	port (
 		I_CLK:		in std_logic;
 		I_RST:		in std_logic;
+		I_EN:		in std_logic;
 
 		-- from IF stage
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -26,7 +27,7 @@ begin
 			if (I_RST = '1') then
 				O_NPC	<= (others => '0');
 				O_IR	<= (others => '0');
-			else
+			elsif (I_EN = '1') then
 				O_NPC	<= I_NPC;
 				O_IR	<= I_IR;
 			end if;

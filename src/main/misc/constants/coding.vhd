@@ -25,7 +25,7 @@ package coding is
 	constant R_DST_START:	integer := R_SRC2_END + 1;
 	constant R_DST_END:	integer := R_DST_START + RF_ADDR_SZ - 1;
 
-	constant FUNC_START:	integer := R_DST_END - 1;
+	constant FUNC_START:	integer := R_DST_END + 1;
 	constant FUNC_END:	integer := FUNC_START + FUNC_SZ - 1;
 
 	constant FUNC_SLL:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000000100"; -- r, 0x04

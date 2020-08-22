@@ -17,6 +17,7 @@ architecture TB_ARCH of tb_inst_decoder is
 
 			-- to ID stage
 			O_BRANCH:	out branch_t;
+			O_SIGNED:	out std_logic;
 
 			-- to EX stage
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -41,6 +42,7 @@ architecture TB_ARCH of tb_inst_decoder is
 	signal DST_R:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal DST_I:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal BRANCH:		branch_t;
+	signal S_SIGNED:	std_logic;
 	signal ALUOP:		std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal SEL_B_IMM:	std_logic;
 	signal LD:		std_logic;
@@ -55,6 +57,7 @@ begin
 			I_DST_R		=> DST_R,
 			I_DST_I		=> DST_I,
 			O_BRANCH	=> BRANCH,
+			O_SIGNED	=> S_SIGNED,
 			O_ALUOP		=> ALUOP,
 			O_SEL_B_IMM	=> SEL_B_IMM,
 			O_LD		=> LD,
@@ -71,7 +74,7 @@ begin
 		DST_I	<= "00010";
 
 		wait for WAIT_TIME;
-		assert ((BRANCH = BRANCH_NO) AND (ALUOP = FUNC) AND
+		assert ((BRANCH = BR_NO) AND (ALUOP = FUNC) AND
 				(SEL_B_IMM = '0') AND (LD = '0') AND
 				(STR = '0') AND (DST = DST_R) AND
 				(INST_TYPE = INST_REG))
@@ -81,7 +84,39 @@ begin
 		OPCODE	<= OPCODE_ADDI;
 
 		wait for WAIT_TIME;
-		assert ((BRANCH = BRANCH_NO) AND (ALUOP = FUNC_ADD) AND
+		assert ((BRANCH = BR_NO) AND (S_SIGNED = '1') AND 
+				(ALUOP = FUNC_ADD) AND (SEL_B_IMM = '1') AND
+				(LD = '0') AND (STR = '0') AND
+				(DST = DST_I) AND (INST_TYPE = INST_IMM))
+			report "wrong outputs with I-type ADD";
+
+		FUNC	<= (others => '0');
+		OPCODE	<= OPCODE_BNEZ;
+
+		wait for WAIT_TIME;
+		assert ((BRANCH = BR_NE0_REL) AND (S_SIGNED = '1') AND 
+				(ALUOP = FUNC_ADD) AND (SEL_B_IMM = '1') AND
+				(LD = '0') AND (STR = '0') AND
+				(DST = (DST'range => '0')) AND
+				(INST_TYPE = INST_IMM))
+			report "wrong outputs with BNEZ";
+
+		FUNC	<= (others => '0');
+		OPCODE	<= OPCODE_J;
+
+		wait for WAIT_TIME;
+		assert ((BRANCH = BR_UNC_REL) AND (SEL_B_IMM = '1') AND
+				(STR = '0') AND (DST = (DST'range => '0')) AND
+				(INST_TYPE = INST_JMP_REL))
+			report "wrong outputs with J";
+
+		FUNC	<= "00000000001";
+		OPCODE	<= "001000";
+		DST_R	<= "00000";
+		DST_I	<= "00011";
+
+		wait for WAIT_TIME;
+		assert ((BRANCH = BR_NO) AND (ALUOP = FUNC_ADD) AND
 				(SEL_B_IMM = '1') AND (LD = '0') AND
 				(STR = '0') AND (DST = DST_I) AND
 				(INST_TYPE = INST_IMM))

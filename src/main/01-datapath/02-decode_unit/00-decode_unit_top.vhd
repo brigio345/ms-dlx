@@ -11,7 +11,7 @@ use work.types.all;
 entity decode_unit is
 	port (
 		-- I_IR: from IF stage; encoded instruction
-		I_IR:		in std_logic_vector(INST_SZ - 1 downto 0);
+		I_IR:		in std_logic_vector(0 to INST_SZ - 1);
 		-- I_NPC: from IF stage; next PC value if instruction is
 		--	not a taken branch
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -22,6 +22,7 @@ entity decode_unit is
 
 		-- from CU
 		I_BRANCH:	in branch_t;
+		I_SIGNED:	in std_logic;
 
 		-- O_RDx_ADDR: to rf; address at which rf has to be read
 		O_RD1_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -65,13 +66,19 @@ architecture MIXED of decode_unit is
 	end component pc_computer;
 
 	signal IMM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IMM_SIG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IMM_UNS:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal OFF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
-	-- sign extend
-	IMM <= (RF_DATA_SZ - 1 downto IMM_SZ => I_IR(I_IMM_END)) &
-		I_IR(I_IMM_END downto I_IMM_START);
-	OFF <= (RF_DATA_SZ - 1 downto OFF_SZ => I_IR(J_OFF_END)) &
-		I_IR(J_OFF_END downto J_OFF_START);
+	-- extend
+	IMM_UNS	<= (IMM_SZ to RF_DATA_SZ - 1 => '0') &
+		I_IR(I_IMM_START to I_IMM_END);
+	IMM_SIG <= (IMM_SZ to RF_DATA_SZ - 1 => I_IR(I_IMM_START)) &
+		I_IR(I_IMM_START to I_IMM_END);
+	OFF <= (OFF_SZ to RF_DATA_SZ - 1 => I_IR(J_OFF_START)) &
+		I_IR(J_OFF_START to J_OFF_END);
+
+	IMM	<= IMM_UNS when (I_SIGNED = '0') else IMM_SIG;
 
 	pc_computer_0: pc_computer
 		port map (
@@ -85,16 +92,16 @@ begin
 		);
 
 	-- rf addresses
-	O_RD1_ADDR	<= I_IR(R_SRC1_END downto R_SRC1_START);
-	O_RD2_ADDR	<= I_IR(R_SRC2_END downto R_SRC2_START);
-	O_DST		<= I_IR(R_DST_END downto R_DST_START);
+	O_RD1_ADDR	<= I_IR(R_SRC1_START to R_SRC1_END);
+	O_RD2_ADDR	<= I_IR(R_SRC2_START to R_SRC2_END);
+	O_DST		<= I_IR(R_DST_START to R_DST_END);
 
 	O_RD1 <= I_RD1_DATA;
 	O_RD2 <= I_RD2_DATA;
 
 	O_IMM	<= IMM;
 
-	O_OPCODE	<= I_IR(OPCODE_END downto OPCODE_START);
-	O_FUNC		<= I_IR(FUNC_END downto FUNC_START);
+	O_OPCODE	<= I_IR(OPCODE_START to OPCODE_END);
+	O_FUNC		<= I_IR(FUNC_START to FUNC_END);
 end MIXED;
 
