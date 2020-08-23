@@ -2,10 +2,11 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
 use work.types.all;
+use work.utilities.all;
 
 -- decode_unit:
 --	* extract data from encoded instruction
---	* sign extend operands
+--	* extend operands
 --	* read from registerfile
 --	* compute next PC
 entity decode_unit is
@@ -65,43 +66,42 @@ architecture MIXED of decode_unit is
 		);
 	end component pc_computer;
 
-	signal IMM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal IMM_SIG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal IMM_UNS:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal OFF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IMM:	std_logic_vector(IMM_SZ - 1 downto 0);
+	signal IMM_EXT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal OFF:	std_logic_vector(OFF_SZ - 1 downto 0);
+	signal OFF_EXT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
-	-- extend
-	IMM_UNS	<= (IMM_SZ to RF_DATA_SZ - 1 => '0') &
-		I_IR(I_IMM_START to I_IMM_END);
-	IMM_SIG <= (IMM_SZ to RF_DATA_SZ - 1 => I_IR(I_IMM_START)) &
-		I_IR(I_IMM_START to I_IMM_END);
-	OFF <= (OFF_SZ to RF_DATA_SZ - 1 => I_IR(J_OFF_START)) &
-		I_IR(J_OFF_START to J_OFF_END);
+	IMM	<= I_IR(I_IMM_RANGE);
+	OFF	<= I_IR(J_OFF_RANGE);
 
-	IMM	<= IMM_UNS when (I_SIGNED = '0') else IMM_SIG;
+	-- extend
+	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_SIGNED = '0')
+		else sign_extend(IMM, IMM'left, RF_DATA_SZ);
+	OFF_EXT	<= sign_extend(OFF, OFF'left, RF_DATA_SZ);
 
 	pc_computer_0: pc_computer
 		port map (
 			I_BRANCH=> I_BRANCH,
 			I_NPC	=> I_NPC,
 			I_A	=> I_RD1_DATA,
-			I_IMM	=> IMM,
-			I_OFF	=> OFF,
+			I_IMM	=> IMM_EXT,
+			I_OFF	=> OFF_EXT,
 			O_TARGET=> O_TARGET,
 			O_TAKEN	=> O_TAKEN
 		);
 
 	-- rf addresses
-	O_RD1_ADDR	<= I_IR(R_SRC1_START to R_SRC1_END);
-	O_RD2_ADDR	<= I_IR(R_SRC2_START to R_SRC2_END);
-	O_DST		<= I_IR(R_DST_START to R_DST_END);
+	O_RD1_ADDR	<= I_IR(R_SRC1_RANGE);
+	O_RD2_ADDR	<= I_IR(R_SRC2_RANGE);
+	O_DST		<= I_IR(R_DST_RANGE);
 
+	-- outputs to EX stage
 	O_RD1 <= I_RD1_DATA;
 	O_RD2 <= I_RD2_DATA;
 
-	O_IMM	<= IMM;
+	O_IMM	<= IMM_EXT;
 
-	O_OPCODE	<= I_IR(OPCODE_START to OPCODE_END);
-	O_FUNC		<= I_IR(FUNC_START to FUNC_END);
+	O_OPCODE	<= I_IR(OPCODE_RANGE);
+	O_FUNC		<= I_IR(FUNC_RANGE);
 end MIXED;
 

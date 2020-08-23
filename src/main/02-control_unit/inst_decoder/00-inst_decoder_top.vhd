@@ -21,8 +21,8 @@ entity inst_decoder is
 		O_SEL_B_IMM:	out std_logic;
 
 		-- to MEM stage
-		O_LD:		out std_logic;
-		O_STR:		out std_logic;
+		O_LD:		out std_logic_vector(1 downto 0);
+		O_STR:		out std_logic_vector(1 downto 0);
 
 		-- to WB stage
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -43,8 +43,8 @@ begin
 		O_SEL_B_IMM	<= '1';	-- IMM
 		O_BRANCH	<= BR_NO;
 		O_SIGNED	<= '1';	-- signed
-		O_LD		<= '0'; -- no load
-		O_STR		<= '0'; -- no store
+		O_LD		<= "00"; -- no load
+		O_STR		<= "00"; -- no store
 		O_DST		<= I_DST_I;
 		O_ALUOP		<= FUNC_ADD;
 		case (I_OPCODE) is
@@ -106,12 +106,34 @@ begin
 				O_ALUOP	<= FUNC_SGEU;
 
 			-- Load & store instructions (register-immediate instructions subset)
+			when OPCODE_LB		=>
+				O_LD		<= "01";	-- load byte
+				O_SIGNED	<= '1';
+				O_ALUOP		<= FUNC_ADD;
+			when OPCODE_LBU		=>
+				O_LD		<= "01";	-- load byte
+				O_SIGNED	<= '0';
+				O_ALUOP		<= FUNC_ADD;
+			when OPCODE_LH		=>
+				O_LD		<= "10";	-- load half word
+				O_SIGNED	<= '1';
+				O_ALUOP		<= FUNC_ADD;
+			when OPCODE_LHU		=>
+				O_LD		<= "10";	-- load half word
+				O_SIGNED	<= '0';
+				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_LW		=>
-				O_LD	<= '1'; -- load
-				O_ALUOP	<= FUNC_ADD;
+				O_LD		<= "11";	-- load word
+				O_ALUOP		<= FUNC_ADD;
+			when OPCODE_SB		=>
+				O_STR		<= "01";	-- store word
+				O_ALUOP		<= FUNC_ADD;
+			when OPCODE_SH		=>
+				O_STR		<= "10";	-- store word
+				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_SW		=>
-				O_STR	<= '1'; -- store
-				O_ALUOP	<= FUNC_ADD;
+				O_STR		<= "11";	-- store word
+				O_ALUOP		<= FUNC_ADD;
 
 			-- Jump/branch instructions
 			when OPCODE_J		=>

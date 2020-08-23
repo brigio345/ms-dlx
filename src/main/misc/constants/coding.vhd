@@ -10,6 +10,7 @@ package coding is
 
 	constant OPCODE_START:	integer := 0;
 	constant OPCODE_END:	integer := OPCODE_START + OPCODE_SZ - 1;
+	subtype OPCODE_RANGE is natural range OPCODE_START to OPCODE_END;
 
 	-- Register-register instructions
 	constant FUNC_SZ:	integer := 11;
@@ -18,15 +19,19 @@ package coding is
 
 	constant R_SRC1_START:	integer := OPCODE_END + 1;
 	constant R_SRC1_END:	integer := R_SRC1_START + RF_ADDR_SZ - 1;
+	subtype R_SRC1_RANGE is natural range R_SRC1_START to R_SRC1_END;
 
 	constant R_SRC2_START:	integer := R_SRC1_END + 1;
 	constant R_SRC2_END:	integer := R_SRC2_START + RF_ADDR_SZ - 1;
+	subtype R_SRC2_RANGE is natural range R_SRC2_START to R_SRC2_END;
 
 	constant R_DST_START:	integer := R_SRC2_END + 1;
 	constant R_DST_END:	integer := R_DST_START + RF_ADDR_SZ - 1;
+	subtype R_DST_RANGE is natural range R_DST_START to R_DST_END;
 
 	constant FUNC_START:	integer := R_DST_END + 1;
 	constant FUNC_END:	integer := FUNC_START + FUNC_SZ - 1;
+	subtype FUNC_RANGE is natural range FUNC_START to FUNC_END;
 
 	constant FUNC_SLL:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000000100"; -- r, 0x04
 	constant FUNC_SRL:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000000110"; -- r, 0x06
@@ -62,12 +67,15 @@ package coding is
 
 	constant I_SRC1_START:	integer := OPCODE_END + 1;
 	constant I_SRC1_END:	integer := I_SRC1_START + RF_ADDR_SZ - 1;
+	subtype I_SRC1_RANGE is natural range I_SRC1_START to I_SRC1_END;
 
 	constant I_DST_START:	integer := I_SRC1_END + 1;
 	constant I_DST_END:	integer := I_DST_START + RF_ADDR_SZ - 1;
+	subtype I_DST_RANGE is natural range I_DST_START to I_DST_END;
 
 	constant I_IMM_START:	integer := I_DST_END + 1;
 	constant I_IMM_END:	integer := I_IMM_START + IMM_SZ - 1;
+	subtype I_IMM_RANGE is natural range I_IMM_START to I_IMM_END;
 
 	constant OPCODE_ADDI:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "001000"; -- i, 0x08
 	constant OPCODE_ADDUI:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "001001"; -- i, 0x09
@@ -110,6 +118,7 @@ package coding is
 
 	constant J_OFF_START:	integer := OPCODE_END + 1;
 	constant J_OFF_END:	integer := J_OFF_START + OFF_SZ - 1;
+	subtype J_OFF_RANGE is natural range J_OFF_START to J_OFF_END;
 
 	constant OPCODE_J:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "000010"; -- j, 0x02
 	constant OPCODE_JAL:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "000011"; -- j, 0x03

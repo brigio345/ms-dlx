@@ -6,7 +6,7 @@ use work.coding.all;
 entity write_unit is
 	port (
 		-- from CU
-		I_LD:		in std_logic;
+		I_LD:		in std_logic_vector(1 downto 0);
 
 		-- from ID stage
 		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -27,9 +27,9 @@ end write_unit;
 architecture RTL of write_unit is
 begin
 	-- disable write when DST is R0
-	O_WR <= '1' when I_DST /= (I_DST'range => '0') else '0';
+	O_WR <= '1' when (I_DST /= (I_DST'range => '0')) else '0';
 
 	O_WR_ADDR <= I_DST;
-	O_WR_DATA <= I_ALUOUT when I_LD = '0' else I_LOADED;
+	O_WR_DATA <= I_ALUOUT when (I_LD = "00") else I_LOADED;
 end RTL;
 

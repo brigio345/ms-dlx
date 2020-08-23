@@ -107,11 +107,17 @@ begin
 
 		wait for WAIT_TIME;
 
-		wait for WAIT_TIME;
-
-		wait for WAIT_TIME;
-
-		wait for WAIT_TIME;
+		RS1	:= "00100";
+		RS2	:= "00010";
+		RD	:= "00000";
+		IMM	:= "1011000011101001";
+		
+		IR	<= OPCODE_BNEZ & RS1 & RS2 & IMM;
+		NPC	<= x"01234567";
+		RD1_DATA<= (others => '0');
+		RD2_DATA<= (others => '0');
+		BRANCH	<= BR_NO;
+		S_SIGNED<= '1';
 
 		wait;
 	end process stimuli;

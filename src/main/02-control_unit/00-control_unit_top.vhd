@@ -5,6 +5,10 @@ use work.types.all;
 
 entity control_unit is
 	port (
+		-- from environment
+		I_CFG:		in std_logic;
+		I_ENDIAN:	in std_logic;
+
 		-- from ID stage
 		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 		I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -15,14 +19,15 @@ entity control_unit is
 
 		-- from EX stage
 		I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_EX:	in std_logic;
+		I_LD_EX:	in std_logic_vector(1 downto 0);
 
 		-- from MEM stage
 		I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_MEM:	in std_logic;
+		I_LD_MEM:	in std_logic_vector(1 downto 0);
 
 		-- to IF stage
 		O_IF_EN:	out std_logic;
+		O_ENDIAN:	out std_logic;
 
 		-- to ID stage
 		O_BRANCH:	out branch_t;
@@ -35,8 +40,8 @@ entity control_unit is
 		O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
 
 		-- to MEM stage
-		O_LD:		out std_logic;
-		O_STR:		out std_logic;
+		O_LD:		out std_logic_vector(1 downto 0);
+		O_STR:		out std_logic_vector(1 downto 0);
 
 		-- to WB stage
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
@@ -44,6 +49,17 @@ entity control_unit is
 end control_unit;
 
 architecture MIXED of control_unit is
+	component config_register is
+		port (
+			I_RST:		in std_logic;
+			I_LD:		in std_logic;
+
+			I_ENDIAN:	in std_logic;
+
+			O_ENDIAN:	out std_logic
+		);
+	end component config_register;
+
 	component inst_decoder is
 		port (
 			-- from ID stage
@@ -61,8 +77,8 @@ architecture MIXED of control_unit is
 			O_SEL_B_IMM:	out std_logic;
 
 			-- to MEM stage
-			O_LD:		out std_logic;
-			O_STR:		out std_logic;
+			O_LD:		out std_logic_vector(1 downto 0);
+			O_STR:		out std_logic_vector(1 downto 0);
 
 			-- to WB stage
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -80,11 +96,11 @@ architecture MIXED of control_unit is
 
 			-- from EX stage
 			I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_LD_EX:	in std_logic;
+			I_LD_EX:	in std_logic_vector(1 downto 0);
 
 			-- from MEM stage
 			I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_LD_MEM:	in std_logic;
+			I_LD_MEM:	in std_logic_vector(1 downto 0);
 
 			O_SEL_A:	out source_t;
 			O_SEL_B:	out source_t
@@ -93,7 +109,7 @@ architecture MIXED of control_unit is
 
 	signal INST_TYPE:	inst_t;
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal STR:		std_logic;
+	signal STR:		std_logic_vector(1 downto 0);
 	signal BRANCH:		branch_t;
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
@@ -101,6 +117,14 @@ architecture MIXED of control_unit is
 	signal B_NEEDED:	std_logic;
 	signal DATA_HAZ:	std_logic;
 begin
+	config_register_0: config_register
+		port map (
+			I_RST	=> '0',
+			I_LD	=> I_CFG,
+			I_ENDIAN=> I_ENDIAN,
+			O_ENDIAN=> O_ENDIAN
+		);
+
 	inst_decoder_0: inst_decoder
 		port map (
 			I_FUNC		=> I_FUNC,
@@ -150,7 +174,7 @@ begin
 			-- 	IF can proceed, since PC has been updated with
 			--	the right instruction
 			O_BRANCH	<= BR_NO;
-			O_STR		<= '0';
+			O_STR		<= "00";
 			O_DST		<= (others => '0');
 			O_IF_EN		<= '1';
 		elsif (DATA_HAZ = '1') then
@@ -160,7 +184,7 @@ begin
 			--	IF cannot proceed, since current instruction
 			--	must wait for its operands and then executed
 			O_BRANCH	<= BR_NO;
-			O_STR		<= '0';
+			O_STR		<= "00";
 			O_DST		<= (others => '0');
 			O_IF_EN		<= '0';
 		else

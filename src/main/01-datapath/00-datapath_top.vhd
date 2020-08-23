@@ -34,8 +34,8 @@ entity datapath is
 		I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 
 		-- from CU, to MEM stage
-		I_LD:		in std_logic;
-		I_STR:		in std_logic;
+		I_LD:		in std_logic_vector(1 downto 0);
+		I_STR:		in std_logic_vector(1 downto 0);
 
 		-- from CU, to WB stage
 		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -45,8 +45,8 @@ entity datapath is
 
 		-- to d-memory
 		O_D_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		O_D_RD:		out std_logic;
-		O_D_WR:		out std_logic;
+		O_D_RD:		out std_logic_vector(1 downto 0);
+		O_D_WR:		out std_logic_vector(1 downto 0);
 		O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to CU, from ID stage
@@ -59,11 +59,11 @@ entity datapath is
 
 		-- to CU, from EX stage
 		O_DST_EX:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_LD_EX:	out std_logic;
+		O_LD_EX:	out std_logic_vector(1 downto 0);
 
 		-- to CU, from MEM stage
 		O_DST_MEM:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_LD_MEM:	out std_logic
+		O_LD_MEM:	out std_logic_vector(1 downto 0)
 	);
 end datapath;
 
@@ -164,8 +164,9 @@ architecture STRUCTURAL of datapath is
 			I_ENDIAN:	in std_logic;
 
 			-- from CU
-			I_LD:		in std_logic;
-			I_STR:		in std_logic;
+			I_LD:		in std_logic_vector(1 downto 0);
+			I_STR:		in std_logic_vector(1 downto 0);
+			I_SIGNED:	in std_logic;
 
 			-- from EX stage
 			I_ADDR:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -178,8 +179,8 @@ architecture STRUCTURAL of datapath is
 
 			-- to d-memory
 			O_ADDR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_RD:		out std_logic;
-			O_WR:		out std_logic;
+			O_RD:		out std_logic_vector(1 downto 0);
+			O_WR:		out std_logic_vector(1 downto 0);
 			O_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- to WB stage
@@ -190,7 +191,7 @@ architecture STRUCTURAL of datapath is
 	component write_unit is
 		port (
 			-- from CU
-			I_LD:		in std_logic;
+			I_LD:		in std_logic_vector(1 downto 0);
 
 			-- from ID stage
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -250,26 +251,28 @@ architecture STRUCTURAL of datapath is
 			I_B:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_SIGNED:	in std_logic;
 
 			I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 			I_SEL_A:	in source_t;
 			I_SEL_B:	in source_t;
 			I_SEL_B_IMM:	in std_logic;
-			I_LD:		in std_logic;
-			I_STR:		in std_logic;
+			I_LD:		in std_logic_vector(1 downto 0);
+			I_STR:		in std_logic_vector(1 downto 0);
 
 			-- to EX stage
 			O_A:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_SIGNED:	out std_logic;
 
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
 			O_SEL_A:	out source_t;
 			O_SEL_B:	out source_t;
 			O_SEL_B_IMM:	out std_logic;
-			O_LD:		out std_logic;
-			O_STR:		out std_logic
+			O_LD:		out std_logic_vector(1 downto 0);
+			O_STR:		out std_logic_vector(1 downto 0)
 		);
 	end component id_ex_registers;
 
@@ -284,8 +287,9 @@ architecture STRUCTURAL of datapath is
 
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-			I_LD:		in std_logic;
-			I_STR:		in std_logic;
+			I_SIGNED:	in std_logic;
+			I_LD:		in std_logic_vector(1 downto 0);
+			I_STR:		in std_logic_vector(1 downto 0);
 
 			-- to MEM stage
 			O_ADDR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -293,8 +297,9 @@ architecture STRUCTURAL of datapath is
 
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-			O_LD:		out std_logic;
-			O_STR:		out std_logic
+			O_SIGNED:	out std_logic;
+			O_LD:		out std_logic_vector(1 downto 0);
+			O_STR:		out std_logic_vector(1 downto 0)
 		);
 	end component ex_mem_registers;
 
@@ -309,7 +314,7 @@ architecture STRUCTURAL of datapath is
 			I_ALUOUT:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-			I_LD:		in std_logic;
+			I_LD:		in std_logic_vector(1 downto 0);
 
 			-- to WB stage
 			O_LOADED:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -317,7 +322,7 @@ architecture STRUCTURAL of datapath is
 			O_ALUOUT:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-			O_LD:		out std_logic
+			O_LD:		out std_logic_vector(1 downto 0)
 		);
 	end component mem_wb_registers;
 
@@ -364,15 +369,16 @@ architecture STRUCTURAL of datapath is
 
 	signal ALUOUT_EX:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal ALUOUT_EX_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal LD_EX_REG:	std_logic;
-	signal STR_EX_REG:	std_logic;
+	signal LD_EX_REG:	std_logic_vector(1 downto 0);
+	signal STR_EX_REG:	std_logic_vector(1 downto 0);
 	signal DST_EX_REG:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal SIGNED_EX_REG:	std_logic;
 	signal DATA_EX_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 	signal ALUOUT_MEM_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal LOADED_MEM_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal LOADED_MEM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal LD_MEM_REG:	std_logic;
+	signal LD_MEM_REG:	std_logic_vector(1 downto 0);
 	signal DST_MEM_REG:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal WR_MEM:		std_logic;
 	signal WR_ADDR_MEM:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -385,8 +391,9 @@ architecture STRUCTURAL of datapath is
 	signal SEL_A_CU_REG:	source_t;
 	signal SEL_B_CU_REG:	source_t;
 	signal SEL_B_IMM_CU_REG:std_logic;
-	signal LD_CU_REG:	std_logic;
-	signal STR_CU_REG:	std_logic;
+	signal LD_CU_REG:	std_logic_vector(1 downto 0);
+	signal STR_CU_REG:	std_logic_vector(1 downto 0);
+	signal SIGNED_CU_REG:	std_logic;
 begin
 	fetch_unit_0: fetch_unit
 		port map (
@@ -445,6 +452,7 @@ begin
 			I_ENDIAN	=> I_ENDIAN,
 			I_LD		=> LD_EX_REG,
 			I_STR		=> STR_EX_REG,
+			I_SIGNED	=> SIGNED_EX_REG,
 			I_ADDR		=> ALUOUT_EX_REG,
 			I_DATA		=> DATA_EX_REG,
 			I_RD_DATA	=> I_D_RD_DATA,
@@ -498,6 +506,7 @@ begin
 			I_B		=> RD2_ID,
 			I_IMM		=> IMM_ID,
 			I_DST		=> I_DST,
+			I_SIGNED	=> I_SIGNED,
 			I_ALUOP		=> I_ALUOP,
 			I_SEL_A		=> I_SEL_A,
 			I_SEL_B		=> I_SEL_B,
@@ -508,6 +517,7 @@ begin
 			O_B		=> RD2_ID_REG,
 			O_IMM		=> IMM_ID_REG,
 			O_DST		=> DST_ID_REG,
+			O_SIGNED	=> SIGNED_CU_REG,
 			O_ALUOP		=> ALUOP_CU_REG,
 			O_SEL_A		=> SEL_A_CU_REG,
 			O_SEL_B		=> SEL_B_CU_REG,
@@ -526,11 +536,13 @@ begin
 			I_ADDR	=> ALUOUT_EX,
 			I_DATA	=> RD1_ID_REG,
 			I_DST	=> DST_ID_REG,
+			I_SIGNED=> SIGNED_CU_REG,
 			I_LD	=> LD_CU_REG,
 			I_STR	=> STR_CU_REG,
 			O_ADDR	=> ALUOUT_EX_REG,
 			O_DATA	=> DATA_EX_REG,
 			O_DST	=> DST_EX_REG,
+			O_SIGNED=> SIGNED_EX_REG,
 			O_LD	=> LD_EX_REG,
 			O_STR	=> STR_EX_REG
 		);

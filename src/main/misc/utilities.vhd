@@ -2,10 +2,38 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 
 package utilities is
-	function swap_bytes(i_data: std_logic_vector) return std_logic_vector;
-	function std_logic_vector_image (a: std_logic_vector) return string;
-	function log2(i : natural) return integer;
-	function log2_ceil(i : natural) return integer;
+	function swap_bytes (
+		i_data:	std_logic_vector
+	)
+	return std_logic_vector;
+
+	function sign_extend (
+		I_DATA:		std_logic_vector;
+		I_MSB:		integer;
+		I_LENGTH:	integer
+	)
+	return std_logic_vector;
+
+	function zero_extend (
+		I_DATA:		std_logic_vector;
+		I_LENGTH:	integer
+	)
+	return std_logic_vector;
+
+	function std_logic_vector_image (
+		a:	std_logic_vector
+	)
+	return string;
+
+	function log2 (
+		i:	natural
+	)
+	return integer;
+
+	function log2_ceil (
+		i:	natural
+	)
+	return integer;
 end package utilities;
 
 package body utilities is
@@ -31,6 +59,27 @@ package body utilities is
 
 		return o_data;
 	end function swap_bytes;
+
+	function sign_extend (
+		I_DATA:		std_logic_vector;
+		I_MSB:		integer;
+		I_LENGTH:	integer
+	)
+	return std_logic_vector is
+	begin
+		return (I_LENGTH - 1 downto I_MSB + 1 => I_DATA(I_MSB)) &
+			I_DATA(I_MSB downto 0);
+	end function sign_extend;
+
+	function zero_extend (
+		I_DATA:		std_logic_vector;
+		I_LENGTH:	integer
+	)
+	return std_logic_vector is
+	begin
+		return (I_LENGTH - 1 downto I_DATA'length => '0') &
+			I_DATA(I_DATA'left downto 0);
+	end function zero_extend;
 
 	function std_logic_vector_image (
 		a:	 std_logic_vector

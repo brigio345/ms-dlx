@@ -13,11 +13,11 @@ entity data_forwarder is
 
 		-- from EX stage
 		I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_EX:	in std_logic;
+		I_LD_EX:	in std_logic_vector(1 downto 0);
 
 		-- from MEM stage
 		I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_MEM:	in std_logic;
+		I_LD_MEM:	in std_logic_vector(1 downto 0);
 
 		O_SEL_A:	out source_t;
 		O_SEL_B:	out source_t
@@ -28,9 +28,9 @@ architecture BEHAVIORAL of data_forwarder is
 	function source_sel_f (
 		I_SRC:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_EX:	in std_logic;
+		I_LD_EX:	in std_logic_vector(1 downto 0);
 		I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_MEM:	in std_logic
+		I_LD_MEM:	in std_logic_vector(1 downto 0)
 	)
 	return source_t is
 		variable ret:	source_t;
@@ -39,13 +39,13 @@ architecture BEHAVIORAL of data_forwarder is
 			-- R0 is always 0 => it can't cause an hazard
 			ret := SRC_RF;
 		elsif (I_SRC = I_DST_EX) then
-			if (I_LD_EX = '1') then
+			if (I_LD_EX /= "00") then
 				ret := SRC_LD_EX;
 			else
 				ret := SRC_ALU_EX;
 			end if;
 		elsif (I_SRC = I_DST_MEM) then
-			if (I_LD_MEM = '1') then
+			if (I_LD_MEM /= "00") then
 				ret := SRC_LD_MEM;
 			else
 				ret := SRC_ALU_MEM;

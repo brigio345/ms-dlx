@@ -18,8 +18,8 @@ architecture TB_ARCH of tb_dlx is
 			O_I_RD_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			O_D_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_D_RD:		out std_logic;
-			O_D_WR:		out std_logic;
+			O_D_RD:		out std_logic_vector(1 downto 0);
+			O_D_WR:		out std_logic_vector(1 downto 0);
 			O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
 	end component dlx;
@@ -36,6 +36,22 @@ architecture TB_ARCH of tb_dlx is
 		);
 	end component inst_mem;
 
+	component data_mem is
+		generic (
+			DATA_SZ:	integer := 32
+		);
+		port (
+			I_RST:	in std_logic;
+
+			I_ADDR:	in std_logic_vector(31 downto 0);
+			I_DATA:	in std_logic_vector(DATA_SZ - 1 downto 0);
+			I_RD:	in std_logic_vector(1 downto 0);
+			I_WR:	in std_logic_vector(1 downto 0);
+
+			O_DATA:	out std_logic_vector(DATA_SZ - 1 downto 0)
+		);
+	end component data_mem;
+
 	constant CLK_PERIOD:	time := 2 ns;
 
 	signal CLK:		std_logic;
@@ -45,8 +61,8 @@ architecture TB_ARCH of tb_dlx is
 	signal D_RD_DATA:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal I_RD_ADDR:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal D_ADDR:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal D_RD:		std_logic;
-	signal D_WR:		std_logic;
+	signal D_RD:		std_logic_vector(1 downto 0);
+	signal D_WR:		std_logic_vector(1 downto 0);
 	signal D_WR_DATA:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
 	dut: dlx
@@ -74,6 +90,19 @@ begin
 			O_DATA	=> I_RD_DATA
 		);
 
+--	data_mem_0: data_mem
+--		generic map (
+--			DATA_SZ	=> 32
+--		)
+--		port map (
+--			I_RST	=> RST,
+--			I_ADDR	=> D_ADDR,
+--			I_DATA	=> D_WR_DATA,
+--			I_RD	=> D_RD,
+--			I_WR	=> D_WR,
+--			O_DATA	=> D_RD_DATA
+--		);
+
 	clock: process
 	begin
 		CLK <= '0';
@@ -86,17 +115,12 @@ begin
 	begin
 		RST		<= '1';
 		ENDIAN		<= '1';
-		D_RD_DATA	<= (others => '0');
+		D_RD_DATA	<= x"40ABCDEF";
+
 
 		wait for CLK_PERIOD;
 
 		RST		<= '0';
-
-		wait for CLK_PERIOD;
-
-		wait for CLK_PERIOD;
-
-		wait for CLK_PERIOD;
 
 		wait;
 	end process stimuli;

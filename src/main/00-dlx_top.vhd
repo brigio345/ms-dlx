@@ -19,8 +19,8 @@ entity dlx is
 		O_I_RD_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		O_D_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		O_D_RD:		out std_logic;
-		O_D_WR:		out std_logic;
+		O_D_RD:		out std_logic_vector(1 downto 0);
+		O_D_WR:		out std_logic_vector(1 downto 0);
 		O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 	);
 end dlx;
@@ -56,8 +56,8 @@ architecture STRUCTURAL of dlx is
 			I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 
 			-- from CU, to MEM stage
-			I_LD:		in std_logic;
-			I_STR:		in std_logic;
+			I_LD:		in std_logic_vector(1 downto 0);
+			I_STR:		in std_logic_vector(1 downto 0);
 
 			-- from CU, to WB stage
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -67,8 +67,8 @@ architecture STRUCTURAL of dlx is
 
 			-- to d-memory
 			O_D_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_D_RD:		out std_logic;
-			O_D_WR:		out std_logic;
+			O_D_RD:		out std_logic_vector(1 downto 0);
+			O_D_WR:		out std_logic_vector(1 downto 0);
 			O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- to CU, from ID stage
@@ -81,16 +81,20 @@ architecture STRUCTURAL of dlx is
 
 			-- to CU, from EX stage
 			O_DST_EX:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_LD_EX:	out std_logic;
+			O_LD_EX:	out std_logic_vector(1 downto 0);
 
 			-- to CU, from MEM stage
 			O_DST_MEM:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_LD_MEM:	out std_logic
+			O_LD_MEM:	out std_logic_vector(1 downto 0)
 		);
 	end component datapath;
 
 	component control_unit is
 		port (
+			-- from environment
+			I_CFG:		in std_logic;
+			I_ENDIAN:	in std_logic;
+
 			-- from ID stage
 			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 			I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -101,14 +105,15 @@ architecture STRUCTURAL of dlx is
 
 			-- from EX stage
 			I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_LD_EX:	in std_logic;
+			I_LD_EX:	in std_logic_vector(1 downto 0);
 
 			-- from MEM stage
 			I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_LD_MEM:	in std_logic;
+			I_LD_MEM:	in std_logic_vector(1 downto 0);
 
 			-- to IF stage
 			O_IF_EN:	out std_logic;
+			O_ENDIAN:	out std_logic;
 
 			-- to ID stage
 			O_BRANCH:	out branch_t;
@@ -121,25 +126,13 @@ architecture STRUCTURAL of dlx is
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
 
 			-- to MEM stage
-			O_LD:		out std_logic;
-			O_STR:		out std_logic;
+			O_LD:		out std_logic_vector(1 downto 0);
+			O_STR:		out std_logic_vector(1 downto 0);
 
 			-- to WB stage
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
 		);
 	end component control_unit;
-
-	component config_register is
-		port (
-			I_CLK:		in std_logic;
-			I_RST:		in std_logic;
-			I_LD:		in std_logic;
-
-			I_ENDIAN:	in std_logic;
-
-			O_ENDIAN:	out std_logic
-		);
-	end component config_register;
 
 	signal ENDIAN:		std_logic;
 	signal IF_EN:		std_logic;
@@ -149,8 +142,8 @@ architecture STRUCTURAL of dlx is
 	signal SEL_B:		source_t;
 	signal SEL_B_IMM:	std_logic;
 	signal ALUOP:		std_logic_vector(FUNC_SZ - 1 downto 0);
-	signal LD:		std_logic;
-	signal STR:		std_logic;
+	signal LD:		std_logic_vector(1 downto 0);
+	signal STR:		std_logic_vector(1 downto 0);
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal OPCODE:		std_logic_vector(OPCODE_SZ - 1 downto 0);
 	signal FUNC:		std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -159,9 +152,9 @@ architecture STRUCTURAL of dlx is
 	signal DST_ID:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal TAKEN_PREV:	std_logic;
 	signal DST_EX:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal LD_EX:		std_logic;
+	signal LD_EX:		std_logic_vector(1 downto 0);
 	signal DST_MEM:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal LD_MEM:		std_logic;
+	signal LD_MEM:		std_logic_vector(1 downto 0);
 begin
 	datapath_0: datapath
 		port map (
@@ -199,6 +192,8 @@ begin
 	
 	control_unit_0: control_unit
 		port map (
+			I_CFG		=> I_RST,
+			I_ENDIAN	=> I_ENDIAN,
 			I_OPCODE	=> OPCODE,
 			I_FUNC		=> FUNC,
 			I_SRC_A		=> SRC_A,
@@ -210,6 +205,7 @@ begin
 			I_DST_MEM	=> DST_MEM,
 			I_LD_MEM	=> LD_MEM,
 			O_IF_EN		=> IF_EN,
+			O_ENDIAN	=> ENDIAN,
 			O_BRANCH	=> BRANCH,
 			O_SIGNED	=> S_SIGNED,
 			O_SEL_A		=> SEL_A,
@@ -219,16 +215,6 @@ begin
 			O_LD		=> LD,
 			O_STR		=> STR,
 			O_DST		=> DST
-		);
-
-	-- loaded during reset
-	config_register_0: config_register
-		port map (
-			I_CLK	=> I_CLK,
-			I_RST	=> '0',
-			I_LD	=> I_RST,
-			I_ENDIAN=> I_ENDIAN,
-			O_ENDIAN=> ENDIAN
 		);
 end STRUCTURAL;
 

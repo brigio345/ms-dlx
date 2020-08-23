@@ -14,8 +14,9 @@ entity ex_mem_registers is
 
 		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-		I_LD:		in std_logic;
-		I_STR:		in std_logic;
+		I_SIGNED:	in std_logic;
+		I_LD:		in std_logic_vector(1 downto 0);
+		I_STR:		in std_logic_vector(1 downto 0);
 
 		-- to MEM stage
 		O_ADDR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -23,8 +24,9 @@ entity ex_mem_registers is
 
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-		O_LD:		out std_logic;
-		O_STR:		out std_logic
+		O_SIGNED:	out std_logic;
+		O_LD:		out std_logic_vector(1 downto 0);
+		O_STR:		out std_logic_vector(1 downto 0)
 	);
 end ex_mem_registers;
 
@@ -37,12 +39,14 @@ begin
 				O_ADDR	<= (others => '0');
 				O_DATA	<= (others => '0');
 				O_DST	<= (others => '0');
-				O_LD	<= '0';
-				O_STR	<= '0';
+				O_SIGNED<= '0';
+				O_LD	<= (others => '0');
+				O_STR	<= (others => '0');
 			else
 				O_ADDR	<= I_ADDR;
 				O_DATA	<= I_DATA;
 				O_DST	<= I_DST;
+				O_SIGNED<= I_SIGNED;
 				O_LD	<= I_LD;
 				O_STR	<= I_STR;
 			end if;
