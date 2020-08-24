@@ -145,6 +145,7 @@ architecture STRUCTURAL of datapath is
 			I_RD1:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_RD2:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- data forwarded from EX/MEM stages
 			I_ALUOUT_EX:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -250,6 +251,7 @@ architecture STRUCTURAL of datapath is
 			I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_B:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_SIGNED:	in std_logic;
 
@@ -264,6 +266,7 @@ architecture STRUCTURAL of datapath is
 			O_A:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			O_SIGNED:	out std_logic;
 
@@ -359,6 +362,7 @@ architecture STRUCTURAL of datapath is
 	signal RD2_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal IMM_ID:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal IMM_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal NPC_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal DST_ID:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal DST_ID_REG:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
@@ -441,6 +445,7 @@ begin
 			I_RD1		=> RD1_ID_REG,
 			I_RD2		=> RD2_ID_REG,
 			I_IMM		=> IMM_ID_REG,
+			I_NPC		=> NPC_ID_REG,
 			I_ALUOUT_EX	=> ALUOUT_EX_REG,
 			I_ALUOUT_MEM	=> ALUOUT_MEM_REG,
 			I_LOADED	=> LOADED_MEM_REG,
@@ -505,6 +510,7 @@ begin
 			I_A		=> RD1_ID,
 			I_B		=> RD2_ID,
 			I_IMM		=> IMM_ID,
+			I_NPC		=> NPC_IF_REG,
 			I_DST		=> I_DST,
 			I_SIGNED	=> I_SIGNED,
 			I_ALUOP		=> I_ALUOP,
@@ -516,6 +522,7 @@ begin
 			O_A		=> RD1_ID_REG,
 			O_B		=> RD2_ID_REG,
 			O_IMM		=> IMM_ID_REG,
+			O_NPC		=> NPC_ID_REG,
 			O_DST		=> DST_ID_REG,
 			O_SIGNED	=> SIGNED_CU_REG,
 			O_ALUOP		=> ALUOP_CU_REG,

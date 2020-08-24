@@ -16,6 +16,7 @@ entity execute_unit is
 		I_RD1:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_RD2:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- data forwarded from EX/MEM stages
 		I_ALUOUT_EX:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -43,6 +44,7 @@ architecture MIXED of execute_unit is
 	signal A:	std_logic_vector(I_RD1'range);
 	signal B:	std_logic_vector(I_RD2'range);
 	signal R:	std_logic_vector(I_RD2'range);
+	signal ALUOUT:	std_logic_vector(O_ALUOUT'range);
 begin
 	mux_a: process (I_SEL_A, I_RD1, I_ALUOUT_EX, I_ALUOUT_MEM, I_LOADED)
 	begin
@@ -86,7 +88,9 @@ begin
 			I_OP	=> I_ALUOP,
 			I_A	=> A,
 			I_B	=> B,
-			O_DATA	=> O_ALUOUT
+			O_DATA	=> ALUOUT
 		);
+	
+	O_ALUOUT <= ALUOUT when (I_ALUOP /= FUNC_LINK) else I_NPC;
 end MIXED;
 

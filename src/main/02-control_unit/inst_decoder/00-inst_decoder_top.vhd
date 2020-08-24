@@ -144,33 +144,31 @@ begin
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_BRANCH	<= BR_UNC_REL;
 				O_DST		<= (others => '0'); -- no writeback
-				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JAL		=>
 				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_BRANCH	<= BR_UNC_REL;
-				O_ALUOP		<= FUNC_ADD;
+				O_DST		<= (others => '1'); -- write to R31
+				O_ALUOP		<= FUNC_LINK;
 			when OPCODE_BEQZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_BRANCH	<= BR_EQ0_REL;
 				O_DST		<= (others => '0'); -- no writeback
-				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_BNEZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_BRANCH	<= BR_NE0_REL;
 				O_DST		<= (others => '0'); -- no writeback
-				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JR		=>
 				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_BRANCH	<= BR_UNC_ABS;
 				O_DST		<= (others => '0'); -- no writeback
-				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_JALR	=>
 				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_BRANCH	<= BR_UNC_ABS;
-				O_ALUOP		<= FUNC_ADD;
+				O_DST		<= (others => '1'); -- write to R31
+				O_ALUOP		<= FUNC_LINK;
 
 			-- General instructions
 			when OPCODE_NOP		=>

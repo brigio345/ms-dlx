@@ -61,6 +61,8 @@ package coding is
 	constant FUNC_SGTU:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000111011"; -- r, 0x3B
 	constant FUNC_SLEU:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000111100"; -- r, 0x3C
 	constant FUNC_SGEU:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000111101"; -- r, 0x3D
+	-- custom FUNCs
+	constant FUNC_LINK:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00001000000";
 
 	-- Register-immediate instructions
 	constant IMM_SZ:	integer := 16;

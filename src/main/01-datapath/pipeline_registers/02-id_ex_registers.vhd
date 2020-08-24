@@ -13,6 +13,7 @@ entity id_ex_registers is
 		I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_B:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_SIGNED:	in std_logic;
 
@@ -27,6 +28,7 @@ entity id_ex_registers is
 		O_A:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		O_SIGNED:	out std_logic;
 
@@ -48,6 +50,7 @@ begin
 				O_A		<= (others => '0');
 				O_B		<= (others => '0');
 				O_IMM		<= (others => '0');
+				O_NPC		<= (others => '0');
 				O_DST		<= (others => '0');
 				O_SIGNED	<= '0';
 				O_ALUOP		<= FUNC_ADD;
@@ -60,6 +63,7 @@ begin
 				O_A		<= I_A;
 				O_B		<= I_B;
 				O_IMM		<= I_IMM;
+				O_NPC		<= I_NPC;
 				O_DST		<= I_DST;
 				O_SIGNED	<= I_SIGNED;
 				O_ALUOP		<= I_ALUOP;
