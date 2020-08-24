@@ -156,6 +156,7 @@ begin
 	O_SEL_A <= SEL_A;
 	O_SEL_B <= SEL_B;
 
+	-- x_NEEDED = '1' if x is needed in EX stage
 	A_NEEDED <= '1' when (INST_TYPE /= INST_JMP_ABS) else '0';
 	B_NEEDED <= '1' when (INST_TYPE = INST_REG) else '0';
 
