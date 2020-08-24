@@ -136,5 +136,10 @@ package coding is
 	constant OPCODE_TRAP:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "010001"; -- t, 0x11
 	constant OPCODE_NOP:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "010101"; -- n, 0x15
 	constant OPCODE_ITLB:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "111000"; -- n, 0x38
+
+	-- Floating-point register-register instructions
+	constant OPCODE_FRTYPE:	std_logic_vector(OPCODE_SZ - 1 downto 0) := "000001";
+
+	constant FUNC_MULT:	std_logic_vector(FUNC_SZ - 1 downto 0) := "00000001110"; -- r, 0x0E
 end coding;
 

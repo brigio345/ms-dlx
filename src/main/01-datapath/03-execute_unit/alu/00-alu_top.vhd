@@ -48,6 +48,17 @@ architecture MIXED of alu is
 		);
 	end component comparator;
 
+	component BOOTHMUL is
+		generic (
+			N:	integer := 32
+		);
+		port (
+			A: in std_logic_vector(N - 1 downto 0);      
+			B: in std_logic_vector(N - 1 downto 0);      
+			P: out std_logic_vector(2 * N - 1 downto 0)
+		);  
+	end component BOOTHMUL;
+
 	-- adder signals
 	signal C_IN:	std_logic;
 	signal B_ADDER:	std_logic_vector(N_BIT - 1 downto 0);
@@ -64,6 +75,11 @@ architecture MIXED of alu is
 	signal GT_U:	std_logic;
 	signal LT_S:	std_logic;
 	signal GT_S:	std_logic;
+
+	-- multiplier signals
+	signal A_LOW:	std_logic_vector(N_BIT / 2 - 1 downto 0);
+	signal B_LOW:	std_logic_vector(N_BIT / 2 - 1 downto 0);
+	signal PROD:	std_logic_vector(N_BIT - 1 downto 0);
 begin
 	B_INT	<= to_integer(unsigned(I_B));
 
@@ -96,13 +112,26 @@ begin
 			O_GT_S	=> GT_S
 		);
 
+	A_LOW <= I_A(N_BIT / 2 - 1 downto 0);
+	B_LOW <= I_B(N_BIT / 2 - 1 downto 0);
+
+	boothmul_0: BOOTHMUL
+		generic map (
+			N	=> N_BIT / 2
+		)
+		port map (
+			A	=> A_LOW,
+			B	=> B_LOW,
+			P	=> PROD
+		);
+
 	-- perform A + B when an ADD is required,
 	-- otherwise perform A - B
 	-- ((NOT B) + 1 = -B)
 	B_ADDER	<= I_B when (I_OP = FUNC_ADD OR I_OP = FUNC_ADDU) else NOT I_B;
 	C_IN	<= '0' when (I_OP = FUNC_ADD OR I_OP = FUNC_ADDU) else '1';
 
-	output_sel: process(I_OP, I_A, I_B, B_INT, SUM, EQ, LT_S, GT_S, LT_U, GT_U)
+	output_sel: process(I_OP, I_A, I_B, B_INT, SUM, PROD, EQ, LT_S, GT_S, LT_U, GT_U)
 	begin
 		O_DATA <= (others => '0');
 		case I_OP is
@@ -140,6 +169,8 @@ begin
 				O_DATA(0) <= (GT_U OR EQ);
 			when FUNC_SGTU	=>
 				O_DATA(0) <= GT_U;
+			when FUNC_MULT	=>
+				O_DATA <= PROD;
 			when others	=>
 				null;
 		end case;
