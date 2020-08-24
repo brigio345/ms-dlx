@@ -126,12 +126,15 @@ begin
 				O_LD		<= "11";	-- load word
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_SB		=>
+				O_DST		<= (others => '0');
 				O_STR		<= "01";	-- store word
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_SH		=>
+				O_DST		<= (others => '0');
 				O_STR		<= "10";	-- store word
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_SW		=>
+				O_DST		<= (others => '0');
 				O_STR		<= "11";	-- store word
 				O_ALUOP		<= FUNC_ADD;
 
