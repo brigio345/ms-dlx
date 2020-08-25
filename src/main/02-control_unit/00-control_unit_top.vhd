@@ -83,7 +83,8 @@ architecture MIXED of control_unit is
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- to CU
-			O_INST_TYPE:	out inst_t
+			O_A_NEEDED:	out std_logic;
+			O_B_NEEDED:	out std_logic
 		);
 	end component inst_decoder;
 	
@@ -106,7 +107,6 @@ architecture MIXED of control_unit is
 		);
 	end component data_forwarder;
 
-	signal INST_TYPE:	inst_t;
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal STR:		std_logic_vector(1 downto 0);
 	signal SEL_A:		source_t;
@@ -135,7 +135,8 @@ begin
 			O_LD		=> O_LD,
 			O_STR		=> STR,
 			O_DST		=> DST,
-			O_INST_TYPE	=> INST_TYPE
+			O_A_NEEDED	=> A_NEEDED,
+			O_B_NEEDED	=> B_NEEDED
 		);
 
 	data_forwarder_0: data_forwarder
@@ -152,10 +153,6 @@ begin
 
 	O_SEL_A <= SEL_A;
 	O_SEL_B <= SEL_B;
-
-	-- x_NEEDED = '1' if x is needed in EX stage
-	A_NEEDED <= '1' when (INST_TYPE /= INST_JMP_ABS) else '0';
-	B_NEEDED <= '1' when (INST_TYPE = INST_REG) else '0';
 
 	-- data hazard occurs when a needed source operand has to be loaded
 	-- by the instruction which currently is in EX stage

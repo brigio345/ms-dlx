@@ -1,7 +1,6 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.coding.all;
-use work.types.all;
 
 -- inst_decoder: generate all ctrl signals for current instruction
 entity inst_decoder is
@@ -27,7 +26,8 @@ entity inst_decoder is
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to CU
-		O_INST_TYPE:	out inst_t
+		O_A_NEEDED:	out std_logic;
+		O_B_NEEDED:	out std_logic
 	);
 end inst_decoder;
 
@@ -38,19 +38,21 @@ begin
 		-- typical I-TYPE instruction as default values
 		-- (since they are the most common instructions this
 		-- just reduces inst_decoder code size)
-		O_INST_TYPE	<= INST_IMM;
 		O_SEL_B_IMM	<= '1';	-- IMM
 		O_SIGNED	<= '1';	-- signed
 		O_LD		<= "00"; -- no load
 		O_STR		<= "00"; -- no store
 		O_DST		<= I_DST_I;
 		O_ALUOP		<= FUNC_ADD;
+		O_A_NEEDED	<= '1';
+		O_B_NEEDED	<= '0';
 		case (I_OPCODE) is
 			when OPCODE_RTYPE | OPCODE_FRTYPE	=>
-				O_INST_TYPE	<= INST_REG;
 				O_SEL_B_IMM	<= '0';	-- B
 				O_DST		<= I_DST_R;
 				O_ALUOP		<= I_FUNC;
+				O_A_NEEDED	<= '1';
+				O_B_NEEDED	<= '1';
 				-- O_SIGNED is used for data extension only:
 				--	there is no need to specify it with
 				--	R-type instructions
@@ -144,33 +146,28 @@ begin
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
 			when OPCODE_J		=>
-				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
+				O_A_NEEDED	<= '0';
 			when OPCODE_JAL		=>
-				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '1'); -- write to R31
 				O_ALUOP		<= FUNC_LINK;
+				O_A_NEEDED	<= '0';
 			when OPCODE_JR		=>
-				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
 			when OPCODE_JALR	=>
-				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '1'); -- write to R31
 				O_ALUOP		<= FUNC_LINK;
 
 			-- General instructions
-			when OPCODE_NOP		=>
-				O_INST_TYPE	<= INST_NOP;
-				O_DST		<= (others => '0');
-
-			-- NOP when an unsupported instruction is detected
 			when others		=>
-				O_INST_TYPE	<= INST_NOP;
+				-- NOP and unsupported instructions
 				O_DST		<= (others => '0');
+				O_A_NEEDED	<= '0';
+				O_B_NEEDED	<= '0';
 		end case;
 	end process;
 end BEHAVIORAL;
