@@ -91,8 +91,10 @@ architecture MIXED of control_unit is
 			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- to CU
-			O_A_NEEDED:	out std_logic;
-			O_B_NEEDED:	out std_logic
+			O_A_NEEDED_ID:	out std_logic;
+			O_A_NEEDED_EX:	out std_logic;
+			O_B_NEEDED_EX:	out std_logic;
+			O_B_NEEDED_MEM:	out std_logic
 		);
 	end component inst_decoder;
 	
@@ -115,13 +117,16 @@ architecture MIXED of control_unit is
 		);
 	end component data_forwarder;
 
+	signal TAKEN:		std_logic;
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal STR:		std_logic_vector(1 downto 0);
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
-	signal A_NEEDED:	std_logic;
-	signal B_NEEDED:	std_logic;
-	signal DATA_HAZ:	std_logic;
+	signal A_NEEDED_ID:	std_logic;
+	signal A_NEEDED_EX:	std_logic;
+	signal B_NEEDED_EX:	std_logic;
+	signal B_NEEDED_MEM:	std_logic;
+	signal DATA_STALL:	std_logic;
 begin
 	config_register_0: config_register
 		port map (
@@ -138,7 +143,7 @@ begin
 			I_DST_R		=> I_DST_R,
 			I_DST_I		=> I_SRC_B,
 			I_ZERO		=> I_ZERO,
-			O_TAKEN		=> O_TAKEN,
+			O_TAKEN		=> TAKEN,
 			O_SEL_OP1	=> O_SEL_OP1,
 			O_SEL_OP2	=> O_SEL_OP2,
 			O_SIGNED	=> O_SIGNED,
@@ -147,8 +152,10 @@ begin
 			O_LD		=> O_LD,
 			O_STR		=> STR,
 			O_DST		=> DST,
-			O_A_NEEDED	=> A_NEEDED,
-			O_B_NEEDED	=> B_NEEDED
+			O_A_NEEDED_ID	=> A_NEEDED_ID,
+			O_A_NEEDED_EX	=> A_NEEDED_EX,
+			O_B_NEEDED_EX	=> B_NEEDED_EX,
+			O_B_NEEDED_MEM	=> B_NEEDED_MEM
 		);
 
 	data_forwarder_0: data_forwarder
@@ -166,13 +173,28 @@ begin
 	O_SEL_A <= SEL_A;
 	O_SEL_B <= SEL_B;
 
-	-- data hazard occurs when a needed source operand has to be loaded
-	-- by the instruction which currently is in EX stage
-	DATA_HAZ <= '1' when (((SEL_A = SRC_LD_EX) AND (A_NEEDED = '1')) OR
-		    ((SEL_B = SRC_LD_EX) AND (B_NEEDED = '1')))
+	-- Data forwarding:
+	--	* to ID stage:
+	--		1. from ALUOUT of instruction in MEM stage
+	--	* to EX stage:
+	--		1. from ALUOUT of instruction in MEM stage
+	--		2. from ALUOUT of instruction in EX stage
+	--		3. from LOADED of instruction in MEM stage
+	--	* to MEM stage:
+	--		1. from ALUOUT of instruction in MEM stage
+	--		2. from ALUOUT of instruction in EX stage
+	--		3. from LOADED of instruction in MEM stage
+	--		4. from LOADED of instruction in EX stage
+
+	-- Insert a data stall in ID stage when data is not in rf and cannot
+	--	be forwarded
+	DATA_STALL <= '1' when (
+			((A_NEEDED_ID = '1') AND ((SEL_A /= SRC_RF) AND (SEL_A /= SRC_ALU_MEM))) OR
+			((A_NEEDED_EX = '1') AND (SEL_A = SRC_LD_EX)) OR
+		    	((B_NEEDED_EX = '1') AND (SEL_B = SRC_LD_EX)))
 		    else '0';
 
-	stall_gen: process (I_TAKEN_PREV, DATA_HAZ, I_OPCODE, STR, DST)
+	stall_gen: process (I_TAKEN_PREV, DATA_STALL, I_OPCODE, STR, DST, TAKEN)
 	begin
 		if (I_TAKEN_PREV = '1') then
 			-- stall: disable branches and writes (to memory and rf)
@@ -183,8 +205,9 @@ begin
 			O_OPCODE	<= OPCODE_NOP;
 			O_STR		<= "00";
 			O_DST		<= (others => '0');
+			O_TAKEN		<= '0';
 			O_IF_EN		<= '1';
-		elsif (DATA_HAZ = '1') then
+		elsif (DATA_STALL = '1') then
 			-- stall: disable branches and writes (to memory and rf)
 			--	so that current instruction will not have any
 			--	effect
@@ -193,12 +216,14 @@ begin
 			O_OPCODE	<= OPCODE_NOP;
 			O_STR		<= "00";
 			O_DST		<= (others => '0');
+			O_TAKEN		<= '0';
 			O_IF_EN		<= '0';
 		else
 			-- no stall: output decoded data
 			O_OPCODE	<= I_OPCODE;
 			O_STR		<= STR;
 			O_DST		<= DST;
+			O_TAKEN		<= TAKEN;
 			O_IF_EN		<= '1';
 		end if;
 	end process stall_gen;

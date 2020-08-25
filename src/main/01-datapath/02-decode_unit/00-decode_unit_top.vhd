@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
+use work.types.all;
 use work.utilities.all;
 
 -- decode_unit:
@@ -25,6 +26,11 @@ entity decode_unit is
 		I_SEL_OP2:	in std_logic_vector(1 downto 0);
 		I_TAKEN:	in std_logic;
 		I_SIGNED:	in std_logic;
+		I_SEL_A:	in source_t;
+		I_SEL_B:	in source_t;
+
+		-- from MEM
+		I_ALUOUT_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- O_RDx_ADDR: to rf; address at which rf has to be read
 		O_RD1_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -66,6 +72,8 @@ architecture MIXED of decode_unit is
 		);
 	end component pc_computer;
 
+	signal A:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal B:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal IMM:	std_logic_vector(IMM_SZ - 1 downto 0);
 	signal IMM_EXT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal OFF:	std_logic_vector(OFF_SZ - 1 downto 0);
@@ -73,6 +81,9 @@ architecture MIXED of decode_unit is
 begin
 	IMM	<= I_IR(I_IMM_RANGE);
 	OFF	<= I_IR(J_OFF_RANGE);
+
+	A	<= I_ALUOUT_MEM when (I_SEL_A = SRC_ALU_MEM) else I_RD1_DATA;
+	B 	<= I_ALUOUT_MEM when (I_SEL_B = SRC_ALU_MEM) else I_RD2_DATA;
 
 	-- extend
 	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_SIGNED = '0')
@@ -85,7 +96,7 @@ begin
 			I_SEL_OP2	=> I_SEL_OP2,
 			I_TAKEN		=> I_TAKEN,
 			I_NPC		=> I_NPC,
-			I_A		=> I_RD1_DATA,
+			I_A		=> A,
 			I_IMM		=> IMM_EXT,
 			I_OFF		=> OFF_EXT,
 			O_TARGET	=> O_TARGET
@@ -97,12 +108,12 @@ begin
 	O_DST		<= I_IR(R_DST_RANGE);
 
 	-- outputs to EX stage
-	O_RD1	<= I_RD1_DATA;
-	O_RD2 	<= I_RD2_DATA;
+	O_RD1	<= A;
+	O_RD2 	<= B;
 
 	O_IMM	<= IMM_EXT;
 
-	O_ZERO	<= '1' when (I_RD1_DATA = (I_RD1_DATA'range => '0')) else '0';
+	O_ZERO	<= '1' when (A = (A'range => '0')) else '0';
 
 	O_OPCODE<= I_IR(OPCODE_RANGE);
 	O_FUNC	<= I_IR(FUNC_RANGE);

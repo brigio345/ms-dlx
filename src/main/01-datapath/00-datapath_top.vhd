@@ -113,6 +113,11 @@ architecture STRUCTURAL of datapath is
 			I_SEL_OP2:	in std_logic_vector(1 downto 0);
 			I_TAKEN:	in std_logic;
 			I_SIGNED:	in std_logic;
+			I_SEL_A:	in source_t;
+			I_SEL_B:	in source_t;
+
+			-- from MEM
+			I_ALUOUT_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
 			O_RD1_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -378,7 +383,6 @@ architecture STRUCTURAL of datapath is
 
 	signal TARGET_ID:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal TARGET_ID_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal TAKEN_ID:	std_logic;
 	signal TAKEN_ID_REG:	std_logic;
 	signal RD1_ADDR_ID:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal RD2_ADDR_ID:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -452,6 +456,9 @@ begin
 			I_SEL_OP2	=> I_SEL_OP2,
 			I_TAKEN		=> I_TAKEN,
 			I_SIGNED	=> I_SIGNED,
+			I_SEL_A		=> I_SEL_A,
+			I_SEL_B		=> I_SEL_B,
+			I_ALUOUT_MEM	=> ALUOUT_EX_REG,
 			O_RD1_ADDR	=> RD1_ADDR_ID,
 			O_RD2_ADDR	=> RD2_ADDR_ID,
 			O_DST		=> DST_ID,
