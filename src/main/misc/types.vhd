@@ -7,14 +7,6 @@ package types is
 		INST_NOP
 	);
 
-	type branch_t is (
-		BR_NO,
-		BR_UNC_REL,	-- J, JAL
-		BR_UNC_ABS,	-- JR, JALR
-		BR_EQ0_REL,	-- BEQZ
-		BR_NE0_REL	-- BNEZ
-	);
-
 	type source_t is (
 		SRC_RF,
 		SRC_ALU_EX,

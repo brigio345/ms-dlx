@@ -1,12 +1,11 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
-use work.types.all;
 
--- pc_computer: compute next PC
+-- pc_computer: compute next PC, according to the current branch type
 entity pc_computer is
 	port (
-		I_BRANCH:	in branch_t;
+		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		-- I_A: value loaded from rf
 		I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -53,46 +52,41 @@ begin
 			O_OF	=> open
 		);
 
-	op_sel: process(I_BRANCH, I_NPC, I_A, I_IMM, I_OFF)
+	op_sel: process(I_OPCODE, I_NPC, I_A, I_IMM, I_OFF)
 	begin
 		-- default values: branch not taken (O_TARGET = I_NPC + 0)
 		OP1	<= I_NPC;
-		OP2	<= (OP2'range => '0');
+		OP2	<= (others => '0');
 		O_TAKEN	<= '0';
-
-		case (I_BRANCH) is
-			when BR_UNC_REL	=>
+		case (I_OPCODE) is
+			when OPCODE_J | OPCODE_JAL	=>
 				-- unconditional relative branch (O_TARGET = I_NPC + I_OFF)
-				-- (J, JAL)
 				OP1	<= I_NPC;
 				OP2	<= I_OFF;
 				O_TAKEN	<= '1';
-			when BR_UNC_ABS =>
+			when OPCODE_JR | OPCODE_JALR =>
 				-- unconditional absolute branch (O_TARGET = I_A + 0)
-				-- (JALR, JR)
 				OP1	<= I_A;
-				OP2	<= (OP2'range => '0');
+				OP2	<= (others => '0');
 				O_TAKEN	<= '1';
-			when BR_EQ0_REL	=>
+			when OPCODE_BEQZ	=>
 				-- conditional (if 0) relative branch (O_TARGET = I_NPC + I_IMM)
-				-- (BEQZ)
 				if (I_A = (I_A'range => '0')) then
 					OP1	<= I_NPC;
 					OP2	<= I_IMM;
 					O_TAKEN	<= '1';
 				end if;
-			when BR_NE0_REL =>
+			when OPCODE_BNEZ	=>
 				-- conditional (if not 0) relative branch (O_TARGET = I_NPC + I_IMM)
-				-- (BNEZ)
 				if (I_A /= (I_A'range => '0')) then
 					OP1	<= I_NPC;
 					OP2	<= I_IMM;
 					O_TAKEN	<= '1';
 				end if;
-			when others =>
-				-- default values: branch not taken (O_TARGET = I_NPC + 0)
+			when others	=>
+				-- branch not taken (O_TARGET = I_NPC + 0)
 				OP1	<= I_NPC;
-				OP2	<= (OP2'range => '0');
+				OP2	<= (others => '0');
 				O_TAKEN	<= '0';
 		end case;
 	end process op_sel;

@@ -30,7 +30,7 @@ entity control_unit is
 		O_ENDIAN:	out std_logic;
 
 		-- to ID stage
-		O_BRANCH:	out branch_t;
+		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 		O_SIGNED:	out std_logic;
 		O_SEL_A:	out source_t;
 		O_SEL_B:	out source_t;
@@ -69,7 +69,6 @@ architecture MIXED of control_unit is
 			I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- to ID stage
-			O_BRANCH:	out branch_t;
 			O_SIGNED:	out std_logic;
 
 			-- to EX stage
@@ -110,7 +109,6 @@ architecture MIXED of control_unit is
 	signal INST_TYPE:	inst_t;
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal STR:		std_logic_vector(1 downto 0);
-	signal BRANCH:		branch_t;
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
 	signal A_NEEDED:	std_logic;
@@ -131,7 +129,6 @@ begin
 			I_OPCODE	=> I_OPCODE,
 			I_DST_R		=> I_DST_R,
 			I_DST_I		=> I_SRC_B,
-			O_BRANCH	=> BRANCH,
 			O_SIGNED	=> O_SIGNED,
 			O_ALUOP		=> O_ALUOP,
 			O_SEL_B_IMM	=> O_SEL_B_IMM,
@@ -166,7 +163,7 @@ begin
 		    ((SEL_B = SRC_LD_EX) AND (B_NEEDED = '1')))
 		    else '0';
 
-	stall_gen: process (I_TAKEN_PREV, DATA_HAZ, BRANCH, STR, DST)
+	stall_gen: process (I_TAKEN_PREV, DATA_HAZ, I_OPCODE, STR, DST)
 	begin
 		if (I_TAKEN_PREV = '1') then
 			-- stall: disable branches and writes (to memory and rf)
@@ -174,7 +171,7 @@ begin
 			--	effect
 			-- 	IF can proceed, since PC has been updated with
 			--	the right instruction
-			O_BRANCH	<= BR_NO;
+			O_OPCODE	<= OPCODE_NOP;
 			O_STR		<= "00";
 			O_DST		<= (others => '0');
 			O_IF_EN		<= '1';
@@ -184,13 +181,13 @@ begin
 			--	effect
 			--	IF cannot proceed, since current instruction
 			--	must wait for its operands and then executed
-			O_BRANCH	<= BR_NO;
+			O_OPCODE	<= OPCODE_NOP;
 			O_STR		<= "00";
 			O_DST		<= (others => '0');
 			O_IF_EN		<= '0';
 		else
 			-- no stall: output decoded data
-			O_BRANCH	<= BRANCH;
+			O_OPCODE	<= I_OPCODE;
 			O_STR		<= STR;
 			O_DST		<= DST;
 			O_IF_EN		<= '1';

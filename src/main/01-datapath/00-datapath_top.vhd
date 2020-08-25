@@ -24,7 +24,7 @@ entity datapath is
 		I_IF_EN:	in std_logic;
 
 		-- from CU, to ID stage
-		I_BRANCH:	in branch_t;
+		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 		I_SIGNED:	in std_logic;
 		I_SEL_A:	in source_t;
 		I_SEL_B:	in source_t;
@@ -106,7 +106,7 @@ architecture STRUCTURAL of datapath is
 			I_RD2_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from CU
-			I_BRANCH:	in branch_t;
+			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 			I_SIGNED:	in std_logic;
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
@@ -445,7 +445,7 @@ begin
 			I_NPC		=> NPC_IF_REG,
 			I_RD1_DATA	=> RD1_DATA_RF,
 			I_RD2_DATA	=> RD2_DATA_RF,
-			I_BRANCH	=> I_BRANCH,
+			I_OPCODE	=> I_OPCODE,
 			I_SIGNED	=> I_SIGNED,
 			O_RD1_ADDR	=> RD1_ADDR_ID,
 			O_RD2_ADDR	=> RD2_ADDR_ID,

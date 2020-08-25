@@ -13,7 +13,6 @@ entity inst_decoder is
 		I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to ID stage
-		O_BRANCH:	out branch_t;
 		O_SIGNED:	out std_logic;
 
 		-- to EX stage
@@ -41,7 +40,6 @@ begin
 		-- just reduces inst_decoder code size)
 		O_INST_TYPE	<= INST_IMM;
 		O_SEL_B_IMM	<= '1';	-- IMM
-		O_BRANCH	<= BR_NO;
 		O_SIGNED	<= '1';	-- signed
 		O_LD		<= "00"; -- no load
 		O_STR		<= "00"; -- no store
@@ -141,32 +139,26 @@ begin
 			-- Jump/branch instructions
 			when OPCODE_BEQZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BR_EQ0_REL;
 				O_DST		<= (others => '0'); -- no writeback
 			when OPCODE_BNEZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BR_NE0_REL;
 				O_DST		<= (others => '0'); -- no writeback
 			when OPCODE_J		=>
 				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BR_UNC_REL;
 				O_DST		<= (others => '0'); -- no writeback
 			when OPCODE_JAL		=>
 				O_INST_TYPE	<= INST_JMP_REL;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BR_UNC_REL;
 				O_DST		<= (others => '1'); -- write to R31
 				O_ALUOP		<= FUNC_LINK;
 			when OPCODE_JR		=>
 				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BR_UNC_ABS;
 				O_DST		<= (others => '0'); -- no writeback
 			when OPCODE_JALR	=>
 				O_INST_TYPE	<= INST_JMP_ABS;
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_BRANCH	<= BR_UNC_ABS;
 				O_DST		<= (others => '1'); -- write to R31
 				O_ALUOP		<= FUNC_LINK;
 

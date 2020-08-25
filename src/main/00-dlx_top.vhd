@@ -46,7 +46,7 @@ architecture STRUCTURAL of dlx is
 			I_IF_EN:	in std_logic;
 
 			-- from CU, to ID stage
-			I_BRANCH:	in branch_t;
+			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 			I_SIGNED:	in std_logic;
 			I_SEL_A:	in source_t;
 			I_SEL_B:	in source_t;
@@ -116,7 +116,7 @@ architecture STRUCTURAL of dlx is
 			O_ENDIAN:	out std_logic;
 
 			-- to ID stage
-			O_BRANCH:	out branch_t;
+			O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 			O_SIGNED:	out std_logic;
 			O_SEL_A:	out source_t;
 			O_SEL_B:	out source_t;
@@ -136,7 +136,6 @@ architecture STRUCTURAL of dlx is
 
 	signal ENDIAN:		std_logic;
 	signal IF_EN:		std_logic;
-	signal BRANCH:		branch_t;
 	signal S_SIGNED:	std_logic;
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
@@ -145,7 +144,8 @@ architecture STRUCTURAL of dlx is
 	signal LD:		std_logic_vector(1 downto 0);
 	signal STR:		std_logic_vector(1 downto 0);
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal OPCODE:		std_logic_vector(OPCODE_SZ - 1 downto 0);
+	signal OPCODE_ID:	std_logic_vector(OPCODE_SZ - 1 downto 0);
+	signal OPCODE_CU:	std_logic_vector(OPCODE_SZ - 1 downto 0);
 	signal FUNC:		std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal SRC_A:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal SRC_B:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -164,7 +164,7 @@ begin
 			I_INST		=> I_I_RD_DATA,
 			I_D_RD_DATA	=> I_D_RD_DATA,
 			I_IF_EN		=> IF_EN,
-			I_BRANCH	=> BRANCH,
+			I_OPCODE	=> OPCODE_CU,
 			I_SIGNED	=> S_SIGNED,
 			I_SEL_A		=> SEL_A,
 			I_SEL_B		=> SEL_B,
@@ -178,7 +178,7 @@ begin
 			O_D_RD		=> O_D_RD,
 			O_D_WR		=> O_D_WR,
 			O_D_WR_DATA	=> O_D_WR_DATA,
-			O_OPCODE	=> OPCODE,
+			O_OPCODE	=> OPCODE_ID,
 			O_FUNC		=> FUNC,
 			O_SRC_A		=> SRC_A,
 			O_SRC_B		=> SRC_B,
@@ -194,7 +194,7 @@ begin
 		port map (
 			I_CFG		=> I_RST,
 			I_ENDIAN	=> I_ENDIAN,
-			I_OPCODE	=> OPCODE,
+			I_OPCODE	=> OPCODE_ID,
 			I_FUNC		=> FUNC,
 			I_SRC_A		=> SRC_A,
 			I_SRC_B		=> SRC_B,
@@ -206,7 +206,7 @@ begin
 			I_LD_MEM	=> LD_MEM,
 			O_IF_EN		=> IF_EN,
 			O_ENDIAN	=> ENDIAN,
-			O_BRANCH	=> BRANCH,
+			O_OPCODE	=> OPCODE_CU,
 			O_SIGNED	=> S_SIGNED,
 			O_SEL_A		=> SEL_A,
 			O_SEL_B		=> SEL_B,

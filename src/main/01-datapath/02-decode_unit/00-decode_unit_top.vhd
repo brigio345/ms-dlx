@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
-use work.types.all;
 use work.utilities.all;
 
 -- decode_unit:
@@ -22,7 +21,7 @@ entity decode_unit is
 		I_RD2_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from CU
-		I_BRANCH:	in branch_t;
+		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 		I_SIGNED:	in std_logic;
 
 		-- O_RDx_ADDR: to rf; address at which rf has to be read
@@ -52,7 +51,7 @@ end decode_unit;
 architecture MIXED of decode_unit is
 	component pc_computer is
 		port (
-			I_BRANCH:	in branch_t;
+			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			-- I_A: value loaded from rf
 			I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -81,7 +80,7 @@ begin
 
 	pc_computer_0: pc_computer
 		port map (
-			I_BRANCH=> I_BRANCH,
+			I_OPCODE=> I_OPCODE,
 			I_NPC	=> I_NPC,
 			I_A	=> I_RD1_DATA,
 			I_IMM	=> IMM_EXT,
@@ -96,12 +95,12 @@ begin
 	O_DST		<= I_IR(R_DST_RANGE);
 
 	-- outputs to EX stage
-	O_RD1 <= I_RD1_DATA;
-	O_RD2 <= I_RD2_DATA;
+	O_RD1	<= I_RD1_DATA;
+	O_RD2 	<= I_RD2_DATA;
 
 	O_IMM	<= IMM_EXT;
 
-	O_OPCODE	<= I_IR(OPCODE_RANGE);
-	O_FUNC		<= I_IR(FUNC_RANGE);
+	O_OPCODE<= I_IR(OPCODE_RANGE);
+	O_FUNC	<= I_IR(FUNC_RANGE);
 end MIXED;
 
