@@ -10,8 +10,12 @@ entity inst_decoder is
 		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 		I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_ZERO:		in std_logic;
 
 		-- to ID stage
+		O_TAKEN:	out std_logic;
+		O_SEL_OP1:	out std_logic;
+		O_SEL_OP2:	out std_logic_vector(1 downto 0);
 		O_SIGNED:	out std_logic;
 
 		-- to EX stage
@@ -33,11 +37,14 @@ end inst_decoder;
 
 architecture BEHAVIORAL of inst_decoder is
 begin
-	process (I_FUNC, I_OPCODE, I_DST_R, I_DST_I)
+	process (I_FUNC, I_OPCODE, I_DST_R, I_DST_I, I_ZERO)
 	begin
 		-- typical I-TYPE instruction as default values
 		-- (since they are the most common instructions this
 		-- just reduces inst_decoder code size)
+		O_TAKEN		<= '0';
+		O_SEL_OP1	<= '0';		-- NPC
+		O_SEL_OP2	<= "00";	-- 0
 		O_SEL_B_IMM	<= '1';	-- IMM
 		O_SIGNED	<= '1';	-- signed
 		O_LD		<= "00"; -- no load
@@ -142,24 +149,46 @@ begin
 			when OPCODE_BEQZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
+				if (I_ZERO = '1') then
+					O_TAKEN		<= '1';
+					O_SEL_OP1	<= '0';		-- NPC
+					O_SEL_OP2	<= "01";	-- IMM
+				end if;
 			when OPCODE_BNEZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
+				if (I_ZERO = '0') then
+					O_TAKEN		<= '1';
+					O_SEL_OP1	<= '0';		-- NPC
+					O_SEL_OP2	<= "01";	-- IMM
+				end if;
 			when OPCODE_J		=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
+				O_TAKEN		<= '1';
+				O_SEL_OP1	<= '0';		-- NPC
+				O_SEL_OP2	<= "10";	-- OFF
 				O_A_NEEDED	<= '0';
 			when OPCODE_JAL		=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '1'); -- write to R31
+				O_TAKEN		<= '1';
+				O_SEL_OP1	<= '0';		-- NPC
+				O_SEL_OP2	<= "10";	-- OFF
 				O_ALUOP		<= FUNC_LINK;
 				O_A_NEEDED	<= '0';
 			when OPCODE_JR		=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '0'); -- no writeback
+				O_TAKEN		<= '1';
+				O_SEL_OP1	<= '1';		-- A
+				O_SEL_OP2	<= "00";	-- 0
 			when OPCODE_JALR	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
 				O_DST		<= (others => '1'); -- write to R31
+				O_TAKEN		<= '1';
+				O_SEL_OP1	<= '1';		-- A
+				O_SEL_OP2	<= "00";	-- 0
 				O_ALUOP		<= FUNC_LINK;
 
 			-- General instructions

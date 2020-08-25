@@ -21,7 +21,9 @@ entity decode_unit is
 		I_RD2_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from CU
-		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
+		I_SEL_OP1:	in std_logic;
+		I_SEL_OP2:	in std_logic_vector(1 downto 0);
+		I_TAKEN:	in std_logic;
 		I_SIGNED:	in std_logic;
 
 		-- O_RDx_ADDR: to rf; address at which rf has to be read
@@ -34,6 +36,7 @@ entity decode_unit is
 		-- to CU
 		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 		O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
+		O_ZERO:		out std_logic;
 
 		-- to EX stage; ALU operands
 		O_RD1:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -41,17 +44,16 @@ entity decode_unit is
 		O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- O_TARGET: to IF stage; address of next instruction
-		O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		
-		-- O_TAKEN: to CU and IF stage
-		O_TAKEN:	out std_logic
+		O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 	);
 end decode_unit;
 
 architecture MIXED of decode_unit is
 	component pc_computer is
 		port (
-			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
+			I_SEL_OP1:	in std_logic;
+			I_SEL_OP2:	in std_logic_vector(1 downto 0);
+			I_TAKEN:	in std_logic;
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			-- I_A: value loaded from rf
 			I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -60,8 +62,7 @@ architecture MIXED of decode_unit is
 			-- I_OFF: offset extracted by J-type instruction
 			I_OFF:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
-			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_TAKEN:	out std_logic
+			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
 	end component pc_computer;
 
@@ -80,13 +81,14 @@ begin
 
 	pc_computer_0: pc_computer
 		port map (
-			I_OPCODE=> I_OPCODE,
-			I_NPC	=> I_NPC,
-			I_A	=> I_RD1_DATA,
-			I_IMM	=> IMM_EXT,
-			I_OFF	=> OFF_EXT,
-			O_TARGET=> O_TARGET,
-			O_TAKEN	=> O_TAKEN
+			I_SEL_OP1	=> I_SEL_OP1,
+			I_SEL_OP2	=> I_SEL_OP2,
+			I_TAKEN		=> I_TAKEN,
+			I_NPC		=> I_NPC,
+			I_A		=> I_RD1_DATA,
+			I_IMM		=> IMM_EXT,
+			I_OFF		=> OFF_EXT,
+			O_TARGET	=> O_TARGET
 		);
 
 	-- rf addresses
@@ -99,6 +101,8 @@ begin
 	O_RD2 	<= I_RD2_DATA;
 
 	O_IMM	<= IMM_EXT;
+
+	O_ZERO	<= '1' when (I_RD1_DATA = (I_RD1_DATA'range => '0')) else '0';
 
 	O_OPCODE<= I_IR(OPCODE_RANGE);
 	O_FUNC	<= I_IR(FUNC_RANGE);

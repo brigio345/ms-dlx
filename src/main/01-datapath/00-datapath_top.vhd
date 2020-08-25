@@ -24,7 +24,9 @@ entity datapath is
 		I_IF_EN:	in std_logic;
 
 		-- from CU, to ID stage
-		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
+		I_TAKEN:	in std_logic;
+		I_SEL_OP1:	in std_logic;
+		I_SEL_OP2:	in std_logic_vector(1 downto 0);
 		I_SIGNED:	in std_logic;
 		I_SEL_A:	in source_t;
 		I_SEL_B:	in source_t;
@@ -50,6 +52,7 @@ entity datapath is
 		O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to CU, from ID stage
+		O_ZERO:		out std_logic;
 		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 		O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
 		O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -96,7 +99,7 @@ architecture STRUCTURAL of datapath is
 	component decode_unit is
 		port (
 			-- I_IR: from IF stage; encoded instruction
-			I_IR:		in std_logic_vector(INST_SZ - 1 downto 0);
+			I_IR:		in std_logic_vector(0 to INST_SZ - 1);
 			-- I_NPC: from IF stage; next PC value if instruction is
 			--	not a taken branch
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -106,7 +109,9 @@ architecture STRUCTURAL of datapath is
 			I_RD2_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from CU
-			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
+			I_SEL_OP1:	in std_logic;
+			I_SEL_OP2:	in std_logic_vector(1 downto 0);
+			I_TAKEN:	in std_logic;
 			I_SIGNED:	in std_logic;
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
@@ -119,6 +124,7 @@ architecture STRUCTURAL of datapath is
 			-- to CU
 			O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 			O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
+			O_ZERO:		out std_logic;
 
 			-- to EX stage; ALU operands
 			O_RD1:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -126,10 +132,7 @@ architecture STRUCTURAL of datapath is
 			O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- O_TARGET: to IF stage; address of next instruction
-			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			
-			-- O_TAKEN: to CU and IF stage
-			O_TAKEN:	out std_logic
+			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
 	end component decode_unit;
 
@@ -445,18 +448,20 @@ begin
 			I_NPC		=> NPC_IF_REG,
 			I_RD1_DATA	=> RD1_DATA_RF,
 			I_RD2_DATA	=> RD2_DATA_RF,
-			I_OPCODE	=> I_OPCODE,
+			I_SEL_OP1	=> I_SEL_OP1,
+			I_SEL_OP2	=> I_SEL_OP2,
+			I_TAKEN		=> I_TAKEN,
 			I_SIGNED	=> I_SIGNED,
 			O_RD1_ADDR	=> RD1_ADDR_ID,
 			O_RD2_ADDR	=> RD2_ADDR_ID,
 			O_DST		=> DST_ID,
 			O_OPCODE	=> O_OPCODE,
 			O_FUNC		=> FUNC_ID,
+			O_ZERO		=> O_ZERO,
 			O_RD1		=> RD1_ID,
 			O_RD2		=> RD2_ID,
 			O_IMM		=> IMM_ID,
-			O_TARGET	=> TARGET_ID,
-			O_TAKEN		=> TAKEN_ID
+			O_TARGET	=> TARGET_ID
 		);
 
 	O_SRC_A	<= RD1_ADDR_ID;
@@ -518,7 +523,7 @@ begin
 			I_RST		=> I_RST,
 			I_EN		=> I_IF_EN,
 			I_TARGET	=> TARGET_ID,
-			I_TAKEN		=> TAKEN_ID,
+			I_TAKEN		=> I_TAKEN,
 			O_TARGET	=> TARGET_ID_REG,
 			O_TAKEN		=> TAKEN_ID_REG
 		);

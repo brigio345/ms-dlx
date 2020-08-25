@@ -12,6 +12,7 @@ entity control_unit is
 		-- from ID stage
 		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 		I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
+		I_ZERO:		in std_logic;
 		I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -30,6 +31,9 @@ entity control_unit is
 		O_ENDIAN:	out std_logic;
 
 		-- to ID stage
+		O_TAKEN:	out std_logic;
+		O_SEL_OP1:	out std_logic;
+		O_SEL_OP2:	out std_logic_vector(1 downto 0);
 		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 		O_SIGNED:	out std_logic;
 		O_SEL_A:	out source_t;
@@ -67,8 +71,12 @@ architecture MIXED of control_unit is
 			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 			I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_ZERO:		in std_logic;
 
 			-- to ID stage
+			O_TAKEN:	out std_logic;
+			O_SEL_OP1:	out std_logic;
+			O_SEL_OP2:	out std_logic_vector(1 downto 0);
 			O_SIGNED:	out std_logic;
 
 			-- to EX stage
@@ -129,6 +137,10 @@ begin
 			I_OPCODE	=> I_OPCODE,
 			I_DST_R		=> I_DST_R,
 			I_DST_I		=> I_SRC_B,
+			I_ZERO		=> I_ZERO,
+			O_TAKEN		=> O_TAKEN,
+			O_SEL_OP1	=> O_SEL_OP1,
+			O_SEL_OP2	=> O_SEL_OP2,
 			O_SIGNED	=> O_SIGNED,
 			O_ALUOP		=> O_ALUOP,
 			O_SEL_B_IMM	=> O_SEL_B_IMM,

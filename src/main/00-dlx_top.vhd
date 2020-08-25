@@ -46,7 +46,9 @@ architecture STRUCTURAL of dlx is
 			I_IF_EN:	in std_logic;
 
 			-- from CU, to ID stage
-			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
+			I_TAKEN:	in std_logic;
+			I_SEL_OP1:	in std_logic;
+			I_SEL_OP2:	in std_logic_vector(1 downto 0);
 			I_SIGNED:	in std_logic;
 			I_SEL_A:	in source_t;
 			I_SEL_B:	in source_t;
@@ -72,6 +74,7 @@ architecture STRUCTURAL of dlx is
 			O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- to CU, from ID stage
+			O_ZERO:		out std_logic;
 			O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 			O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
 			O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -98,6 +101,7 @@ architecture STRUCTURAL of dlx is
 			-- from ID stage
 			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
 			I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
+			I_ZERO:		in std_logic;
 			I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -116,6 +120,9 @@ architecture STRUCTURAL of dlx is
 			O_ENDIAN:	out std_logic;
 
 			-- to ID stage
+			O_TAKEN:	out std_logic;
+			O_SEL_OP1:	out std_logic;
+			O_SEL_OP2:	out std_logic_vector(1 downto 0);
 			O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 			O_SIGNED:	out std_logic;
 			O_SEL_A:	out source_t;
@@ -155,6 +162,10 @@ architecture STRUCTURAL of dlx is
 	signal LD_EX:		std_logic_vector(1 downto 0);
 	signal DST_MEM:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal LD_MEM:		std_logic_vector(1 downto 0);
+	signal ZERO:		std_logic;
+	signal TAKEN:		std_logic;
+	signal SEL_OP1:		std_logic;
+	signal SEL_OP2:		std_logic_vector(1 downto 0);
 begin
 	datapath_0: datapath
 		port map (
@@ -164,7 +175,9 @@ begin
 			I_INST		=> I_I_RD_DATA,
 			I_D_RD_DATA	=> I_D_RD_DATA,
 			I_IF_EN		=> IF_EN,
-			I_OPCODE	=> OPCODE_CU,
+			I_TAKEN		=> TAKEN,
+			I_SEL_OP1	=> SEL_OP1,
+			I_SEL_OP2	=> SEL_OP2,
 			I_SIGNED	=> S_SIGNED,
 			I_SEL_A		=> SEL_A,
 			I_SEL_B		=> SEL_B,
@@ -178,6 +191,7 @@ begin
 			O_D_RD		=> O_D_RD,
 			O_D_WR		=> O_D_WR,
 			O_D_WR_DATA	=> O_D_WR_DATA,
+			O_ZERO		=> ZERO,
 			O_OPCODE	=> OPCODE_ID,
 			O_FUNC		=> FUNC,
 			O_SRC_A		=> SRC_A,
@@ -196,6 +210,7 @@ begin
 			I_ENDIAN	=> I_ENDIAN,
 			I_OPCODE	=> OPCODE_ID,
 			I_FUNC		=> FUNC,
+			I_ZERO		=> ZERO,
 			I_SRC_A		=> SRC_A,
 			I_SRC_B		=> SRC_B,
 			I_DST_R		=> DST_ID,
@@ -206,6 +221,9 @@ begin
 			I_LD_MEM	=> LD_MEM,
 			O_IF_EN		=> IF_EN,
 			O_ENDIAN	=> ENDIAN,
+			O_TAKEN		=> TAKEN,
+			O_SEL_OP1	=> SEL_OP1,
+			O_SEL_OP2	=> SEL_OP2,
 			O_OPCODE	=> OPCODE_CU,
 			O_SIGNED	=> S_SIGNED,
 			O_SEL_A		=> SEL_A,
