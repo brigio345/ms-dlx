@@ -10,21 +10,21 @@ entity execute_unit is
 		I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 		I_SEL_A:	in source_t;
 		I_SEL_B:	in source_t;
-		I_SEL_R_IMM:	in std_logic;
+		I_SEL_B_IMM:	in std_logic;
 
 		-- from ID stage
-		I_RD1:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		I_RD2:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_B:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- data forwarded from EX/MEM stages
 		I_ALUOUT_EX:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		I_ALUOUT_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		I_LOADED:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_LOADED_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to MEM/WB stages
-		O_ALUOUT:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+		O_ALUOUT:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 	);
 end execute_unit;
 
@@ -41,44 +41,23 @@ architecture MIXED of execute_unit is
 		);
 	end component alu;
 
-	signal A:	std_logic_vector(I_RD1'range);
-	signal B:	std_logic_vector(I_RD2'range);
-	signal R:	std_logic_vector(I_RD2'range);
+	signal A:	std_logic_vector(I_A'range);
+	signal B:	std_logic_vector(I_B'range);
+	signal OP2:	std_logic_vector(I_B'range);
 	signal ALUOUT:	std_logic_vector(O_ALUOUT'range);
 begin
-	mux_a: process (I_SEL_A, I_RD1, I_ALUOUT_EX, I_ALUOUT_MEM, I_LOADED)
-	begin
-		case I_SEL_A is
-			when SRC_RF	=>
-				A <= I_RD1;
-			when SRC_ALU_EX	=>
-				A <= I_ALUOUT_EX;
-			when SRC_ALU_MEM=>
-				A <= I_ALUOUT_MEM;
-			when SRC_LD_MEM	=>
-				A <= I_LOADED;
-			when others	=>
-				A <= I_RD1;
-		end case;
-	end process mux_a;
+	-- data forwarding
+	with I_SEL_A select A <=
+		I_ALUOUT_EX	when SRC_ALU_EX,
+		I_LOADED_MEM	when SRC_LD_MEM,
+		I_A		when others;
+	
+	with I_SEL_B select B <=
+		I_ALUOUT_EX	when SRC_ALU_EX,
+		I_LOADED_MEM	when SRC_LD_MEM,
+		I_B		when others;
 
-	mux_b: process (I_SEL_B, I_RD2, I_ALUOUT_EX, I_ALUOUT_MEM, I_LOADED)
-	begin
-		case I_SEL_B is
-			when SRC_RF	=>
-				R <= I_RD2;
-			when SRC_ALU_EX	=>
-				R <= I_ALUOUT_EX;
-			when SRC_ALU_MEM=>
-				R <= I_ALUOUT_MEM;
-			when SRC_LD_MEM	=>
-				R <= I_LOADED;
-			when others	=>
-				R <= I_RD2;
-		end case;
-	end process mux_b;
-
-	B <= R when (I_SEL_R_IMM = '0') else I_IMM;
+	OP2 <= B when (I_SEL_B_IMM = '0') else I_IMM;
 
 	alu_0: alu
 		generic map (
@@ -87,10 +66,11 @@ begin
 		port map (
 			I_OP	=> I_ALUOP,
 			I_A	=> A,
-			I_B	=> B,
+			I_B	=> OP2,
 			O_DATA	=> ALUOUT
 		);
 	
-	O_ALUOUT <= ALUOUT when (I_ALUOP /= FUNC_LINK) else I_NPC;
+	O_ALUOUT	<= ALUOUT when (I_ALUOP /= FUNC_LINK) else I_NPC;
+	O_B		<= B;
 end MIXED;
 

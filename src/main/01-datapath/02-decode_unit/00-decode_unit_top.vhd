@@ -46,8 +46,8 @@ entity decode_unit is
 		O_ZERO:		out std_logic;
 
 		-- to EX stage; ALU operands
-		O_RD1:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		O_RD2:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_A:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- O_TARGET: to IF stage; address of next instruction
@@ -83,8 +83,9 @@ begin
 	IMM	<= I_IR(I_IMM_RANGE);
 	OFF	<= I_IR(J_OFF_RANGE);
 
+	-- data forwarding
 	A	<= I_ALUOUT_MEM when (I_SEL_A = SRC_ALU_MEM) else I_RD1_DATA;
-	B 	<= I_ALUOUT_MEM when (I_SEL_B = SRC_ALU_MEM) else I_RD2_DATA;
+	O_B 	<= I_ALUOUT_MEM when (I_SEL_B = SRC_ALU_MEM) else I_RD2_DATA;
 
 	-- extend
 	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_SIGNED = '0')
@@ -114,13 +115,11 @@ begin
 		I_IR(R_DST_RANGE)	when others;
 
 	-- outputs to EX stage
-	O_RD1	<= A;
-	O_RD2 	<= B;
-
+	O_A	<= A;
 	O_IMM	<= IMM_EXT;
 
+	-- outputs to ID stage
 	O_ZERO	<= '1' when (A = (A'range => '0')) else '0';
-
 	O_OPCODE<= I_IR(OPCODE_RANGE);
 	O_FUNC	<= I_IR(FUNC_RANGE);
 end MIXED;
