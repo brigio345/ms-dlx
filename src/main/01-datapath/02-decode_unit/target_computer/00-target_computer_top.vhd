@@ -2,8 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
 
--- pc_computer: compute next PC, according to the current branch type
-entity pc_computer is
+-- target_computer: compute next PC, according to the current branch type
+entity target_computer is
 	port (
 		I_SEL_JMP_OP1:	in std_logic;
 		I_SEL_JMP_OP2:	in std_logic_vector(1 downto 0);
@@ -17,9 +17,9 @@ entity pc_computer is
 
 		O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 	);
-end pc_computer;
+end target_computer;
 
-architecture MIXED of pc_computer is
+architecture MIXED of target_computer is
 	component P4_ADDER is
 		generic (
 			NBIT:		integer := 32;

@@ -64,7 +64,7 @@ entity decode_unit is
 end decode_unit;
 
 architecture MIXED of decode_unit is
-	component pc_computer is
+	component target_computer is
 		port (
 			I_SEL_JMP_OP1:	in std_logic;
 			I_SEL_JMP_OP2:	in std_logic_vector(1 downto 0);
@@ -78,7 +78,7 @@ architecture MIXED of decode_unit is
 
 			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
-	end component pc_computer;
+	end component target_computer;
 
 	signal SRC_A:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal SRC_B:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -104,7 +104,7 @@ begin
 		else sign_extend(IMM, IMM'left, RF_DATA_SZ);
 	OFF_EXT	<= sign_extend(OFF, OFF'left, RF_DATA_SZ);
 
-	pc_computer_0: pc_computer
+	target_computer_0: target_computer
 		port map (
 			I_SEL_JMP_OP1	=> I_SEL_JMP_OP1,
 			I_SEL_JMP_OP2	=> I_SEL_JMP_OP2,
