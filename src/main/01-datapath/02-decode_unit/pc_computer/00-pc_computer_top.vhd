@@ -5,8 +5,8 @@ use work.coding.all;
 -- pc_computer: compute next PC, according to the current branch type
 entity pc_computer is
 	port (
-		I_SEL_OP1:	in std_logic;
-		I_SEL_OP2:	in std_logic_vector(1 downto 0);
+		I_SEL_JMP_OP1:	in std_logic;
+		I_SEL_JMP_OP2:	in std_logic_vector(1 downto 0);
 		I_TAKEN:	in std_logic;
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		-- I_A: value loaded from rf
@@ -53,11 +53,11 @@ begin
 			O_OF	=> open
 		);
 	
-	with I_SEL_OP1 select OP1 <=
+	with I_SEL_JMP_OP1 select OP1 <=
 		I_A	when '1',
 		I_NPC	when others;
 	
-	with I_SEL_OP2 select OP2 <=
+	with I_SEL_JMP_OP2 select OP2 <=
 		I_IMM		when "01",
 		I_OFF		when "10",
 		(others => '0')	when others;

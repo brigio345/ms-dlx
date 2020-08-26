@@ -22,8 +22,8 @@ entity decode_unit is
 		I_RD2_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from CU
-		I_SEL_OP1:		in std_logic;
-		I_SEL_OP2:		in std_logic_vector(1 downto 0);
+		I_SEL_JMP_OP1:		in std_logic;
+		I_SEL_JMP_OP2:		in std_logic_vector(1 downto 0);
 		I_TAKEN:		in std_logic;
 		I_SIGNED:		in std_logic;
 		I_SEL_A:		in source_t;
@@ -67,8 +67,8 @@ end decode_unit;
 architecture MIXED of decode_unit is
 	component pc_computer is
 		port (
-			I_SEL_OP1:	in std_logic;
-			I_SEL_OP2:	in std_logic_vector(1 downto 0);
+			I_SEL_JMP_OP1:	in std_logic;
+			I_SEL_JMP_OP2:	in std_logic_vector(1 downto 0);
 			I_TAKEN:	in std_logic;
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 			-- I_A: value loaded from rf
@@ -108,8 +108,8 @@ begin
 
 	pc_computer_0: pc_computer
 		port map (
-			I_SEL_OP1	=> I_SEL_OP1,
-			I_SEL_OP2	=> I_SEL_OP2,
+			I_SEL_JMP_OP1	=> I_SEL_JMP_OP1,
+			I_SEL_JMP_OP2	=> I_SEL_JMP_OP2,
 			I_TAKEN		=> I_TAKEN,
 			I_NPC		=> I_NPC,
 			I_A		=> A,
