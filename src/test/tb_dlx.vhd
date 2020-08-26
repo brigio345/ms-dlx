@@ -81,7 +81,7 @@ begin
 
 	inst_mem_0: inst_mem
 		generic map (
-			RAM_DEPTH	=> 48,
+			RAM_DEPTH	=> 512,
 			I_SIZE		=> RF_DATA_SZ
 		)
 		port map (
@@ -90,18 +90,18 @@ begin
 			O_DATA	=> I_RD_DATA
 		);
 
---	data_mem_0: data_mem
---		generic map (
---			DATA_SZ	=> 32
---		)
---		port map (
---			I_RST	=> RST,
---			I_ADDR	=> D_ADDR,
---			I_DATA	=> D_WR_DATA,
---			I_RD	=> D_RD,
---			I_WR	=> D_WR,
---			O_DATA	=> D_RD_DATA
---		);
+	data_mem_0: data_mem
+		generic map (
+			DATA_SZ	=> 32
+		)
+		port map (
+			I_RST	=> RST,
+			I_ADDR	=> D_ADDR,
+			I_DATA	=> D_WR_DATA,
+			I_RD	=> D_RD,
+			I_WR	=> D_WR,
+			O_DATA	=> D_RD_DATA
+		);
 
 	clock: process
 	begin
@@ -114,8 +114,8 @@ begin
 	stimuli: process
 	begin
 		RST		<= '1';
-		ENDIAN		<= '1';
-		D_RD_DATA	<= x"40ABCDEF";
+		ENDIAN		<= '0';
+--		D_RD_DATA	<= x"40ABCDEF";
 
 
 		wait for CLK_PERIOD;

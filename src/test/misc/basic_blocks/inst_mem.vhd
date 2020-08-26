@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use std.textio.all;
 use ieee.std_logic_textio.all;
+use work.utilities.all;
 
 -- Instruction memory for DLX
 -- Memory filled by a process which reads from a file
@@ -10,7 +11,7 @@ use ieee.std_logic_textio.all;
 entity inst_mem is
 	generic (
 		MEM_FILE:	string := "test.asm.mem";
-		RAM_DEPTH:	integer := 48;
+		RAM_DEPTH:	integer := 512;
 		I_SIZE:		integer := 32
 	);
 	port (
@@ -38,7 +39,7 @@ begin
 				if (not endfile(mem_fp)) then
 					readline(mem_fp, file_line);
 					hread(file_line, tmp_data_u);
-					MEM(I) <= tmp_data_u;       
+					MEM(I) <= swap_bytes(tmp_data_u);       
 				else
 					MEM(I) <= (others => '0');
 				end if;
