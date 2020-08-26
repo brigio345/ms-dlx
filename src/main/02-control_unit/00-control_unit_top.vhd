@@ -34,7 +34,6 @@ entity control_unit is
 		O_TAKEN:	out std_logic;
 		O_SEL_OP1:	out std_logic;
 		O_SEL_OP2:	out std_logic_vector(1 downto 0);
-		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 		O_SIGNED:	out std_logic;
 		O_SEL_A:	out source_t;
 		O_SEL_B:	out source_t;
@@ -194,7 +193,7 @@ begin
 		    	((B_NEEDED_EX = '1') AND (SEL_B = SRC_LD_EX)))
 		    else '0';
 
-	stall_gen: process (I_TAKEN_PREV, DATA_STALL, I_OPCODE, STR, DST, TAKEN)
+	stall_gen: process (I_TAKEN_PREV, DATA_STALL, STR, DST, TAKEN)
 	begin
 		if (I_TAKEN_PREV = '1') then
 			-- stall: disable branches and writes (to memory and rf)
@@ -202,7 +201,6 @@ begin
 			--	effect
 			-- 	IF can proceed, since PC has been updated with
 			--	the right instruction
-			O_OPCODE	<= OPCODE_NOP;
 			O_STR		<= "00";
 			O_DST		<= (others => '0');
 			O_TAKEN		<= '0';
@@ -213,14 +211,12 @@ begin
 			--	effect
 			--	IF cannot proceed, since current instruction
 			--	must wait for its operands and then executed
-			O_OPCODE	<= OPCODE_NOP;
 			O_STR		<= "00";
 			O_DST		<= (others => '0');
 			O_TAKEN		<= '0';
 			O_IF_EN		<= '0';
 		else
 			-- no stall: output decoded data
-			O_OPCODE	<= I_OPCODE;
 			O_STR		<= STR;
 			O_DST		<= DST;
 			O_TAKEN		<= TAKEN;

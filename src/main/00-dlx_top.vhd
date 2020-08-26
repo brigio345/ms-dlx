@@ -123,7 +123,6 @@ architecture STRUCTURAL of dlx is
 			O_TAKEN:	out std_logic;
 			O_SEL_OP1:	out std_logic;
 			O_SEL_OP2:	out std_logic_vector(1 downto 0);
-			O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
 			O_SIGNED:	out std_logic;
 			O_SEL_A:	out source_t;
 			O_SEL_B:	out source_t;
@@ -152,7 +151,6 @@ architecture STRUCTURAL of dlx is
 	signal STR:		std_logic_vector(1 downto 0);
 	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal OPCODE_ID:	std_logic_vector(OPCODE_SZ - 1 downto 0);
-	signal OPCODE_CU:	std_logic_vector(OPCODE_SZ - 1 downto 0);
 	signal FUNC:		std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal SRC_A:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal SRC_B:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -224,7 +222,6 @@ begin
 			O_TAKEN		=> TAKEN,
 			O_SEL_OP1	=> SEL_OP1,
 			O_SEL_OP2	=> SEL_OP2,
-			O_OPCODE	=> OPCODE_CU,
 			O_SIGNED	=> S_SIGNED,
 			O_SEL_A		=> SEL_A,
 			O_SEL_B		=> SEL_B,
