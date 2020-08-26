@@ -6,47 +6,49 @@ use work.types.all;
 entity control_unit is
 	port (
 		-- from environment
-		I_CFG:		in std_logic;
-		I_ENDIAN:	in std_logic;
+		I_CFG:			in std_logic;
+		I_ENDIAN:		in std_logic;
 
 		-- from ID stage
-		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
-		I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
-		I_ZERO:		in std_logic;
-		I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_TAKEN_PREV:	in std_logic;
+		I_OPCODE:		in std_logic_vector(OPCODE_SZ - 1 downto 0);
+		I_FUNC:			in std_logic_vector(FUNC_SZ - 1 downto 0);
+		I_ZERO:			in std_logic;
+		I_ZERO_SRC_A:		in std_logic;
+		I_ZERO_SRC_B:		in std_logic;
+		I_SRC_A_EQ_DST_EX:	in std_logic;
+		I_SRC_B_EQ_DST_EX:	in std_logic;
+		I_SRC_A_EQ_DST_MEM:	in std_logic;
+		I_SRC_B_EQ_DST_MEM:	in std_logic;
+		I_TAKEN_PREV:		in std_logic;
 
 		-- from EX stage
-		I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_EX:	in std_logic_vector(1 downto 0);
+		I_LD_EX:		in std_logic_vector(1 downto 0);
 
 		-- from MEM stage
-		I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_LD_MEM:	in std_logic_vector(1 downto 0);
+		I_LD_MEM:		in std_logic_vector(1 downto 0);
 
 		-- to IF stage
-		O_IF_EN:	out std_logic;
-		O_ENDIAN:	out std_logic;
+		O_IF_EN:		out std_logic;
+		O_ENDIAN:		out std_logic;
 
 		-- to ID stage
-		O_TAKEN:	out std_logic;
-		O_SEL_OP1:	out std_logic;
-		O_SEL_OP2:	out std_logic_vector(1 downto 0);
-		O_SIGNED:	out std_logic;
-		O_SEL_A:	out source_t;
-		O_SEL_B:	out source_t;
+		O_TAKEN:		out std_logic;
+		O_SEL_OP1:		out std_logic;
+		O_SEL_OP2:		out std_logic_vector(1 downto 0);
+		O_SIGNED:		out std_logic;
+		O_SEL_A:		out source_t;
+		O_SEL_B:		out source_t;
 
 		-- to EX stage
-		O_SEL_B_IMM:	out std_logic;
-		O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
+		O_SEL_B_IMM:		out std_logic;
+		O_ALUOP:		out std_logic_vector(FUNC_SZ - 1 downto 0);
 
 		-- to MEM stage
-		O_LD:		out std_logic_vector(1 downto 0);
-		O_STR:		out std_logic_vector(1 downto 0);
+		O_LD:			out std_logic_vector(1 downto 0);
+		O_STR:			out std_logic_vector(1 downto 0);
 
 		-- to WB stage
-		O_SEL_DST:	out dest_t
+		O_SEL_DST:		out dest_t
 	);
 end control_unit;
 
@@ -97,19 +99,21 @@ architecture MIXED of control_unit is
 	component data_forwarder is
 		port (
 			-- from ID stage
-			I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_ZERO_SRC_A:		in std_logic;
+			I_ZERO_SRC_B:		in std_logic;
+			I_SRC_A_EQ_DST_EX:	in std_logic;
+			I_SRC_B_EQ_DST_EX:	in std_logic;
+			I_SRC_A_EQ_DST_MEM:	in std_logic;
+			I_SRC_B_EQ_DST_MEM:	in std_logic;
 
 			-- from EX stage
-			I_DST_EX:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_LD_EX:	in std_logic_vector(1 downto 0);
+			I_LD_EX:		in std_logic_vector(1 downto 0);
 
 			-- from MEM stage
-			I_DST_MEM:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_LD_MEM:	in std_logic_vector(1 downto 0);
+			I_LD_MEM:		in std_logic_vector(1 downto 0);
 
-			O_SEL_A:	out source_t;
-			O_SEL_B:	out source_t
+			O_SEL_A:		out source_t;
+			O_SEL_B:		out source_t
 		);
 	end component data_forwarder;
 
@@ -154,14 +158,16 @@ begin
 
 	data_forwarder_0: data_forwarder
 		port map (
-			I_SRC_A		=> I_SRC_A,
-			I_SRC_B		=> I_SRC_B,
-			I_DST_EX	=> I_DST_EX,
-			I_LD_EX		=> I_LD_EX,
-			I_DST_MEM	=> I_DST_MEM,
-			I_LD_MEM	=> I_LD_MEM,
-			O_SEL_A		=> SEL_A,
-			O_SEL_B		=> SEL_B
+			I_ZERO_SRC_A		=> I_ZERO_SRC_A,
+			I_ZERO_SRC_B		=> I_ZERO_SRC_B,
+			I_SRC_A_EQ_DST_EX	=> I_SRC_A_EQ_DST_EX,
+			I_SRC_B_EQ_DST_EX	=> I_SRC_B_EQ_DST_EX,
+			I_SRC_A_EQ_DST_MEM	=> I_SRC_A_EQ_DST_MEM,
+			I_SRC_B_EQ_DST_MEM	=> I_SRC_B_EQ_DST_MEM,
+			I_LD_EX			=> I_LD_EX,
+			I_LD_MEM		=> I_LD_MEM,
+			O_SEL_A			=> SEL_A,
+			O_SEL_B			=> SEL_B
 		);
 
 	O_SEL_A <= SEL_A;

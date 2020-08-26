@@ -6,66 +6,68 @@ use work.utilities.all;
 
 entity datapath is
 	port (
-		I_CLK:		in std_logic;
-		I_RST:		in std_logic;
+		I_CLK:			in std_logic;
+		I_RST:			in std_logic;
 
 		-- I_ENDIAN: specify endianness of data and instruction memories
 		--	- '0' => BIG endian
 		--	- '1' => LITTLE endian
-		I_ENDIAN:	in std_logic;
+		I_ENDIAN:		in std_logic;
 
 		-- from i-memory
-		I_INST:		in std_logic_vector(INST_SZ - 1 downto 0);
+		I_INST:			in std_logic_vector(INST_SZ - 1 downto 0);
 
 		-- from d-memory
-		I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_D_RD_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from CU, to IF stage
-		I_IF_EN:	in std_logic;
+		I_IF_EN:		in std_logic;
 
 		-- from CU, to ID stage
-		I_TAKEN:	in std_logic;
-		I_SEL_OP1:	in std_logic;
-		I_SEL_OP2:	in std_logic_vector(1 downto 0);
-		I_SIGNED:	in std_logic;
-		I_SEL_A:	in source_t;
-		I_SEL_B:	in source_t;
+		I_TAKEN:		in std_logic;
+		I_SEL_OP1:		in std_logic;
+		I_SEL_OP2:		in std_logic_vector(1 downto 0);
+		I_SIGNED:		in std_logic;
+		I_SEL_A:		in source_t;
+		I_SEL_B:		in source_t;
 
 		-- from CU, to EX stage
-		I_SEL_B_IMM:	in std_logic;
-		I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
+		I_SEL_B_IMM:		in std_logic;
+		I_ALUOP:		in std_logic_vector(FUNC_SZ - 1 downto 0);
 
 		-- from CU, to MEM stage
-		I_LD:		in std_logic_vector(1 downto 0);
-		I_STR:		in std_logic_vector(1 downto 0);
+		I_LD:			in std_logic_vector(1 downto 0);
+		I_STR:			in std_logic_vector(1 downto 0);
 
 		-- from CU, to WB stage
-		I_SEL_DST:	in dest_t;
+		I_SEL_DST:		in dest_t;
 
 		-- to i-memory
-		O_PC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_PC:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to d-memory
-		O_D_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-		O_D_RD:		out std_logic_vector(1 downto 0);
-		O_D_WR:		out std_logic_vector(1 downto 0);
-		O_D_WR_DATA:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_D_ADDR:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_D_RD:			out std_logic_vector(1 downto 0);
+		O_D_WR:			out std_logic_vector(1 downto 0);
+		O_D_WR_DATA:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to CU, from ID stage
-		O_ZERO:		out std_logic;
-		O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
-		O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
-		O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_SRC_B:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_TAKEN_PREV:	out std_logic;
+		O_ZERO:			out std_logic;
+		O_OPCODE:		out std_logic_vector(OPCODE_SZ - 1 downto 0);
+		O_FUNC:			out std_logic_vector(FUNC_SZ - 1 downto 0);
+		O_ZERO_SRC_A:		out std_logic;
+		O_ZERO_SRC_B:		out std_logic;
+		O_SRC_A_EQ_DST_EX:	out std_logic;
+		O_SRC_B_EQ_DST_EX:	out std_logic;
+		O_SRC_A_EQ_DST_MEM:	out std_logic;
+		O_SRC_B_EQ_DST_MEM:	out std_logic;
+		O_TAKEN_PREV:		out std_logic;
 
 		-- to CU, from EX stage
-		O_DST_EX:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_LD_EX:	out std_logic_vector(1 downto 0);
+		O_LD_EX:		out std_logic_vector(1 downto 0);
 
 		-- to CU, from MEM stage
-		O_DST_MEM:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_LD_MEM:	out std_logic_vector(1 downto 0)
+		O_LD_MEM:		out std_logic_vector(1 downto 0)
 	);
 end datapath;
 
@@ -98,46 +100,55 @@ architecture STRUCTURAL of datapath is
 	component decode_unit is
 		port (
 			-- I_IR: from IF stage; encoded instruction
-			I_IR:		in std_logic_vector(0 to INST_SZ - 1);
+			I_IR:			in std_logic_vector(0 to INST_SZ - 1);
 			-- I_NPC: from IF stage; next PC value if instruction is
 			--	not a taken branch
-			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_NPC:			in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- I_RDx_DATA: from rf; data read from rf at address O_RDx_ADDR
-			I_RD1_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			I_RD2_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_RD1_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_RD2_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from CU
-			I_SEL_OP1:	in std_logic;
-			I_SEL_OP2:	in std_logic_vector(1 downto 0);
-			I_TAKEN:	in std_logic;
-			I_SIGNED:	in std_logic;
-			I_SEL_A:	in source_t;
-			I_SEL_B:	in source_t;
-			I_SEL_DST:	in dest_t;
+			I_SEL_OP1:		in std_logic;
+			I_SEL_OP2:		in std_logic_vector(1 downto 0);
+			I_TAKEN:		in std_logic;
+			I_SIGNED:		in std_logic;
+			I_SEL_A:		in source_t;
+			I_SEL_B:		in source_t;
+			I_SEL_DST:		in dest_t;
 
 			-- from MEM
-			I_ALUOUT_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_ALUOUT_MEM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			I_DST_EX:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_DST_MEM:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
-			O_RD1_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_RD2_ADDR:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_RD1_ADDR:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_RD2_ADDR:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- O_DST: to WB stage; address at which rf has to be written
-			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_DST:			out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- to CU
-			O_OPCODE:	out std_logic_vector(OPCODE_SZ - 1 downto 0);
-			O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
-			O_ZERO:		out std_logic;
+			O_OPCODE:		out std_logic_vector(OPCODE_SZ - 1 downto 0);
+			O_FUNC:			out std_logic_vector(FUNC_SZ - 1 downto 0);
+			O_ZERO:			out std_logic;
+			O_ZERO_SRC_A:		out std_logic;
+			O_ZERO_SRC_B:		out std_logic;
+			O_SRC_A_EQ_DST_EX:	out std_logic;
+			O_SRC_B_EQ_DST_EX:	out std_logic;
+			O_SRC_A_EQ_DST_MEM:	out std_logic;
+			O_SRC_B_EQ_DST_MEM:	out std_logic;
 
 			-- to EX stage; ALU operands
-			O_A:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_A:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_B:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_IMM:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- O_TARGET: to IF stage; address of next instruction
-			O_TARGET:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+			O_TARGET:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
 	end component decode_unit;
 
@@ -446,32 +457,38 @@ begin
 
 	decode_unit_0: decode_unit
 		port map (
-			I_IR		=> IR_IF_REG,
-			I_NPC		=> NPC_IF_REG,
-			I_RD1_DATA	=> RD1_DATA_RF,
-			I_RD2_DATA	=> RD2_DATA_RF,
-			I_SEL_OP1	=> I_SEL_OP1,
-			I_SEL_OP2	=> I_SEL_OP2,
-			I_TAKEN		=> I_TAKEN,
-			I_SIGNED	=> I_SIGNED,
-			I_SEL_A		=> I_SEL_A,
-			I_SEL_B		=> I_SEL_B,
-			I_SEL_DST	=> I_SEL_DST,
-			I_ALUOUT_MEM	=> ALUOUT_EX_REG,
-			O_RD1_ADDR	=> RD1_ADDR_ID,
-			O_RD2_ADDR	=> RD2_ADDR_ID,
-			O_DST		=> DST_ID,
-			O_OPCODE	=> O_OPCODE,
-			O_FUNC		=> FUNC_ID,
-			O_ZERO		=> O_ZERO,
-			O_A		=> A_ID,
-			O_B		=> B_ID,
-			O_IMM		=> IMM_ID,
-			O_TARGET	=> TARGET_ID
+			I_IR			=> IR_IF_REG,
+			I_NPC			=> NPC_IF_REG,
+			I_RD1_DATA		=> RD1_DATA_RF,
+			I_RD2_DATA		=> RD2_DATA_RF,
+			I_SEL_OP1		=> I_SEL_OP1,
+			I_SEL_OP2		=> I_SEL_OP2,
+			I_TAKEN			=> I_TAKEN,
+			I_SIGNED		=> I_SIGNED,
+			I_SEL_A			=> I_SEL_A,
+			I_SEL_B			=> I_SEL_B,
+			I_SEL_DST		=> I_SEL_DST,
+			I_ALUOUT_MEM		=> ALUOUT_EX_REG,
+			I_DST_EX		=> DST_EX_REG,
+			I_DST_MEM		=> DST_MEM_REG,
+			O_RD1_ADDR		=> RD1_ADDR_ID,
+			O_RD2_ADDR		=> RD2_ADDR_ID,
+			O_DST			=> DST_ID,
+			O_OPCODE		=> O_OPCODE,
+			O_FUNC			=> FUNC_ID,
+			O_ZERO			=> O_ZERO,
+			O_ZERO_SRC_A		=> O_ZERO_SRC_A,
+			O_ZERO_SRC_B		=> O_ZERO_SRC_B,
+			O_SRC_A_EQ_DST_EX	=> O_SRC_A_EQ_DST_EX,
+			O_SRC_B_EQ_DST_EX	=> O_SRC_B_EQ_DST_EX,
+			O_SRC_A_EQ_DST_MEM	=> O_SRC_A_EQ_DST_MEM,
+			O_SRC_B_EQ_DST_MEM	=> O_SRC_B_EQ_DST_MEM,
+			O_A			=> A_ID,
+			O_B			=> B_ID,
+			O_IMM			=> IMM_ID,
+			O_TARGET		=> TARGET_ID
 		);
 
-	O_SRC_A	<= RD1_ADDR_ID;
-	O_SRC_B	<= RD2_ADDR_ID;
 	O_FUNC	<= FUNC_ID;
 
 	execute_unit_0: execute_unit
@@ -573,7 +590,6 @@ begin
 			O_STR		=> STR_CU_REG
 		);
 
-	O_DST_EX	<= DST_ID_REG;
 	O_LD_EX		<= LD_CU_REG;
 
 	ex_mem_registers_0: ex_mem_registers
@@ -596,7 +612,6 @@ begin
 			O_SEL_DATA	=> SEL_B_EX_REG
 		);
 
-	O_DST_MEM	<= DST_EX_REG;
 	O_LD_MEM	<= LD_EX_REG;
 
 	mem_wb_registers_0: mem_wb_registers
