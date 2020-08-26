@@ -7,7 +7,6 @@ entity pc_computer is
 	port (
 		I_SEL_JMP_OP1:	in std_logic;
 		I_SEL_JMP_OP2:	in std_logic_vector(1 downto 0);
-		I_TAKEN:	in std_logic;
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		-- I_A: value loaded from rf
 		I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
