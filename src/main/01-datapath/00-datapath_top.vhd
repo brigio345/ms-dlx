@@ -375,7 +375,6 @@ architecture STRUCTURAL of datapath is
 			NLINE:	integer := 32	-- number of registers
 		);
 		port (
-			CLK: 		IN std_logic;
 			RESET: 		IN std_logic;
 			RD1: 		IN std_logic;
 			RD2: 		IN std_logic;
@@ -644,7 +643,6 @@ begin
 			NLINE	=> 2 ** RF_ADDR_SZ
 		)
 		port map (
-			CLK	=> I_CLK,
 			RESET	=> I_RST,
 			RD1	=> '1',
 			RD2	=> '1',

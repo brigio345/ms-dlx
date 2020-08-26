@@ -7,18 +7,13 @@ use work.utilities.all;
 
 -- IMPLEMENTATION DETAILS:
 --	* all control signals are active high
---	* writes are performed at clock rising edge
---	* reads are performed asynchronously
---	* NLINE can be a non-power-of-2 number (thus addresses are expressed on
---		log2_ceil bits): if an out-of-bound address is provided
---		the corresponding R/W access is aborted
+--	* reads and writes are performed asynchronously
 entity register_file is
 	generic (
 		NBIT:	integer := 64;	-- number of bits in each register
 		NLINE:	integer := 32	-- number of registers
 	);
 	port (
-		CLK: 		IN std_logic;
 		RESET: 		IN std_logic;
 		RD1: 		IN std_logic;
 		RD2: 		IN std_logic;
@@ -38,29 +33,27 @@ architecture BEHAVIORAL of register_file is
 
 	signal REGISTERS:	REG_ARRAY; 
 begin
-	write: process(CLK, RESET, WR, ADD_WR, DATAIN)
+	write: process(RESET, WR, ADD_WR, DATAIN)
 	begin
-		if (CLK = '0' and CLK'event) then
-			if (RESET = '1') then
-				REGISTERS <= (others => (others => '0'));
-			elsif (WR = '1' and unsigned(ADD_WR) < NLINE) then
-				REGISTERS(to_integer(unsigned(ADD_WR))) <= DATAIN;
-			end if;
+		if (RESET = '1') then
+			REGISTERS <= (others => (others => '0'));
+		elsif (WR = '1') then
+			REGISTERS(to_integer(unsigned(ADD_WR))) <= DATAIN;
 		end if;
 	end process write;
 
-	read1: process(CLK, RD1, ADD_RD1, REGISTERS)
+	read1: process(RD1, ADD_RD1, REGISTERS)
 	begin
-		if (RD1 = '1' and unsigned(ADD_RD1) < NLINE) then
+		if (RD1 = '1') then
 			OUT1 <= REGISTERS(to_integer(unsigned(ADD_RD1)));
 		else
 			OUT1 <= (others => '0');
 		end if;
 	end process read1;
 
-	read2: process(CLK, RD2, ADD_RD2, REGISTERS)
+	read2: process(RD2, ADD_RD2, REGISTERS)
 	begin
-		if (RD2 = '1' and unsigned(ADD_RD2) < NLINE) then
+		if (RD2 = '1') then
 			OUT2 <= REGISTERS(to_integer(unsigned(ADD_RD2)));
 		else
 			OUT2 <= (others => '0');
