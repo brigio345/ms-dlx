@@ -40,7 +40,7 @@ entity datapath is
 		I_STR:		in std_logic_vector(1 downto 0);
 
 		-- from CU, to WB stage
-		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_SEL_DST:	in dest_t;
 
 		-- to i-memory
 		O_PC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -57,7 +57,6 @@ entity datapath is
 		O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
 		O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		O_SRC_B:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_DST_ID:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		O_TAKEN_PREV:	out std_logic;
 
 		-- to CU, from EX stage
@@ -115,6 +114,7 @@ architecture STRUCTURAL of datapath is
 			I_SIGNED:	in std_logic;
 			I_SEL_A:	in source_t;
 			I_SEL_B:	in source_t;
+			I_SEL_DST:	in dest_t;
 
 			-- from MEM
 			I_ALUOUT_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -458,6 +458,7 @@ begin
 			I_SIGNED	=> I_SIGNED,
 			I_SEL_A		=> I_SEL_A,
 			I_SEL_B		=> I_SEL_B,
+			I_SEL_DST	=> I_SEL_DST,
 			I_ALUOUT_MEM	=> ALUOUT_EX_REG,
 			O_RD1_ADDR	=> RD1_ADDR_ID,
 			O_RD2_ADDR	=> RD2_ADDR_ID,
@@ -473,7 +474,6 @@ begin
 
 	O_SRC_A	<= RD1_ADDR_ID;
 	O_SRC_B	<= RD2_ADDR_ID;
-	O_DST_ID<= DST_ID;
 	O_FUNC	<= FUNC_ID;
 
 	execute_unit_0: execute_unit
@@ -556,7 +556,7 @@ begin
 			I_B		=> RD2_ID,
 			I_IMM		=> IMM_ID,
 			I_NPC		=> NPC_IF_REG,
-			I_DST		=> I_DST,
+			I_DST		=> DST_ID,
 			I_SIGNED	=> I_SIGNED,
 			I_ALUOP		=> I_ALUOP,
 			I_SEL_A		=> I_SEL_A,

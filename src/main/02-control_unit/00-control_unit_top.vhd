@@ -15,7 +15,6 @@ entity control_unit is
 		I_ZERO:		in std_logic;
 		I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_TAKEN_PREV:	in std_logic;
 
 		-- from EX stage
@@ -47,7 +46,7 @@ entity control_unit is
 		O_STR:		out std_logic_vector(1 downto 0);
 
 		-- to WB stage
-		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
+		O_SEL_DST:	out dest_t
 	);
 end control_unit;
 
@@ -68,8 +67,6 @@ architecture MIXED of control_unit is
 			-- from ID stage
 			I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
 			I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
-			I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_ZERO:		in std_logic;
 
 			-- to ID stage
@@ -87,7 +84,7 @@ architecture MIXED of control_unit is
 			O_STR:		out std_logic_vector(1 downto 0);
 
 			-- to WB stage
-			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_SEL_DST:	out dest_t;
 
 			-- to CU
 			O_A_NEEDED_ID:	out std_logic;
@@ -117,7 +114,7 @@ architecture MIXED of control_unit is
 	end component data_forwarder;
 
 	signal TAKEN:		std_logic;
-	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal SEL_DST:		dest_t;
 	signal STR:		std_logic_vector(1 downto 0);
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
@@ -139,8 +136,6 @@ begin
 		port map (
 			I_FUNC		=> I_FUNC,
 			I_OPCODE	=> I_OPCODE,
-			I_DST_R		=> I_DST_R,
-			I_DST_I		=> I_SRC_B,
 			I_ZERO		=> I_ZERO,
 			O_TAKEN		=> TAKEN,
 			O_SEL_OP1	=> O_SEL_OP1,
@@ -150,7 +145,7 @@ begin
 			O_SEL_B_IMM	=> O_SEL_B_IMM,
 			O_LD		=> O_LD,
 			O_STR		=> STR,
-			O_DST		=> DST,
+			O_SEL_DST	=> SEL_DST,
 			O_A_NEEDED_ID	=> A_NEEDED_ID,
 			O_A_NEEDED_EX	=> A_NEEDED_EX,
 			O_B_NEEDED_EX	=> B_NEEDED_EX,
@@ -193,7 +188,7 @@ begin
 		    	((B_NEEDED_EX = '1') AND (SEL_B = SRC_LD_EX)))
 		    else '0';
 
-	stall_gen: process (I_TAKEN_PREV, DATA_STALL, STR, DST, TAKEN)
+	stall_gen: process (I_TAKEN_PREV, DATA_STALL, STR, SEL_DST, TAKEN)
 	begin
 		if (I_TAKEN_PREV = '1') then
 			-- stall: disable branches and writes (to memory and rf)
@@ -202,7 +197,7 @@ begin
 			-- 	IF can proceed, since PC has been updated with
 			--	the right instruction
 			O_STR		<= "00";
-			O_DST		<= (others => '0');
+			O_SEL_DST	<= DST_NO;
 			O_TAKEN		<= '0';
 			O_IF_EN		<= '1';
 		elsif (DATA_STALL = '1') then
@@ -212,13 +207,13 @@ begin
 			--	IF cannot proceed, since current instruction
 			--	must wait for its operands and then executed
 			O_STR		<= "00";
-			O_DST		<= (others => '0');
+			O_SEL_DST	<= DST_NO;
 			O_TAKEN		<= '0';
 			O_IF_EN		<= '0';
 		else
 			-- no stall: output decoded data
 			O_STR		<= STR;
-			O_DST		<= DST;
+			O_SEL_DST	<= SEL_DST;
 			O_TAKEN		<= TAKEN;
 			O_IF_EN		<= '1';
 		end if;

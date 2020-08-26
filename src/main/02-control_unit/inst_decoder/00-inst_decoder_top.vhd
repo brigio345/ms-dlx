@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use work.coding.all;
+use work.types.all;
 
 -- inst_decoder: generate all ctrl signals for current instruction
 entity inst_decoder is
@@ -8,8 +9,6 @@ entity inst_decoder is
 		-- from ID stage
 		I_FUNC:		in std_logic_vector(FUNC_SZ - 1 downto 0);
 		I_OPCODE:	in std_logic_vector(OPCODE_SZ - 1 downto 0);
-		I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_DST_I:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_ZERO:		in std_logic;
 
 		-- to ID stage
@@ -27,7 +26,7 @@ entity inst_decoder is
 		O_STR:		out std_logic_vector(1 downto 0);
 
 		-- to WB stage
-		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_SEL_DST:	out dest_t;
 
 		-- to CU
 		O_A_NEEDED_ID:	out std_logic;
@@ -39,7 +38,7 @@ end inst_decoder;
 
 architecture BEHAVIORAL of inst_decoder is
 begin
-	process (I_FUNC, I_OPCODE, I_DST_R, I_DST_I, I_ZERO)
+	process (I_FUNC, I_OPCODE, I_ZERO)
 	begin
 		-- typical I-TYPE instruction as default values
 		-- (since they are the most common instructions this
@@ -51,7 +50,7 @@ begin
 		O_SIGNED	<= '1';	-- signed
 		O_LD		<= "00"; -- no load
 		O_STR		<= "00"; -- no store
-		O_DST		<= I_DST_I;
+		O_SEL_DST	<= DST_IMM;
 		O_ALUOP		<= FUNC_ADD;
 		O_A_NEEDED_ID	<= '0';
 		O_A_NEEDED_EX	<= '1';
@@ -61,7 +60,7 @@ begin
 		case (I_OPCODE) is
 			when OPCODE_RTYPE | OPCODE_FRTYPE	=>
 				O_SEL_B_IMM	<= '0';	-- B
-				O_DST		<= I_DST_R;
+				O_SEL_DST	<= DST_REG;
 				O_ALUOP		<= I_FUNC;
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '1';
@@ -138,17 +137,17 @@ begin
 				O_LD		<= "11";	-- load word
 				O_ALUOP		<= FUNC_ADD;
 			when OPCODE_SB		=>
-				O_DST		<= (others => '0');
+				O_SEL_DST	<= DST_NO;
 				O_STR		<= "01";	-- store word
 				O_ALUOP		<= FUNC_ADD;
 				O_B_NEEDED_MEM	<= '1';
 			when OPCODE_SH		=>
-				O_DST		<= (others => '0');
+				O_SEL_DST	<= DST_NO;
 				O_STR		<= "10";	-- store word
 				O_ALUOP		<= FUNC_ADD;
 				O_B_NEEDED_MEM	<= '1';
 			when OPCODE_SW		=>
-				O_DST		<= (others => '0');
+				O_SEL_DST	<= DST_NO;
 				O_STR		<= "11";	-- store word
 				O_ALUOP		<= FUNC_ADD;
 				O_B_NEEDED_MEM	<= '1';
@@ -156,7 +155,7 @@ begin
 			-- Jump/branch instructions
 			when OPCODE_BEQZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_DST		<= (others => '0'); -- no writeback
+				O_SEL_DST	<= DST_NO; -- no writeback
 				O_A_NEEDED_ID	<= '1';
 				if (I_ZERO = '1') then
 					O_TAKEN		<= '1';
@@ -165,7 +164,7 @@ begin
 				end if;
 			when OPCODE_BNEZ	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_DST		<= (others => '0'); -- no writeback
+				O_SEL_DST	<= DST_NO; -- no writeback
 				O_A_NEEDED_ID	<= '1';
 				if (I_ZERO = '0') then
 					O_TAKEN		<= '1';
@@ -174,14 +173,14 @@ begin
 				end if;
 			when OPCODE_J		=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_DST		<= (others => '0'); -- no writeback
+				O_SEL_DST	<= DST_NO; -- no writeback
 				O_TAKEN		<= '1';
 				O_SEL_OP1	<= '0';		-- NPC
 				O_SEL_OP2	<= "10";	-- OFF
 				O_A_NEEDED_EX	<= '0';
 			when OPCODE_JAL		=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_DST		<= (others => '1'); -- write to R31
+				O_SEL_DST	<= DST_LINK; -- write to R31
 				O_TAKEN		<= '1';
 				O_SEL_OP1	<= '0';		-- NPC
 				O_SEL_OP2	<= "10";	-- OFF
@@ -189,14 +188,14 @@ begin
 				O_A_NEEDED_EX	<= '0';
 			when OPCODE_JR		=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_DST		<= (others => '0'); -- no writeback
+				O_SEL_DST	<= DST_NO; -- no writeback
 				O_A_NEEDED_ID	<= '1';
 				O_TAKEN		<= '1';
 				O_SEL_OP1	<= '1';		-- A
 				O_SEL_OP2	<= "00";	-- 0
 			when OPCODE_JALR	=>
 				O_SEL_B_IMM	<= '1';	-- IMM
-				O_DST		<= (others => '1'); -- write to R31
+				O_SEL_DST	<= DST_LINK; -- write to R31
 				O_A_NEEDED_ID	<= '1';
 				O_TAKEN		<= '1';
 				O_SEL_OP1	<= '1';		-- A
@@ -206,7 +205,7 @@ begin
 			-- General instructions
 			when others		=>
 				-- NOP and unsupported instructions
-				O_DST		<= (others => '0');
+				O_SEL_DST	<= DST_NO;
 				O_A_NEEDED_EX	<= '0';
 		end case;
 	end process;

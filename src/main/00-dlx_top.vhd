@@ -62,7 +62,7 @@ architecture STRUCTURAL of dlx is
 			I_STR:		in std_logic_vector(1 downto 0);
 
 			-- from CU, to WB stage
-			I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_SEL_DST:	in dest_t;
 
 			-- to i-memory
 			O_PC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -79,7 +79,6 @@ architecture STRUCTURAL of dlx is
 			O_FUNC:		out std_logic_vector(FUNC_SZ - 1 downto 0);
 			O_SRC_A:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			O_SRC_B:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_DST_ID:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			O_TAKEN_PREV:	out std_logic;
 
 			-- to CU, from EX stage
@@ -104,7 +103,6 @@ architecture STRUCTURAL of dlx is
 			I_ZERO:		in std_logic;
 			I_SRC_A:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_SRC_B:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_DST_R:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_TAKEN_PREV:	in std_logic;
 
 			-- from EX stage
@@ -136,7 +134,7 @@ architecture STRUCTURAL of dlx is
 			O_STR:		out std_logic_vector(1 downto 0);
 
 			-- to WB stage
-			O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
+			O_SEL_DST:	out dest_t
 		);
 	end component control_unit;
 
@@ -149,7 +147,7 @@ architecture STRUCTURAL of dlx is
 	signal ALUOP:		std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal LD:		std_logic_vector(1 downto 0);
 	signal STR:		std_logic_vector(1 downto 0);
-	signal DST:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal SEL_DST:		dest_t;
 	signal OPCODE_ID:	std_logic_vector(OPCODE_SZ - 1 downto 0);
 	signal FUNC:		std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal SRC_A:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -183,7 +181,7 @@ begin
 			I_ALUOP		=> ALUOP,
 			I_LD		=> LD,
 			I_STR		=> STR,
-			I_DST		=> DST,
+			I_SEL_DST	=> SEL_DST,
 			O_PC		=> O_I_RD_ADDR,
 			O_D_ADDR	=> O_D_ADDR,
 			O_D_RD		=> O_D_RD,
@@ -194,7 +192,6 @@ begin
 			O_FUNC		=> FUNC,
 			O_SRC_A		=> SRC_A,
 			O_SRC_B		=> SRC_B,
-			O_DST_ID	=> DST_ID,
 			O_TAKEN_PREV	=> TAKEN_PREV,
 			O_DST_EX	=> DST_EX,
 			O_LD_EX		=> LD_EX,
@@ -211,7 +208,6 @@ begin
 			I_ZERO		=> ZERO,
 			I_SRC_A		=> SRC_A,
 			I_SRC_B		=> SRC_B,
-			I_DST_R		=> DST_ID,
 			I_TAKEN_PREV	=> TAKEN_PREV,
 			I_DST_EX	=> DST_EX,
 			I_LD_EX		=> LD_EX,
@@ -229,7 +225,7 @@ begin
 			O_ALUOP		=> ALUOP,
 			O_LD		=> LD,
 			O_STR		=> STR,
-			O_DST		=> DST
+			O_SEL_DST	=> SEL_DST
 		);
 end STRUCTURAL;
 

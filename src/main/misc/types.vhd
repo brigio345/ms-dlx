@@ -6,5 +6,12 @@ package types is
 		SRC_LD_EX,
 		SRC_LD_MEM
 	);
+
+	type dest_t is (
+		DST_NO,
+		DST_REG,
+		DST_IMM,
+		DST_LINK
+	);
 end types;
 

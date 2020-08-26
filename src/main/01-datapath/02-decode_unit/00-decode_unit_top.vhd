@@ -28,6 +28,7 @@ entity decode_unit is
 		I_SIGNED:	in std_logic;
 		I_SEL_A:	in source_t;
 		I_SEL_B:	in source_t;
+		I_SEL_DST:	in dest_t;
 
 		-- from MEM
 		I_ALUOUT_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -105,7 +106,12 @@ begin
 	-- rf addresses
 	O_RD1_ADDR	<= I_IR(R_SRC1_RANGE);
 	O_RD2_ADDR	<= I_IR(R_SRC2_RANGE);
-	O_DST		<= I_IR(R_DST_RANGE);
+
+	with I_SEL_DST select O_DST <=
+		(others => '0')		when DST_NO,
+		(others => '1')		when DST_LINK,
+		I_IR(I_DST_RANGE)	when DST_IMM,
+		I_IR(R_DST_RANGE)	when others;
 
 	-- outputs to EX stage
 	O_RD1	<= A;
