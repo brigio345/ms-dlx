@@ -10,6 +10,7 @@ entity data_mem is
 		N_LINES:	integer := 1024
 	);
 	port (
+		I_CLK:	in std_logic;
 		I_RST:	in std_logic;
 
 		I_ADDR:	in std_logic_vector(31 downto 0);
@@ -39,39 +40,41 @@ architecture BEHAVIORAL of data_mem is
 begin
 	ADDR_INT <= to_integer(unsigned(I_ADDR(PHYS_ADDR_RANGE)));
 
-	write: process (I_RST, I_ADDR, I_DATA, I_WR)
+	write: process (I_CLK)
 	begin
-		if (I_RST = '1') then
-			MEM <= (others => (others => '0'));
-		else
-			case I_WR is
-				when "11"	=>
-					-- store word
-					MEM(ADDR_INT)		<= I_DATA(BYTE0);
-					MEM(ADDR_INT + 1)	<= I_DATA(BYTE1);
-					MEM(ADDR_INT + 2)	<= I_DATA(BYTE2);
-					MEM(ADDR_INT + 3)	<= I_DATA(BYTE3);
-				when "10"	=>
-					-- store half word
-					MEM(ADDR_INT)		<= I_DATA(BYTE2);
-					MEM(ADDR_INT + 1)	<= I_DATA(BYTE3);
-				when "01"	=>
-					-- store byte
-					MEM(ADDR_INT)		<= I_DATA(BYTE3);
-				when others	=>
-					null;
-			end case;
+		if (I_CLK = '0' AND I_CLK'event) then
+			if (I_RST = '1') then
+				MEM <= (others => (others => '0'));
+			else
+				case I_WR is
+					when "11"	=>
+						-- store word
+						MEM(ADDR_INT)		<= I_DATA(BYTE3);
+						MEM(ADDR_INT + 1)	<= I_DATA(BYTE2);
+						MEM(ADDR_INT + 2)	<= I_DATA(BYTE1);
+						MEM(ADDR_INT + 3)	<= I_DATA(BYTE0);
+					when "10"	=>
+						-- store half word
+						MEM(ADDR_INT)		<= I_DATA(BYTE3);
+						MEM(ADDR_INT + 1)	<= I_DATA(BYTE2);
+					when "01"	=>
+						-- store byte
+						MEM(ADDR_INT)		<= I_DATA(BYTE3);
+					when others	=>
+						null;
+				end case;
+			end if;
 		end if;
 	end process write;
 
-	read: process (I_ADDR, I_RD)
+	read: process (ADDR_INT, I_RD)
 	begin
 		case I_RD is
 			when "11"	=>
-				O_DATA <=  MEM(ADDR_INT) & MEM(ADDR_INT + 1) &
-					MEM(ADDR_INT + 2) & MEM(ADDR_INT + 3);
+				O_DATA <=  MEM(ADDR_INT + 3) & MEM(ADDR_INT + 2) &
+					MEM(ADDR_INT + 1) & MEM(ADDR_INT);
 			when "10"	=>
-				O_DATA <= MEM(ADDR_INT) & MEM(ADDR_INT + 1)  &
+				O_DATA <= MEM(ADDR_INT + 1) & MEM(ADDR_INT) &
 					ZERO_BYTE & ZERO_BYTE;
 			when "01"	=>
 				O_DATA <= MEM(ADDR_INT) & ZERO_BYTE &
