@@ -7,7 +7,7 @@ use work.utilities.all;
 
 -- IMPLEMENTATION DETAILS:
 --	* all control signals are active high
---	* writes are performed at the rising edge of the clock
+--	* writes are performed at the falling edge of the clock
 --	* reads are performed asynchronously
 entity register_file is
 	generic (
@@ -37,7 +37,7 @@ architecture BEHAVIORAL of register_file is
 begin
 	write: process(I_CLK)
 	begin
-		if (I_CLK = '1' AND I_CLK'event) then
+		if (I_CLK = '0' AND I_CLK'event) then
 			if (I_RST = '1') then
 				REGISTERS <= (others => (others => '0'));
 			elsif (I_WR = '1') then

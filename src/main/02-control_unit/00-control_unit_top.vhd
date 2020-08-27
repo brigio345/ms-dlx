@@ -8,6 +8,8 @@ entity control_unit is
 		-- from environment
 		I_CFG:			in std_logic;
 		I_ENDIAN:		in std_logic;
+		I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- from ID stage
 		I_OPCODE:		in std_logic_vector(OPCODE_SZ - 1 downto 0);
@@ -35,6 +37,8 @@ entity control_unit is
 		-- to IF stage
 		O_IF_EN:		out std_logic;
 		O_ENDIAN:		out std_logic;
+		O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- to ID stage
 		O_TAKEN:		out std_logic;
@@ -60,12 +64,16 @@ end control_unit;
 architecture MIXED of control_unit is
 	component config_register is
 		port (
-			I_RST:		in std_logic;
-			I_LD:		in std_logic;
+			I_RST:			in std_logic;
+			I_LD:			in std_logic;
 
-			I_ENDIAN:	in std_logic;
+			I_ENDIAN:		in std_logic;
+			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
-			O_ENDIAN:	out std_logic
+			O_ENDIAN:		out std_logic;
+			O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
 		);
 	end component config_register;
 
@@ -140,10 +148,14 @@ architecture MIXED of control_unit is
 begin
 	config_register_0: config_register
 		port map (
-			I_RST	=> '0',
-			I_LD	=> I_CFG,
-			I_ENDIAN=> I_ENDIAN,
-			O_ENDIAN=> O_ENDIAN
+			I_RST			=> '0',
+			I_LD			=> I_CFG,
+			I_ENDIAN		=> I_ENDIAN,
+			I_PHYS_I_ADDR_SZ	=> I_PHYS_I_ADDR_SZ,
+			I_PHYS_D_ADDR_SZ	=> I_PHYS_D_ADDR_SZ,
+			O_ENDIAN		=> O_ENDIAN,
+			O_PHYS_I_ADDR_SZ	=> O_PHYS_I_ADDR_SZ,
+			O_PHYS_D_ADDR_SZ	=> O_PHYS_D_ADDR_SZ
 		);
 
 	inst_decoder_0: inst_decoder

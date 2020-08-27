@@ -14,6 +14,7 @@ entity fetch_unit is
 		--	- '0' => BIG endian
 		--	- '1' => LITTLE endian
 		I_ENDIAN:	in std_logic;
+		I_PHYS_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -39,7 +40,19 @@ begin
 	PC	<= I_NPC when (I_TAKEN = '0') else I_TARGET;
 	O_NPC	<= std_logic_vector(unsigned(PC) + 4);
 
-	O_PC	<= PC;		-- forward to i_mem
+	-- cut PC to the physical address length, setting highest bits to 0
+	-- and perform word alignment
+	cut_addr: process (PC, I_PHYS_ADDR_SZ)
+	begin
+		for I in PC'range loop
+			if ((I > (to_integer(unsigned(I_PHYS_ADDR_SZ)) - 1)) OR
+					(I < 2)) then
+				O_PC(I) <= '0';
+			else
+				O_PC(I) <= PC(I);
+			end if;
+		end loop;
+	end process cut_addr;
 
 	-- convert IR to big endian if instruction memory is big endian
 	O_IR	<= I_IR when (I_ENDIAN = '1') else swap_bytes(I_IR);	-- forward from i_mem

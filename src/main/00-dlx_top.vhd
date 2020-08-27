@@ -12,6 +12,8 @@ entity dlx is
 		--	- '0' => BIG endian
 		--	- '1' => LITTLE endian
 		I_ENDIAN:	in std_logic;
+		I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		I_I_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
 		I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -35,6 +37,8 @@ architecture STRUCTURAL of dlx is
 			--	- '0' => BIG endian
 			--	- '1' => LITTLE endian
 			I_ENDIAN:		in std_logic;
+			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- from i-memory
 			I_INST:			in std_logic_vector(INST_SZ - 1 downto 0);
@@ -103,6 +107,8 @@ architecture STRUCTURAL of dlx is
 			-- from environment
 			I_CFG:			in std_logic;
 			I_ENDIAN:		in std_logic;
+			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- from ID stage
 			I_OPCODE:		in std_logic_vector(OPCODE_SZ - 1 downto 0);
@@ -130,6 +136,8 @@ architecture STRUCTURAL of dlx is
 			-- to IF stage
 			O_IF_EN:		out std_logic;
 			O_ENDIAN:		out std_logic;
+			O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- to ID stage
 			O_TAKEN:		out std_logic;
@@ -153,6 +161,8 @@ architecture STRUCTURAL of dlx is
 	end component control_unit;
 
 	signal ENDIAN:		std_logic;
+	signal PHYS_D_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal PHYS_I_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal IF_EN:		std_logic;
 	signal S_SIGNED:	std_logic;
 	signal SEL_A:		source_t;
@@ -178,14 +188,16 @@ architecture STRUCTURAL of dlx is
 	signal LD_WB:		std_logic_vector(1 downto 0);
 	signal ZERO:		std_logic;
 	signal TAKEN:		std_logic;
-	signal SEL_JMP_OP1:		std_logic;
-	signal SEL_JMP_OP2:		std_logic_vector(1 downto 0);
+	signal SEL_JMP_OP1:	std_logic;
+	signal SEL_JMP_OP2:	std_logic_vector(1 downto 0);
 begin
 	datapath_0: datapath
 		port map (
 			I_CLK			=> I_CLK,
 			I_RST			=> I_RST,
 			I_ENDIAN		=> ENDIAN,
+			I_PHYS_I_ADDR_SZ	=> PHYS_I_ADDR_SZ,
+			I_PHYS_D_ADDR_SZ	=> PHYS_D_ADDR_SZ,
 			I_INST			=> I_I_RD_DATA,
 			I_D_RD_DATA		=> I_D_RD_DATA,
 			I_IF_EN			=> IF_EN,
@@ -226,6 +238,8 @@ begin
 		port map (
 			I_CFG			=> I_RST,
 			I_ENDIAN		=> I_ENDIAN,
+			I_PHYS_I_ADDR_SZ	=> I_PHYS_I_ADDR_SZ,
+			I_PHYS_D_ADDR_SZ	=> I_PHYS_D_ADDR_SZ,
 			I_OPCODE		=> OPCODE_ID,
 			I_FUNC			=> FUNC,
 			I_ZERO			=> ZERO,
@@ -243,6 +257,8 @@ begin
 			I_LD_WB			=> LD_WB,
 			O_IF_EN			=> IF_EN,
 			O_ENDIAN		=> ENDIAN,
+			O_PHYS_I_ADDR_SZ	=> PHYS_I_ADDR_SZ,
+			O_PHYS_D_ADDR_SZ	=> PHYS_D_ADDR_SZ,
 			O_TAKEN			=> TAKEN,
 			O_SEL_JMP_OP1		=> SEL_JMP_OP1,
 			O_SEL_JMP_OP2		=> SEL_JMP_OP2,
