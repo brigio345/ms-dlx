@@ -3,8 +3,10 @@ package types is
 		SRC_RF,
 		SRC_ALU_EX,
 		SRC_ALU_MEM,
+		SRC_ALU_WB,
 		SRC_LD_EX,
-		SRC_LD_MEM
+		SRC_LD_MEM,
+		SRC_LD_WB
 	);
 
 	type dest_t is (

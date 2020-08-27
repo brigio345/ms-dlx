@@ -32,8 +32,13 @@ entity decode_unit is
 		-- from MEM
 		I_ALUOUT_MEM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
+		-- from WB
+		I_ALUOUT_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_LOADED_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
 		I_DST_EX:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 		I_DST_MEM:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_DST_WB:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 		-- O_RDx_ADDR: to rf; address at which rf has to be read
 		O_RD1_ADDR:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -52,6 +57,8 @@ entity decode_unit is
 		O_SRC_B_EQ_DST_EX:	out std_logic;
 		O_SRC_A_EQ_DST_MEM:	out std_logic;
 		O_SRC_B_EQ_DST_MEM:	out std_logic;
+		O_SRC_A_EQ_DST_WB:	out std_logic;
+		O_SRC_B_EQ_DST_WB:	out std_logic;
 
 		-- to EX stage; ALU operands
 		O_A:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -96,8 +103,17 @@ begin
 	OFF	<= I_IR(J_OFF_RANGE);
 
 	-- data forwarding
-	A	<= I_ALUOUT_MEM when (I_SEL_A = SRC_ALU_MEM) else I_RD1_DATA;
-	O_B 	<= I_ALUOUT_MEM when (I_SEL_B = SRC_ALU_MEM) else I_RD2_DATA;
+	with I_SEL_A select A <=
+		I_ALUOUT_MEM	when SRC_ALU_MEM,
+		I_ALUOUT_WB	when SRC_ALU_WB,
+		I_LOADED_WB	when SRC_LD_WB,
+		I_RD1_DATA	when others;
+
+	with I_SEL_B select O_B <=
+		I_ALUOUT_MEM	when SRC_ALU_MEM,
+		I_ALUOUT_WB	when SRC_ALU_WB,
+		I_LOADED_WB	when SRC_LD_WB,
+		I_RD2_DATA	when others;
 
 	-- extend
 	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_SIGNED = '0')
@@ -132,6 +148,8 @@ begin
 	O_SRC_B_EQ_DST_EX	<= '1' when (SRC_B = I_DST_EX) else '0';
 	O_SRC_A_EQ_DST_MEM	<= '1' when (SRC_A = I_DST_MEM) else '0';
 	O_SRC_B_EQ_DST_MEM	<= '1' when (SRC_B = I_DST_MEM) else '0';
+	O_SRC_A_EQ_DST_WB	<= '1' when (SRC_A = I_DST_WB) else '0';
+	O_SRC_B_EQ_DST_WB	<= '1' when (SRC_B = I_DST_WB) else '0';
 
 	-- outputs to EX stage
 	O_A	<= A;

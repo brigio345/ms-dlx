@@ -19,6 +19,8 @@ entity control_unit is
 		I_SRC_B_EQ_DST_EX:	in std_logic;
 		I_SRC_A_EQ_DST_MEM:	in std_logic;
 		I_SRC_B_EQ_DST_MEM:	in std_logic;
+		I_SRC_A_EQ_DST_WB:	in std_logic;
+		I_SRC_B_EQ_DST_WB:	in std_logic;
 		I_TAKEN_PREV:		in std_logic;
 
 		-- from EX stage
@@ -26,6 +28,9 @@ entity control_unit is
 
 		-- from MEM stage
 		I_LD_MEM:		in std_logic_vector(1 downto 0);
+
+		-- from WB stage
+		I_LD_WB:		in std_logic_vector(1 downto 0);
 
 		-- to IF stage
 		O_IF_EN:		out std_logic;
@@ -105,12 +110,17 @@ architecture MIXED of control_unit is
 			I_SRC_B_EQ_DST_EX:	in std_logic;
 			I_SRC_A_EQ_DST_MEM:	in std_logic;
 			I_SRC_B_EQ_DST_MEM:	in std_logic;
+			I_SRC_A_EQ_DST_WB:	in std_logic;
+			I_SRC_B_EQ_DST_WB:	in std_logic;
 
 			-- from EX stage
 			I_LD_EX:		in std_logic_vector(1 downto 0);
 
 			-- from MEM stage
 			I_LD_MEM:		in std_logic_vector(1 downto 0);
+
+			-- from WB stage
+			I_LD_WB:		in std_logic_vector(1 downto 0);
 
 			O_SEL_A:		out source_t;
 			O_SEL_B:		out source_t
@@ -164,8 +174,11 @@ begin
 			I_SRC_B_EQ_DST_EX	=> I_SRC_B_EQ_DST_EX,
 			I_SRC_A_EQ_DST_MEM	=> I_SRC_A_EQ_DST_MEM,
 			I_SRC_B_EQ_DST_MEM	=> I_SRC_B_EQ_DST_MEM,
+			I_SRC_A_EQ_DST_WB	=> I_SRC_A_EQ_DST_WB,
+			I_SRC_B_EQ_DST_WB	=> I_SRC_B_EQ_DST_WB,
 			I_LD_EX			=> I_LD_EX,
 			I_LD_MEM		=> I_LD_MEM,
+			I_LD_WB			=> I_LD_WB,
 			O_SEL_A			=> SEL_A,
 			O_SEL_B			=> SEL_B
 		);

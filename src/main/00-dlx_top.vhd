@@ -83,13 +83,18 @@ architecture STRUCTURAL of dlx is
 			O_SRC_B_EQ_DST_EX:	out std_logic;
 			O_SRC_A_EQ_DST_MEM:	out std_logic;
 			O_SRC_B_EQ_DST_MEM:	out std_logic;
+			O_SRC_A_EQ_DST_WB:	out std_logic;
+			O_SRC_B_EQ_DST_WB:	out std_logic;
 			O_TAKEN_PREV:		out std_logic;
 
 			-- to CU, from EX stage
 			O_LD_EX:		out std_logic_vector(1 downto 0);
 
 			-- to CU, from MEM stage
-			O_LD_MEM:		out std_logic_vector(1 downto 0)
+			O_LD_MEM:		out std_logic_vector(1 downto 0);
+
+			-- to CU, from WB stage
+			O_LD_WB:		out std_logic_vector(1 downto 0)
 		);
 	end component datapath;
 
@@ -109,6 +114,8 @@ architecture STRUCTURAL of dlx is
 			I_SRC_B_EQ_DST_EX:	in std_logic;
 			I_SRC_A_EQ_DST_MEM:	in std_logic;
 			I_SRC_B_EQ_DST_MEM:	in std_logic;
+			I_SRC_A_EQ_DST_WB:	in std_logic;
+			I_SRC_B_EQ_DST_WB:	in std_logic;
 			I_TAKEN_PREV:		in std_logic;
 
 			-- from EX stage
@@ -116,6 +123,9 @@ architecture STRUCTURAL of dlx is
 
 			-- from MEM stage
 			I_LD_MEM:		in std_logic_vector(1 downto 0);
+
+			-- from WB stage
+			I_LD_WB:		in std_logic_vector(1 downto 0);
 
 			-- to IF stage
 			O_IF_EN:		out std_logic;
@@ -160,9 +170,12 @@ architecture STRUCTURAL of dlx is
 	signal SRC_B_EQ_DST_EX:	std_logic;
 	signal SRC_A_EQ_DST_MEM:std_logic;
 	signal SRC_B_EQ_DST_MEM:std_logic;
+	signal SRC_A_EQ_DST_WB:	std_logic;
+	signal SRC_B_EQ_DST_WB:	std_logic;
 	signal TAKEN_PREV:	std_logic;
 	signal LD_EX:		std_logic_vector(1 downto 0);
 	signal LD_MEM:		std_logic_vector(1 downto 0);
+	signal LD_WB:		std_logic_vector(1 downto 0);
 	signal ZERO:		std_logic;
 	signal TAKEN:		std_logic;
 	signal SEL_JMP_OP1:		std_logic;
@@ -201,9 +214,12 @@ begin
 			O_SRC_B_EQ_DST_EX	=> SRC_B_EQ_DST_EX,
 			O_SRC_A_EQ_DST_MEM	=> SRC_A_EQ_DST_MEM,
 			O_SRC_B_EQ_DST_MEM	=> SRC_B_EQ_DST_MEM,
+			O_SRC_A_EQ_DST_WB	=> SRC_A_EQ_DST_WB,
+			O_SRC_B_EQ_DST_WB	=> SRC_B_EQ_DST_WB,
 			O_TAKEN_PREV		=> TAKEN_PREV,
 			O_LD_EX			=> LD_EX,
-			O_LD_MEM		=> LD_MEM
+			O_LD_MEM		=> LD_MEM,
+			O_LD_WB			=> LD_WB
 		);
 	
 	control_unit_0: control_unit
@@ -219,9 +235,12 @@ begin
 			I_SRC_B_EQ_DST_EX	=> SRC_B_EQ_DST_EX,
 			I_SRC_A_EQ_DST_MEM	=> SRC_A_EQ_DST_MEM,
 			I_SRC_B_EQ_DST_MEM	=> SRC_B_EQ_DST_MEM,
+			I_SRC_A_EQ_DST_WB	=> SRC_A_EQ_DST_WB,
+			I_SRC_B_EQ_DST_WB	=> SRC_B_EQ_DST_WB,
 			I_TAKEN_PREV		=> TAKEN_PREV,
 			I_LD_EX			=> LD_EX,
 			I_LD_MEM		=> LD_MEM,
+			I_LD_WB			=> LD_WB,
 			O_IF_EN			=> IF_EN,
 			O_ENDIAN		=> ENDIAN,
 			O_TAKEN			=> TAKEN,

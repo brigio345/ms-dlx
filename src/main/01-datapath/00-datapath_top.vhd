@@ -61,13 +61,18 @@ entity datapath is
 		O_SRC_B_EQ_DST_EX:	out std_logic;
 		O_SRC_A_EQ_DST_MEM:	out std_logic;
 		O_SRC_B_EQ_DST_MEM:	out std_logic;
+		O_SRC_A_EQ_DST_WB:	out std_logic;
+		O_SRC_B_EQ_DST_WB:	out std_logic;
 		O_TAKEN_PREV:		out std_logic;
 
 		-- to CU, from EX stage
 		O_LD_EX:		out std_logic_vector(1 downto 0);
 
 		-- to CU, from MEM stage
-		O_LD_MEM:		out std_logic_vector(1 downto 0)
+		O_LD_MEM:		out std_logic_vector(1 downto 0);
+
+		-- to CU, from WB stage
+		O_LD_WB:		out std_logic_vector(1 downto 0)
 	);
 end datapath;
 
@@ -120,8 +125,13 @@ architecture STRUCTURAL of datapath is
 			-- from MEM
 			I_ALUOUT_MEM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
+			-- from WB
+			I_ALUOUT_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_LOADED_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
 			I_DST_EX:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_DST_MEM:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_DST_WB:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
 			O_RD1_ADDR:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -140,6 +150,8 @@ architecture STRUCTURAL of datapath is
 			O_SRC_B_EQ_DST_EX:	out std_logic;
 			O_SRC_A_EQ_DST_MEM:	out std_logic;
 			O_SRC_B_EQ_DST_MEM:	out std_logic;
+			O_SRC_A_EQ_DST_WB:	out std_logic;
+			O_SRC_B_EQ_DST_WB:	out std_logic;
 
 			-- to EX stage; ALU operands
 			O_A:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -353,37 +365,23 @@ architecture STRUCTURAL of datapath is
 		);
 	end component mem_wb_registers;
 
-	component wb_mem_registers is
-		port (
-			I_CLK:		in std_logic;
-			I_RST:		in std_logic;
-
-			-- from WB stage
-			I_LOADED:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			I_ALUOUT:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
-
-			-- to MEM stage
-			O_LOADED:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
-			O_ALUOUT:	out std_logic_vector(RF_DATA_SZ - 1 downto 0)
-		);
-	end component wb_mem_registers;
-
 	component register_file is
 		generic (
 			NBIT:	integer := 64;	-- number of bits in each register
 			NLINE:	integer := 32	-- number of registers
 		);
 		port (
-			RESET: 		IN std_logic;
-			RD1: 		IN std_logic;
-			RD2: 		IN std_logic;
-			WR: 		IN std_logic;
-			ADD_WR: 	IN std_logic_vector(log2_ceil(NLINE) - 1 downto 0);
-			ADD_RD1: 	IN std_logic_vector(log2_ceil(NLINE) - 1 downto 0);
-			ADD_RD2: 	IN std_logic_vector(log2_ceil(NLINE) - 1 downto 0);
-			DATAIN: 	IN std_logic_vector(NBIT - 1 downto 0);
-			OUT1: 		OUT std_logic_vector(NBIT - 1 downto 0);
-			OUT2: 		OUT std_logic_vector(NBIT - 1 downto 0)
+			I_CLK:		in std_logic;
+			I_RST: 		in std_logic;
+			I_RD1: 		in std_logic;
+			I_RD2: 		in std_logic;
+			I_WR: 		in std_logic;
+			I_WR_ADDR: 	in std_logic_vector(log2_ceil(NLINE) - 1 downto 0);
+			I_RD1_ADDR: 	in std_logic_vector(log2_ceil(NLINE) - 1 downto 0);
+			I_RD2_ADDR: 	in std_logic_vector(log2_ceil(NLINE) - 1 downto 0);
+			I_WR_DATA: 	in std_logic_vector(NBIT - 1 downto 0);
+			O_RD1_DATA: 	out std_logic_vector(NBIT - 1 downto 0);
+			O_RD2_DATA: 	out std_logic_vector(NBIT - 1 downto 0)
 		);
 	end component register_file;
 
@@ -427,9 +425,6 @@ architecture STRUCTURAL of datapath is
 	signal WR_ADDR_MEM:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal WR_DATA_MEM:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
-	signal ALUOUT_WB_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal LOADED_WB_REG:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-
 	signal RD1_DATA_RF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal RD2_DATA_RF:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -466,8 +461,11 @@ begin
 			I_SEL_B			=> I_SEL_B,
 			I_SEL_DST		=> I_SEL_DST,
 			I_ALUOUT_MEM		=> ALUOUT_EX_REG,
-			I_DST_EX		=> DST_EX_REG,
-			I_DST_MEM		=> DST_MEM_REG,
+			I_ALUOUT_WB		=> ALUOUT_MEM_REG,
+			I_LOADED_WB		=> LOADED_MEM_REG,
+			I_DST_EX		=> DST_ID_REG,
+			I_DST_MEM		=> DST_EX_REG,
+			I_DST_WB		=> DST_MEM_REG,
 			O_RD1_ADDR		=> RD1_ADDR_ID,
 			O_RD2_ADDR		=> RD2_ADDR_ID,
 			O_DST			=> DST_ID,
@@ -480,6 +478,8 @@ begin
 			O_SRC_B_EQ_DST_EX	=> O_SRC_B_EQ_DST_EX,
 			O_SRC_A_EQ_DST_MEM	=> O_SRC_A_EQ_DST_MEM,
 			O_SRC_B_EQ_DST_MEM	=> O_SRC_B_EQ_DST_MEM,
+			O_SRC_A_EQ_DST_WB	=> O_SRC_A_EQ_DST_WB,
+			O_SRC_B_EQ_DST_WB	=> O_SRC_B_EQ_DST_WB,
 			O_A			=> A_ID,
 			O_B			=> B_ID,
 			O_IMM			=> IMM_ID,
@@ -625,15 +625,7 @@ begin
 			O_LD		=> LD_MEM_REG
 		);
 
-	wb_mem_registers_0: wb_mem_registers
-		port map (
-			I_CLK	=> I_CLK,
-			I_RST	=> I_RST,
-			I_LOADED=> LOADED_MEM_REG,
-			I_ALUOUT=> ALUOUT_EX_REG,
-			O_LOADED=> LOADED_WB_REG,
-			O_ALUOUT=> ALUOUT_WB_REG
-		);
+	O_LD_WB	<= LD_MEM_REG;
 
 	register_file_0: register_file
 		generic map (
@@ -641,16 +633,17 @@ begin
 			NLINE	=> 2 ** RF_ADDR_SZ
 		)
 		port map (
-			RESET	=> I_RST,
-			RD1	=> '1',
-			RD2	=> '1',
-			WR	=> WR_MEM,
-			ADD_WR	=> WR_ADDR_MEM,
-			ADD_RD1	=> RD1_ADDR_ID,
-			ADD_RD2	=> RD2_ADDR_ID,
-			DATAIN	=> WR_DATA_MEM,
-			OUT1	=> RD1_DATA_RF,
-			OUT2	=> RD2_DATA_RF
+			I_CLK		=> I_CLK,
+			I_RST		=> I_RST,
+			I_RD1		=> '1',
+			I_RD2		=> '1',
+			I_WR		=> WR_MEM,
+			I_WR_ADDR	=> WR_ADDR_MEM,
+			I_RD1_ADDR	=> RD1_ADDR_ID,
+			I_RD2_ADDR	=> RD2_ADDR_ID,
+			I_WR_DATA	=> WR_DATA_MEM,
+			O_RD1_DATA	=> RD1_DATA_RF,
+			O_RD2_DATA	=> RD2_DATA_RF
 		);
 end STRUCTURAL;
 
