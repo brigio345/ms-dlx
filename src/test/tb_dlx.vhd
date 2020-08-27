@@ -10,10 +10,16 @@ architecture TB_ARCH of tb_dlx is
 		port (
 			I_CLK:		in std_logic;
 			I_RST:		in std_logic;
+
+			-- I_ENDIAN: specify endianness of data and instruction memories
+			--	- '0' => BIG endian
+			--	- '1' => LITTLE endian
 			I_ENDIAN:	in std_logic;
+			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			I_I_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
-			I_D_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
+			I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			O_I_RD_ADDR:	out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -38,9 +44,11 @@ architecture TB_ARCH of tb_dlx is
 
 	component data_mem is
 		generic (
-			DATA_SZ:	integer := 32
+			DATA_SZ:	integer := 32;
+			N_LINES:	integer := 1024
 		);
 		port (
+			I_CLK:	in std_logic;
 			I_RST:	in std_logic;
 
 			I_ADDR:	in std_logic_vector(31 downto 0);
@@ -57,6 +65,8 @@ architecture TB_ARCH of tb_dlx is
 	signal CLK:		std_logic;
 	signal RST:		std_logic;
 	signal ENDIAN:		std_logic;
+	signal PHYS_I_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal PHYS_D_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal I_RD_DATA:	std_logic_vector(INST_SZ - 1 downto 0);
 	signal D_RD_DATA:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal I_RD_ADDR:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -70,6 +80,8 @@ begin
 			I_CLK		=> CLK,
 			I_RST		=> RST,
 			I_ENDIAN	=> ENDIAN,
+			I_PHYS_I_ADDR_SZ=> PHYS_I_ADDR_SZ,
+			I_PHYS_D_ADDR_SZ=> PHYS_D_ADDR_SZ,
 			I_I_RD_DATA	=> I_RD_DATA,
 			I_D_RD_DATA	=> D_RD_DATA,
 			O_I_RD_ADDR	=> I_RD_ADDR,
@@ -92,9 +104,11 @@ begin
 
 	data_mem_0: data_mem
 		generic map (
-			DATA_SZ	=> 32
+			DATA_SZ	=> 32,
+			N_LINES	=> 512
 		)
 		port map (
+			I_CLK	=> CLK,
 			I_RST	=> RST,
 			I_ADDR	=> D_ADDR,
 			I_DATA	=> D_WR_DATA,
@@ -115,7 +129,8 @@ begin
 	begin
 		RST		<= '1';
 		ENDIAN		<= '0';
---		D_RD_DATA	<= x"40ABCDEF";
+		PHYS_I_ADDR_SZ	<= "00110";
+		PHYS_D_ADDR_SZ	<= "00110";
 
 
 		wait for CLK_PERIOD;
