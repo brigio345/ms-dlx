@@ -13,8 +13,8 @@ entity datapath is
 		--	- '0' => BIG endian
 		--	- '1' => LITTLE endian
 		I_ENDIAN:		in std_logic;
-		I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from i-memory
 		I_INST:			in std_logic_vector(INST_SZ - 1 downto 0);
@@ -85,7 +85,7 @@ architecture STRUCTURAL of datapath is
 			--	- '0' => BIG endian
 			--	- '1' => LITTLE endian
 			I_ENDIAN:	in std_logic;
-			I_PHYS_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -196,7 +196,7 @@ architecture STRUCTURAL of datapath is
 			--	- '0' => BIG endian
 			--	- '1' => LITTLE endian
 			I_ENDIAN:	in std_logic;
-			I_PHYS_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from CU
 			I_LD:		in std_logic_vector(1 downto 0);
@@ -443,7 +443,7 @@ begin
 	fetch_unit_0: fetch_unit
 		port map (
 			I_ENDIAN	=> I_ENDIAN,
-			I_PHYS_ADDR_SZ	=> I_PHYS_I_ADDR_SZ,
+			I_MEM_SZ	=> I_I_MEM_SZ,
 			I_NPC		=> NPC_IF_REG,
 			I_TARGET	=> TARGET_ID_REG,
 			I_TAKEN		=> TAKEN_ID_REG,
@@ -512,7 +512,7 @@ begin
 	memory_unit_0: memory_unit
 		port map (
 			I_ENDIAN	=> I_ENDIAN,
-			I_PHYS_ADDR_SZ	=> I_PHYS_D_ADDR_SZ,
+			I_MEM_SZ	=> I_D_MEM_SZ,
 			I_LD		=> LD_EX_REG,
 			I_STR		=> STR_EX_REG,
 			I_SIGNED	=> SIGNED_EX_REG,

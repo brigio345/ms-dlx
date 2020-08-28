@@ -8,8 +8,8 @@ entity control_unit is
 		-- from environment
 		I_CFG:			in std_logic;
 		I_ENDIAN:		in std_logic;
-		I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from ID stage
 		I_OPCODE:		in std_logic_vector(OPCODE_SZ - 1 downto 0);
@@ -37,8 +37,8 @@ entity control_unit is
 		-- to IF stage
 		O_IF_EN:		out std_logic;
 		O_ENDIAN:		out std_logic;
-		O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_I_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_D_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to ID stage
 		O_TAKEN:		out std_logic;
@@ -68,12 +68,12 @@ architecture MIXED of control_unit is
 			I_LD:			in std_logic;
 
 			I_ENDIAN:		in std_logic;
-			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			O_ENDIAN:		out std_logic;
-			O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
+			O_I_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_D_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
 	end component config_register;
 
@@ -148,14 +148,14 @@ architecture MIXED of control_unit is
 begin
 	config_register_0: config_register
 		port map (
-			I_RST			=> '0',
-			I_LD			=> I_CFG,
-			I_ENDIAN		=> I_ENDIAN,
-			I_PHYS_I_ADDR_SZ	=> I_PHYS_I_ADDR_SZ,
-			I_PHYS_D_ADDR_SZ	=> I_PHYS_D_ADDR_SZ,
-			O_ENDIAN		=> O_ENDIAN,
-			O_PHYS_I_ADDR_SZ	=> O_PHYS_I_ADDR_SZ,
-			O_PHYS_D_ADDR_SZ	=> O_PHYS_D_ADDR_SZ
+			I_RST		=> '0',
+			I_LD		=> I_CFG,
+			I_ENDIAN	=> I_ENDIAN,
+			I_I_MEM_SZ	=> I_I_MEM_SZ,
+			I_D_MEM_SZ	=> I_D_MEM_SZ,
+			O_ENDIAN	=> O_ENDIAN,
+			O_I_MEM_SZ	=> O_I_MEM_SZ,
+			O_D_MEM_SZ	=> O_D_MEM_SZ
 		);
 
 	inst_decoder_0: inst_decoder

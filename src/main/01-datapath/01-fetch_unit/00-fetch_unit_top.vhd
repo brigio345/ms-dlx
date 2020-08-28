@@ -14,7 +14,7 @@ entity fetch_unit is
 		--	- '0' => BIG endian
 		--	- '1' => LITTLE endian
 		I_ENDIAN:	in std_logic;
-		I_PHYS_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -35,26 +35,23 @@ entity fetch_unit is
 end fetch_unit;
 
 architecture BEHAVIORAL of fetch_unit is
-	signal PC:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal PC:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal PC_ALIGNED:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IR:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
-	PC	<= I_NPC when (I_TAKEN = '0') else I_TARGET;
-	O_NPC	<= std_logic_vector(unsigned(PC) + 4);
+	-- select PC according to branch result
+	PC		<= I_NPC when (I_TAKEN = '0') else I_TARGET;
+	-- make sure PC is word aligned
+	PC_ALIGNED	<= PC(PC'left downto 2) & "00";
+	O_NPC		<= std_logic_vector(unsigned(PC_ALIGNED) + 4);
 
-	-- cut PC to the physical address length, setting highest bits to 0
-	-- and perform word alignment
-	cut_addr: process (PC, I_PHYS_ADDR_SZ)
-	begin
-		for I in PC'range loop
-			if ((I > (to_integer(unsigned(I_PHYS_ADDR_SZ)) - 1)) OR
-					(I < 2)) then
-				O_PC(I) <= '0';
-			else
-				O_PC(I) <= PC(I);
-			end if;
-		end loop;
-	end process cut_addr;
-
+	O_PC		<= PC_ALIGNED;
+	
 	-- convert IR to big endian if instruction memory is big endian
-	O_IR	<= I_IR when (I_ENDIAN = '1') else swap_bytes(I_IR);	-- forward from i_mem
+	IR	<= I_IR when (I_ENDIAN = '1') else swap_bytes(I_IR);
+
+	-- forward to IR only if PC belongs to allowed range
+	O_IR	<= IR when (unsigned(PC_ALIGNED) < unsigned(I_MEM_SZ))
+		else (OPCODE_NOP & ((RF_DATA_SZ - OPCODE_SZ - 1) downto 0 => '0'));
 end BEHAVIORAL;
 
