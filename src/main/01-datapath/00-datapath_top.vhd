@@ -27,8 +27,7 @@ entity datapath is
 
 		-- from CU, to ID stage
 		I_TAKEN:		in std_logic;
-		I_SEL_JMP_OP1:		in std_logic;
-		I_SEL_JMP_OP2:		in std_logic_vector(1 downto 0);
+		I_SEL_JMP:		in jump_t;
 		I_SIGNED:		in std_logic;
 		I_SEL_A:		in source_t;
 		I_SEL_B:		in source_t;
@@ -118,8 +117,7 @@ architecture STRUCTURAL of datapath is
 			I_RD2_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from CU
-			I_SEL_JMP_OP1:		in std_logic;
-			I_SEL_JMP_OP2:		in std_logic_vector(1 downto 0);
+			I_SEL_JMP:		in jump_t;
 			I_SIGNED:		in std_logic;
 			I_SEL_A:		in source_t;
 			I_SEL_B:		in source_t;
@@ -459,8 +457,7 @@ begin
 			I_NPC			=> NPC_IF_REG,
 			I_RD1_DATA		=> RD1_DATA_RF,
 			I_RD2_DATA		=> RD2_DATA_RF,
-			I_SEL_JMP_OP1		=> I_SEL_JMP_OP1,
-			I_SEL_JMP_OP2		=> I_SEL_JMP_OP2,
+			I_SEL_JMP		=> I_SEL_JMP,
 			I_SIGNED		=> I_SIGNED,
 			I_SEL_A			=> I_SEL_A,
 			I_SEL_B			=> I_SEL_B,

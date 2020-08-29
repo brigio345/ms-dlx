@@ -51,8 +51,7 @@ architecture STRUCTURAL of dlx is
 
 			-- from CU, to ID stage
 			I_TAKEN:		in std_logic;
-			I_SEL_JMP_OP1:		in std_logic;
-			I_SEL_JMP_OP2:		in std_logic_vector(1 downto 0);
+			I_SEL_JMP:		in jump_t;
 			I_SIGNED:		in std_logic;
 			I_SEL_A:		in source_t;
 			I_SEL_B:		in source_t;
@@ -141,8 +140,7 @@ architecture STRUCTURAL of dlx is
 
 			-- to ID stage
 			O_TAKEN:		out std_logic;
-			O_SEL_JMP_OP1:		out std_logic;
-			O_SEL_JMP_OP2:		out std_logic_vector(1 downto 0);
+			O_SEL_JMP:		out jump_t;
 			O_SIGNED:		out std_logic;
 			O_SEL_A:		out source_t;
 			O_SEL_B:		out source_t;
@@ -188,8 +186,7 @@ architecture STRUCTURAL of dlx is
 	signal LD_WB:		std_logic_vector(1 downto 0);
 	signal ZERO:		std_logic;
 	signal TAKEN:		std_logic;
-	signal SEL_JMP_OP1:	std_logic;
-	signal SEL_JMP_OP2:	std_logic_vector(1 downto 0);
+	signal SEL_JMP:		jump_t;
 begin
 	datapath_0: datapath
 		port map (
@@ -202,8 +199,7 @@ begin
 			I_D_RD_DATA		=> I_D_RD_DATA,
 			I_IF_EN			=> IF_EN,
 			I_TAKEN			=> TAKEN,
-			I_SEL_JMP_OP1		=> SEL_JMP_OP1,
-			I_SEL_JMP_OP2		=> SEL_JMP_OP2,
+			I_SEL_JMP		=> SEL_JMP,
 			I_SIGNED		=> S_SIGNED,
 			I_SEL_A			=> SEL_A,
 			I_SEL_B			=> SEL_B,
@@ -260,8 +256,7 @@ begin
 			O_I_MEM_SZ		=> I_MEM_SZ,
 			O_D_MEM_SZ		=> D_MEM_SZ,
 			O_TAKEN			=> TAKEN,
-			O_SEL_JMP_OP1		=> SEL_JMP_OP1,
-			O_SEL_JMP_OP2		=> SEL_JMP_OP2,
+			O_SEL_JMP		=> SEL_JMP,
 			O_SIGNED		=> S_SIGNED,
 			O_SEL_A			=> SEL_A,
 			O_SEL_B			=> SEL_B,

@@ -1,4 +1,10 @@
 package types is
+	type jump_t is (
+		JMP_ABS,
+		JMP_REL_IMM,
+		JMP_REL_OFF
+	);
+	
 	type source_t is (
 		SRC_RF,
 		SRC_ALU_EX,

@@ -40,18 +40,23 @@ architecture BEHAVIORAL of fetch_unit is
 	signal IR:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
 	-- select PC according to branch result
-	PC		<= I_NPC when (I_TAKEN = '0') else I_TARGET;
+	PC	<= I_NPC when (I_TAKEN = '0') else I_TARGET;
+
 	-- make sure PC is word aligned
 	PC_ALIGNED	<= PC(PC'left downto 2) & "00";
-	O_NPC		<= std_logic_vector(unsigned(PC_ALIGNED) + 4);
 
-	O_PC		<= PC_ALIGNED;
+	-- send PC to instruction memory
+	O_PC	<= PC_ALIGNED;
 	
-	-- convert IR to big endian if instruction memory is big endian
+	-- convert IR to little endian if instruction memory is big endian
 	IR	<= I_IR when (I_ENDIAN = '1') else swap_bytes(I_IR);
 
-	-- forward to IR only if PC belongs to allowed range
+	-- forward IR to ID only if PC belongs to allowed range,
+	--	otherwise force a NOP
 	O_IR	<= IR when (unsigned(PC_ALIGNED) < unsigned(I_MEM_SZ))
 		else (OPCODE_NOP & ((RF_DATA_SZ - OPCODE_SZ - 1) downto 0 => '0'));
+
+	-- compute Next PC
+	O_NPC	<= std_logic_vector(unsigned(PC_ALIGNED) + 4);
 end BEHAVIORAL;
 

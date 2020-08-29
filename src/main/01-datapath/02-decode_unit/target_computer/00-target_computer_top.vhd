@@ -1,12 +1,12 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
+use work.types.all;
 
 -- target_computer: compute next PC, according to the current branch type
 entity target_computer is
 	port (
-		I_SEL_JMP_OP1:	in std_logic;
-		I_SEL_JMP_OP2:	in std_logic_vector(1 downto 0);
+		I_SEL_JMP:	in jump_t;
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		-- I_A: value loaded from rf
 		I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -52,13 +52,13 @@ begin
 			O_OF	=> open
 		);
 	
-	with I_SEL_JMP_OP1 select OP1 <=
-		I_A	when '1',
+	with I_SEL_JMP select OP1 <=
+		I_A	when JMP_ABS,
 		I_NPC	when others;
 	
-	with I_SEL_JMP_OP2 select OP2 <=
-		I_IMM		when "01",
-		I_OFF		when "10",
+	with I_SEL_JMP select OP2 <=
+		I_IMM		when JMP_REL_IMM,
+		I_OFF		when JMP_REL_OFF,
 		(others => '0')	when others;
 end MIXED;
 
