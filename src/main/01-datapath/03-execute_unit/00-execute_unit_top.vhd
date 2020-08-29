@@ -29,6 +29,28 @@ entity execute_unit is
 end execute_unit;
 
 architecture MIXED of execute_unit is
+	component ex_data_forwarder is
+		port (
+			-- from CU
+			I_SEL_A:	in source_t;
+			I_SEL_B:	in source_t;
+
+			-- from ID stage forward unit
+			I_A:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_B:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- from EX
+			I_ALUOUT_EX:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- from MEM
+			I_LOADED_MEM:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- forwarded data
+			O_A:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+		);
+	end component ex_data_forwarder;
+
 	component alu is
 		generic (
 			N_BIT:	integer := 32
@@ -46,16 +68,17 @@ architecture MIXED of execute_unit is
 	signal OP2:	std_logic_vector(I_B'range);
 	signal ALUOUT:	std_logic_vector(O_ALUOUT'range);
 begin
-	-- data forwarding
-	with I_SEL_A select A <=
-		I_ALUOUT_EX	when SRC_ALU_EX,
-		I_LOADED_MEM	when SRC_LD_MEM,
-		I_A		when others;
-	
-	with I_SEL_B select B <=
-		I_ALUOUT_EX	when SRC_ALU_EX,
-		I_LOADED_MEM	when SRC_LD_MEM,
-		I_B		when others;
+	ex_data_forwarder_0: ex_data_forwarder
+		port map (
+			I_SEL_A		=> I_SEL_A,
+			I_SEL_B		=> I_SEL_B,
+			I_A		=> I_A,
+			I_B		=> I_B,
+			I_ALUOUT_EX	=> I_ALUOUT_EX,
+			I_LOADED_MEM	=> I_LOADED_MEM,
+			O_A		=> A,
+			O_B		=> B
+		);
 
 	OP2 <= B when (I_SEL_B_IMM = '0') else I_IMM;
 

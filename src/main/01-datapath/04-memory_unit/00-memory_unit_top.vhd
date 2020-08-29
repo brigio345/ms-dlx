@@ -44,12 +44,34 @@ entity memory_unit is
 end memory_unit;
 
 architecture BEHAVIORAL of memory_unit is
+	component mem_data_forwarder is
+		port (
+			-- from CU
+			I_SEL_B:	in source_t;
+
+			-- from EX stage forward unit
+			I_B:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- value loaded from memory by the instruction which was in EX
+			--	stage when current instruction was in ID stage
+			I_LOADED_EX:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- forwarded data
+			O_B:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+		);
+	end component mem_data_forwarder;
+
 	signal LOADED:	std_logic_vector(I_RD_DATA'range);
 	signal WR_DATA:	std_logic_vector(O_WR_DATA'range);
 	signal ADDR:	std_logic_vector(O_ADDR'range);
 begin
-	-- data forwarding
-	WR_DATA <= I_LOADED_EX when (I_SEL_DATA = SRC_LD_EX) else I_DATA;
+	mem_data_forwarder_0: mem_data_forwarder
+		port map (
+			I_SEL_B		=> I_SEL_DATA,
+			I_B		=> I_DATA,
+			I_LOADED_EX	=> I_LOADED_EX,
+			O_B		=> WR_DATA
+		);
 
 	align_addr: process (I_LD, I_STR, I_ADDR)
 	begin
@@ -67,9 +89,18 @@ begin
 
 	O_ADDR	<= ADDR;
 
-	-- disable memory access when address is out of allowed range
-	O_RD	<= I_LD when (unsigned(ADDR) < unsigned(I_MEM_SZ)) else "00";
-	O_WR	<= I_STR when (unsigned(ADDR) < unsigned(I_MEM_SZ)) else "00";
+	bound_check: process (ADDR, I_MEM_SZ, I_LD, I_STR)
+	begin
+		if (unsigned(ADDR) < unsigned(I_MEM_SZ)) then
+			O_RD	<= I_LD;
+			O_WR	<= I_STR;
+		else
+			-- disable memory access since address is out of
+			--	allowed range
+			O_RD	<= "00";
+			O_WR	<= "00";
+		end if;
+	end process bound_check;
 
 	-- convert output data to big endian, if data memory is big endian
 	O_WR_DATA	<= WR_DATA when (I_ENDIAN = '1') else swap_bytes(WR_DATA);

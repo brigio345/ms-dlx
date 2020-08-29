@@ -71,6 +71,29 @@ entity decode_unit is
 end decode_unit;
 
 architecture MIXED of decode_unit is
+	component id_data_forwarder is
+		port (
+			-- from CU
+			I_SEL_A:		in source_t;
+			I_SEL_B:		in source_t;
+
+			-- I_RDx_DATA: read from rf
+			I_RD1_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_RD2_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- from MEM
+			I_ALUOUT_MEM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- from WB
+			I_ALUOUT_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_LOADED_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
+			-- forwarded data
+			O_A:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_B:			out std_logic_vector(RF_DATA_SZ - 1 downto 0)
+		);
+	end component id_data_forwarder;
+
 	component target_computer is
 		port (
 			I_SEL_JMP_OP1:	in std_logic;
@@ -97,23 +120,23 @@ architecture MIXED of decode_unit is
 	signal OFF:	std_logic_vector(OFF_SZ - 1 downto 0);
 	signal OFF_EXT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
+	id_data_forwarder_0: id_data_forwarder
+		port map (
+			I_SEL_A		=> I_SEL_A,
+			I_SEL_B		=> I_SEL_B,
+			I_RD1_DATA	=> I_RD1_DATA,
+			I_RD2_DATA	=> I_RD2_DATA,
+			I_ALUOUT_MEM	=> I_ALUOUT_MEM,
+			I_ALUOUT_WB	=> I_ALUOUT_WB,
+			I_LOADED_WB	=> I_LOADED_WB,
+			O_A		=> A,
+			O_B		=> O_B
+		);
+
 	SRC_A	<= I_IR(R_SRC1_RANGE);
 	SRC_B	<= I_IR(R_SRC2_RANGE);
 	IMM	<= I_IR(I_IMM_RANGE);
 	OFF	<= I_IR(J_OFF_RANGE);
-
-	-- data forwarding
-	with I_SEL_A select A <=
-		I_ALUOUT_MEM	when SRC_ALU_MEM,
-		I_ALUOUT_WB	when SRC_ALU_WB,
-		I_LOADED_WB	when SRC_LD_WB,
-		I_RD1_DATA	when others;
-
-	with I_SEL_B select O_B <=
-		I_ALUOUT_MEM	when SRC_ALU_MEM,
-		I_ALUOUT_WB	when SRC_ALU_WB,
-		I_LOADED_WB	when SRC_LD_WB,
-		I_RD2_DATA	when others;
 
 	-- extend
 	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_SIGNED = '0')
