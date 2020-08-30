@@ -1,0 +1,111 @@
+\documentclass[10pt,  english, makeidx, a4paper, titlepage, oneside]{book}
+\usepackage{babel}
+\usepackage{fancyhdr}
+\usepackage{makeidx}
+\usepackage{titlesec}
+\usepackage{listings}
+\usepackage{booktabs}
+
+\newenvironment{listato}{\footnotesize}{\normalsize }
+
+%\pagestyle{empty}
+
+\textwidth 15.5cm
+\textheight 23cm
+\topmargin -1cm
+\oddsidemargin -0.5cm
+\linespread{1.1}
+
+\pagestyle{fancy}
+\lhead{}
+\chead{Microelectronic Systems}
+\lfoot{}
+\cfoot{}
+\rfoot{}
+\rhead{\thepage}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amssymb}
+%\oddsidemargin -1.1cm
+\usepackage{graphicx}
+\usepackage[table]{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+%\usepackage{subscript}
+\usepackage{empheq}
+\usepackage{verbatim}
+\usepackage{fancyvrb}
+
+\lstdefinelanguage{VHDL}{morekeywords={library,use,all,entity,generic, is,port,in,out,end,architecture,of,begin,and,if,then,else,elsif,process},morecomment=[l]--}
+
+\lstdefinestyle{vhdl}{language = VHDL, basicstyle = \ttfamily, keywordstyle = \color{keyword}\bfseries, commentstyle = \color{comment}}
+
+\setcounter{secnumdepth}{3}
+
+\titleformat{\chapter}[display]
+{\normalfont\Large\filcenter\sffamily}
+{\titlerule[0.5pt]%
+\vspace{1pt}
+\titlerule
+\vspace{1pc}
+\LARGE\MakeUppercase{\chaptertitlename} \thechapter
+}
+{1pc}
+{\titlerule
+\vspace{1pc}
+\Huge}
+
+\makeindex
+
+\begin{document}
+
+\frontmatter
+\begin{titlepage}
+\vspace{0cm}
+\centerline{
+\includegraphics[width=3cm]{./logopoli}} 
+\vspace{0.5cm}
+\centerline{\LARGE Politecnico di Torino}
+\vspace{2.5cm}
+\centerline{\huge\sf Microelectronic Systems}
+\vspace{1cm}
+\centerline{\Huge\sf DLX Microprocessor: Design \& Development}
+\bigskip
+\centerline{\huge\sf Final Project Report}
+\vspace{2cm}
+\centerline{\Large Master degree in Electronics Engineering}
+\bigskip
+\centerline{\Large Master degree in Computer Engineering}
+\vspace{4.5cm}
+\centerline{\large Referents: Prof. Mariagrazia Graziano, Giovanna Turvani}
+\bigskip
+\vspace{1cm}
+\centerline{\large Authors: ms20.26}
+\bigskip
+\centerline{\large Brignone Giovanni}
+\vspace{2cm}
+\centerline{\large \today}
+\end{titlepage}
+
+\tableofcontents
+
+\mainmatter
+
+% Include chapters
+\input{./chapters/chap1}
+\input{./chapters/chap2}
+\input{./chapters/chap3}
+
+% Include appendices
+\appendix
+\input{./appendices/appendix1}
+
+\end{document}
+
