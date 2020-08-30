@@ -15,13 +15,13 @@ entity id_ex_registers is
 		I_IMM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		I_DST:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_SIGNED:	in std_logic;
 
 		I_ALUOP:	in std_logic_vector(FUNC_SZ - 1 downto 0);
 		I_SEL_A:	in source_t;
 		I_SEL_B:	in source_t;
 		I_SEL_B_IMM:	in std_logic;
 		I_LD:		in std_logic_vector(1 downto 0);
+		I_LD_SIGN:	in std_logic;
 		I_STR:		in std_logic_vector(1 downto 0);
 
 		-- to EX stage
@@ -30,13 +30,13 @@ entity id_ex_registers is
 		O_IMM:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_NPC:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 		O_DST:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_SIGNED:	out std_logic;
 
 		O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
 		O_SEL_A:	out source_t;
 		O_SEL_B:	out source_t;
 		O_SEL_B_IMM:	out std_logic;
 		O_LD:		out std_logic_vector(1 downto 0);
+		O_LD_SIGN:	out std_logic;
 		O_STR:		out std_logic_vector(1 downto 0)
 	);
 end id_ex_registers;
@@ -52,12 +52,12 @@ begin
 				O_IMM		<= (others => '0');
 				O_NPC		<= (others => '0');
 				O_DST		<= (others => '0');
-				O_SIGNED	<= '0';
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_A		<= SRC_RF;
 				O_SEL_B		<= SRC_RF;
 				O_SEL_B_IMM	<= '0';
 				O_LD		<= (others => '0');
+				O_LD_SIGN	<= '0';
 				O_STR		<= (others => '0');
 			else
 				O_A		<= I_A;
@@ -65,12 +65,12 @@ begin
 				O_IMM		<= I_IMM;
 				O_NPC		<= I_NPC;
 				O_DST		<= I_DST;
-				O_SIGNED	<= I_SIGNED;
 				O_ALUOP		<= I_ALUOP;
 				O_SEL_A		<= I_SEL_A;
 				O_SEL_B		<= I_SEL_B;
 				O_SEL_B_IMM	<= I_SEL_B_IMM;
 				O_LD		<= I_LD;
+				O_LD_SIGN	<= I_LD_SIGN;
 				O_STR		<= I_STR;
 			end if;
 		end if;

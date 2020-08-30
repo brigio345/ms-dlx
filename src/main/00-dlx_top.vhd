@@ -12,8 +12,8 @@ entity dlx is
 		--	- '0' => BIG endian
 		--	- '1' => LITTLE endian
 		I_ENDIAN:	in std_logic;
-		I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_I_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_D_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		I_I_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
 		I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -37,8 +37,8 @@ architecture STRUCTURAL of dlx is
 			--	- '0' => BIG endian
 			--	- '1' => LITTLE endian
 			I_ENDIAN:		in std_logic;
-			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from i-memory
 			I_INST:			in std_logic_vector(INST_SZ - 1 downto 0);
@@ -51,9 +51,8 @@ architecture STRUCTURAL of dlx is
 
 			-- from CU, to ID stage
 			I_TAKEN:		in std_logic;
-			I_SEL_JMP_OP1:		in std_logic;
-			I_SEL_JMP_OP2:		in std_logic_vector(1 downto 0);
-			I_SIGNED:		in std_logic;
+			I_SEL_JMP:		in jump_t;
+			I_IMM_SIGN:		in std_logic;
 			I_SEL_A:		in source_t;
 			I_SEL_B:		in source_t;
 
@@ -63,6 +62,7 @@ architecture STRUCTURAL of dlx is
 
 			-- from CU, to MEM stage
 			I_LD:			in std_logic_vector(1 downto 0);
+			I_LD_SIGN:		in std_logic;
 			I_STR:			in std_logic_vector(1 downto 0);
 
 			-- from CU, to WB stage
@@ -107,8 +107,8 @@ architecture STRUCTURAL of dlx is
 			-- from environment
 			I_CFG:			in std_logic;
 			I_ENDIAN:		in std_logic;
-			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from ID stage
 			I_OPCODE:		in std_logic_vector(OPCODE_SZ - 1 downto 0);
@@ -136,14 +136,13 @@ architecture STRUCTURAL of dlx is
 			-- to IF stage
 			O_IF_EN:		out std_logic;
 			O_ENDIAN:		out std_logic;
-			O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			O_I_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_D_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- to ID stage
 			O_TAKEN:		out std_logic;
-			O_SEL_JMP_OP1:		out std_logic;
-			O_SEL_JMP_OP2:		out std_logic_vector(1 downto 0);
-			O_SIGNED:		out std_logic;
+			O_SEL_JMP:		out jump_t;
+			O_IMM_SIGN:		out std_logic;
 			O_SEL_A:		out source_t;
 			O_SEL_B:		out source_t;
 
@@ -153,6 +152,7 @@ architecture STRUCTURAL of dlx is
 
 			-- to MEM stage
 			O_LD:			out std_logic_vector(1 downto 0);
+			O_LD_SIGN:		out std_logic;
 			O_STR:			out std_logic_vector(1 downto 0);
 
 			-- to WB stage
@@ -161,15 +161,16 @@ architecture STRUCTURAL of dlx is
 	end component control_unit;
 
 	signal ENDIAN:		std_logic;
-	signal PHYS_D_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal PHYS_I_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal D_MEM_SZ:	std_logic_vector(I_D_MEM_SZ'range);
+	signal I_MEM_SZ:	std_logic_vector(I_I_MEM_SZ'range);
 	signal IF_EN:		std_logic;
-	signal S_SIGNED:	std_logic;
+	signal IMM_SIGN:	std_logic;
 	signal SEL_A:		source_t;
 	signal SEL_B:		source_t;
 	signal SEL_B_IMM:	std_logic;
 	signal ALUOP:		std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal LD:		std_logic_vector(1 downto 0);
+	signal LD_SIGN:		std_logic;
 	signal STR:		std_logic_vector(1 downto 0);
 	signal SEL_DST:		dest_t;
 	signal OPCODE_ID:	std_logic_vector(OPCODE_SZ - 1 downto 0);
@@ -188,28 +189,27 @@ architecture STRUCTURAL of dlx is
 	signal LD_WB:		std_logic_vector(1 downto 0);
 	signal ZERO:		std_logic;
 	signal TAKEN:		std_logic;
-	signal SEL_JMP_OP1:	std_logic;
-	signal SEL_JMP_OP2:	std_logic_vector(1 downto 0);
+	signal SEL_JMP:		jump_t;
 begin
 	datapath_0: datapath
 		port map (
 			I_CLK			=> I_CLK,
 			I_RST			=> I_RST,
 			I_ENDIAN		=> ENDIAN,
-			I_PHYS_I_ADDR_SZ	=> PHYS_I_ADDR_SZ,
-			I_PHYS_D_ADDR_SZ	=> PHYS_D_ADDR_SZ,
+			I_I_MEM_SZ		=> I_MEM_SZ,
+			I_D_MEM_SZ		=> D_MEM_SZ,
 			I_INST			=> I_I_RD_DATA,
 			I_D_RD_DATA		=> I_D_RD_DATA,
 			I_IF_EN			=> IF_EN,
 			I_TAKEN			=> TAKEN,
-			I_SEL_JMP_OP1		=> SEL_JMP_OP1,
-			I_SEL_JMP_OP2		=> SEL_JMP_OP2,
-			I_SIGNED		=> S_SIGNED,
+			I_SEL_JMP		=> SEL_JMP,
+			I_IMM_SIGN		=> IMM_SIGN,
 			I_SEL_A			=> SEL_A,
 			I_SEL_B			=> SEL_B,
 			I_SEL_B_IMM		=> SEL_B_IMM,
 			I_ALUOP			=> ALUOP,
 			I_LD			=> LD,
+			I_LD_SIGN		=> LD_SIGN,
 			I_STR			=> STR,
 			I_SEL_DST		=> SEL_DST,
 			O_PC			=> O_I_RD_ADDR,
@@ -238,8 +238,8 @@ begin
 		port map (
 			I_CFG			=> I_RST,
 			I_ENDIAN		=> I_ENDIAN,
-			I_PHYS_I_ADDR_SZ	=> I_PHYS_I_ADDR_SZ,
-			I_PHYS_D_ADDR_SZ	=> I_PHYS_D_ADDR_SZ,
+			I_I_MEM_SZ		=> I_I_MEM_SZ,
+			I_D_MEM_SZ		=> I_D_MEM_SZ,
 			I_OPCODE		=> OPCODE_ID,
 			I_FUNC			=> FUNC,
 			I_ZERO			=> ZERO,
@@ -257,17 +257,17 @@ begin
 			I_LD_WB			=> LD_WB,
 			O_IF_EN			=> IF_EN,
 			O_ENDIAN		=> ENDIAN,
-			O_PHYS_I_ADDR_SZ	=> PHYS_I_ADDR_SZ,
-			O_PHYS_D_ADDR_SZ	=> PHYS_D_ADDR_SZ,
+			O_I_MEM_SZ		=> I_MEM_SZ,
+			O_D_MEM_SZ		=> D_MEM_SZ,
 			O_TAKEN			=> TAKEN,
-			O_SEL_JMP_OP1		=> SEL_JMP_OP1,
-			O_SEL_JMP_OP2		=> SEL_JMP_OP2,
-			O_SIGNED		=> S_SIGNED,
+			O_SEL_JMP		=> SEL_JMP,
+			O_IMM_SIGN		=> IMM_SIGN,
 			O_SEL_A			=> SEL_A,
 			O_SEL_B			=> SEL_B,
 			O_SEL_B_IMM		=> SEL_B_IMM,
 			O_ALUOP			=> ALUOP,
 			O_LD			=> LD,
+			O_LD_SIGN		=> LD_SIGN,
 			O_STR			=> STR,
 			O_SEL_DST		=> SEL_DST
 		);

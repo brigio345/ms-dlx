@@ -8,8 +8,8 @@ entity control_unit is
 		-- from environment
 		I_CFG:			in std_logic;
 		I_ENDIAN:		in std_logic;
-		I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- from ID stage
 		I_OPCODE:		in std_logic_vector(OPCODE_SZ - 1 downto 0);
@@ -37,14 +37,13 @@ entity control_unit is
 		-- to IF stage
 		O_IF_EN:		out std_logic;
 		O_ENDIAN:		out std_logic;
-		O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-		O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+		O_I_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+		O_D_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 		-- to ID stage
 		O_TAKEN:		out std_logic;
-		O_SEL_JMP_OP1:		out std_logic;
-		O_SEL_JMP_OP2:		out std_logic_vector(1 downto 0);
-		O_SIGNED:		out std_logic;
+		O_SEL_JMP:		out jump_t;
+		O_IMM_SIGN:		out std_logic;
 		O_SEL_A:		out source_t;
 		O_SEL_B:		out source_t;
 
@@ -54,6 +53,7 @@ entity control_unit is
 
 		-- to MEM stage
 		O_LD:			out std_logic_vector(1 downto 0);
+		O_LD_SIGN:		out std_logic;
 		O_STR:			out std_logic_vector(1 downto 0);
 
 		-- to WB stage
@@ -68,12 +68,12 @@ architecture MIXED of control_unit is
 			I_LD:			in std_logic;
 
 			I_ENDIAN:		in std_logic;
-			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_I_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_D_MEM_SZ:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			O_ENDIAN:		out std_logic;
-			O_PHYS_I_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			O_PHYS_D_ADDR_SZ:	out std_logic_vector(RF_ADDR_SZ - 1 downto 0)
+			O_I_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			O_D_MEM_SZ:		out std_logic_vector(RF_DATA_SZ - 1 downto 0)
 		);
 	end component config_register;
 
@@ -86,9 +86,8 @@ architecture MIXED of control_unit is
 
 			-- to ID stage
 			O_TAKEN:	out std_logic;
-			O_SEL_JMP_OP1:	out std_logic;
-			O_SEL_JMP_OP2:	out std_logic_vector(1 downto 0);
-			O_SIGNED:	out std_logic;
+			O_SEL_JMP:	out jump_t;
+			O_IMM_SIGN:	out std_logic;
 
 			-- to EX stage
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -96,6 +95,7 @@ architecture MIXED of control_unit is
 
 			-- to MEM stage
 			O_LD:		out std_logic_vector(1 downto 0);
+			O_LD_SIGN:	out std_logic;
 			O_STR:		out std_logic_vector(1 downto 0);
 
 			-- to WB stage
@@ -104,8 +104,7 @@ architecture MIXED of control_unit is
 			-- to CU
 			O_A_NEEDED_ID:	out std_logic;
 			O_A_NEEDED_EX:	out std_logic;
-			O_B_NEEDED_EX:	out std_logic;
-			O_B_NEEDED_MEM:	out std_logic
+			O_B_NEEDED_EX:	out std_logic
 		);
 	end component inst_decoder;
 	
@@ -143,19 +142,18 @@ architecture MIXED of control_unit is
 	signal A_NEEDED_ID:	std_logic;
 	signal A_NEEDED_EX:	std_logic;
 	signal B_NEEDED_EX:	std_logic;
-	signal B_NEEDED_MEM:	std_logic;
 	signal DATA_STALL:	std_logic;
 begin
 	config_register_0: config_register
 		port map (
-			I_RST			=> '0',
-			I_LD			=> I_CFG,
-			I_ENDIAN		=> I_ENDIAN,
-			I_PHYS_I_ADDR_SZ	=> I_PHYS_I_ADDR_SZ,
-			I_PHYS_D_ADDR_SZ	=> I_PHYS_D_ADDR_SZ,
-			O_ENDIAN		=> O_ENDIAN,
-			O_PHYS_I_ADDR_SZ	=> O_PHYS_I_ADDR_SZ,
-			O_PHYS_D_ADDR_SZ	=> O_PHYS_D_ADDR_SZ
+			I_RST		=> '0',
+			I_LD		=> I_CFG,
+			I_ENDIAN	=> I_ENDIAN,
+			I_I_MEM_SZ	=> I_I_MEM_SZ,
+			I_D_MEM_SZ	=> I_D_MEM_SZ,
+			O_ENDIAN	=> O_ENDIAN,
+			O_I_MEM_SZ	=> O_I_MEM_SZ,
+			O_D_MEM_SZ	=> O_D_MEM_SZ
 		);
 
 	inst_decoder_0: inst_decoder
@@ -164,18 +162,17 @@ begin
 			I_OPCODE	=> I_OPCODE,
 			I_ZERO		=> I_ZERO,
 			O_TAKEN		=> TAKEN,
-			O_SEL_JMP_OP1	=> O_SEL_JMP_OP1,
-			O_SEL_JMP_OP2	=> O_SEL_JMP_OP2,
-			O_SIGNED	=> O_SIGNED,
+			O_SEL_JMP	=> O_SEL_JMP,
+			O_IMM_SIGN	=> O_IMM_SIGN,
 			O_ALUOP		=> O_ALUOP,
 			O_SEL_B_IMM	=> O_SEL_B_IMM,
 			O_LD		=> O_LD,
+			O_LD_SIGN	=> O_LD_SIGN,
 			O_STR		=> STR,
 			O_SEL_DST	=> SEL_DST,
 			O_A_NEEDED_ID	=> A_NEEDED_ID,
 			O_A_NEEDED_EX	=> A_NEEDED_EX,
-			O_B_NEEDED_EX	=> B_NEEDED_EX,
-			O_B_NEEDED_MEM	=> B_NEEDED_MEM
+			O_B_NEEDED_EX	=> B_NEEDED_EX
 		);
 
 	data_forwarder_0: data_forwarder
