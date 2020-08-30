@@ -15,8 +15,8 @@ architecture TB_ARCH of tb_dlx is
 			--	- '0' => BIG endian
 			--	- '1' => LITTLE endian
 			I_ENDIAN:	in std_logic;
-			I_PHYS_I_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-			I_PHYS_D_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_I_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_D_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			I_I_RD_DATA:	in std_logic_vector(INST_SZ - 1 downto 0);
 			I_D_RD_DATA:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -65,8 +65,8 @@ architecture TB_ARCH of tb_dlx is
 	signal CLK:		std_logic;
 	signal RST:		std_logic;
 	signal ENDIAN:		std_logic;
-	signal PHYS_I_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal PHYS_D_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal I_MEM_SZ:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal D_MEM_SZ:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal I_RD_DATA:	std_logic_vector(INST_SZ - 1 downto 0);
 	signal D_RD_DATA:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal I_RD_ADDR:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -80,8 +80,8 @@ begin
 			I_CLK		=> CLK,
 			I_RST		=> RST,
 			I_ENDIAN	=> ENDIAN,
-			I_PHYS_I_ADDR_SZ=> PHYS_I_ADDR_SZ,
-			I_PHYS_D_ADDR_SZ=> PHYS_D_ADDR_SZ,
+			I_I_MEM_SZ	=> I_MEM_SZ,
+			I_D_MEM_SZ	=> D_MEM_SZ,
 			I_I_RD_DATA	=> I_RD_DATA,
 			I_D_RD_DATA	=> D_RD_DATA,
 			O_I_RD_ADDR	=> I_RD_ADDR,
@@ -129,9 +129,8 @@ begin
 	begin
 		RST		<= '1';
 		ENDIAN		<= '0';
-		PHYS_I_ADDR_SZ	<= "00110";
-		PHYS_D_ADDR_SZ	<= "00110";
-
+		I_MEM_SZ	<= x"00000200";
+		D_MEM_SZ	<= x"00000200";
 
 		wait for CLK_PERIOD;
 

@@ -71,10 +71,10 @@ begin
 	begin
 		case I_RD is
 			when "11"	=>
-				O_DATA <=  MEM(ADDR_INT + 3) & MEM(ADDR_INT + 2) &
-					MEM(ADDR_INT + 1) & MEM(ADDR_INT);
+				O_DATA <=  MEM(ADDR_INT) & MEM(ADDR_INT + 1) &
+					MEM(ADDR_INT + 2) & MEM(ADDR_INT + 3);
 			when "10"	=>
-				O_DATA <= MEM(ADDR_INT + 1) & MEM(ADDR_INT) &
+				O_DATA <= MEM(ADDR_INT) & MEM(ADDR_INT + 1) & 
 					ZERO_BYTE & ZERO_BYTE;
 			when "01"	=>
 				O_DATA <= MEM(ADDR_INT) & ZERO_BYTE &
