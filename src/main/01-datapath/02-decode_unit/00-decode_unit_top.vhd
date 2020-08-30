@@ -23,7 +23,7 @@ entity decode_unit is
 
 		-- from CU
 		I_SEL_JMP:		in jump_t;
-		I_SIGNED:		in std_logic;
+		I_IMM_SIGN:		in std_logic;
 		I_SEL_A:		in source_t;
 		I_SEL_B:		in source_t;
 		I_SEL_DST:		in dest_t;
@@ -137,7 +137,7 @@ begin
 	OFF	<= I_IR(J_OFF_RANGE);
 
 	-- extend
-	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_SIGNED = '0')
+	IMM_EXT	<= zero_extend(IMM, RF_DATA_SZ) when (I_IMM_SIGN = '0')
 		else sign_extend(IMM, IMM'left, RF_DATA_SZ);
 	OFF_EXT	<= sign_extend(OFF, OFF'left, RF_DATA_SZ);
 

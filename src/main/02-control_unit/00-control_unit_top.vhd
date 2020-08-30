@@ -43,7 +43,7 @@ entity control_unit is
 		-- to ID stage
 		O_TAKEN:		out std_logic;
 		O_SEL_JMP:		out jump_t;
-		O_SIGNED:		out std_logic;
+		O_IMM_SIGN:		out std_logic;
 		O_SEL_A:		out source_t;
 		O_SEL_B:		out source_t;
 
@@ -53,6 +53,7 @@ entity control_unit is
 
 		-- to MEM stage
 		O_LD:			out std_logic_vector(1 downto 0);
+		O_LD_SIGN:		out std_logic;
 		O_STR:			out std_logic_vector(1 downto 0);
 
 		-- to WB stage
@@ -86,7 +87,7 @@ architecture MIXED of control_unit is
 			-- to ID stage
 			O_TAKEN:	out std_logic;
 			O_SEL_JMP:	out jump_t;
-			O_SIGNED:	out std_logic;
+			O_IMM_SIGN:	out std_logic;
 
 			-- to EX stage
 			O_ALUOP:	out std_logic_vector(FUNC_SZ - 1 downto 0);
@@ -94,6 +95,7 @@ architecture MIXED of control_unit is
 
 			-- to MEM stage
 			O_LD:		out std_logic_vector(1 downto 0);
+			O_LD_SIGN:	out std_logic;
 			O_STR:		out std_logic_vector(1 downto 0);
 
 			-- to WB stage
@@ -161,10 +163,11 @@ begin
 			I_ZERO		=> I_ZERO,
 			O_TAKEN		=> TAKEN,
 			O_SEL_JMP	=> O_SEL_JMP,
-			O_SIGNED	=> O_SIGNED,
+			O_IMM_SIGN	=> O_IMM_SIGN,
 			O_ALUOP		=> O_ALUOP,
 			O_SEL_B_IMM	=> O_SEL_B_IMM,
 			O_LD		=> O_LD,
+			O_LD_SIGN	=> O_LD_SIGN,
 			O_STR		=> STR,
 			O_SEL_DST	=> SEL_DST,
 			O_A_NEEDED_ID	=> A_NEEDED_ID,

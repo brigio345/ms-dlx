@@ -16,8 +16,8 @@ entity memory_unit is
 
 		-- from CU
 		I_LD:		in std_logic_vector(1 downto 0);
+		I_LD_SIGN:	in std_logic;
 		I_STR:		in std_logic_vector(1 downto 0);
-		I_SIGNED:	in std_logic;
 		I_SEL_DATA:	in source_t;
 
 		-- from EX stage
@@ -107,9 +107,9 @@ begin
 	-- convert input data to little endian, if data memory is big endian
 	LOADED	<= I_RD_DATA when (I_ENDIAN = '1') else swap_bytes(I_RD_DATA);
 
-	extend: process (LOADED, I_SIGNED, I_LD)
+	extend: process (LOADED, I_LD_SIGN, I_LD)
 	begin
-		if (I_SIGNED = '1') then
+		if (I_LD_SIGN = '1') then
 			case I_LD is
 				when "10"	=>
 					O_LOADED <= sign_extend(LOADED, 15, RF_DATA_SZ);
