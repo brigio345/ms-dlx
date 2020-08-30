@@ -331,7 +331,7 @@ begin
 			when OPCODE_LBU		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
-				O_IMM_SIGN	<= '0';		-- unsigned
+				O_IMM_SIGN	<= '1';		-- signed
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_B_IMM	<= '1';		-- IMM
 				O_LD		<= "01";	-- load byte
@@ -357,7 +357,7 @@ begin
 			when OPCODE_LHU		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
-				O_IMM_SIGN	<= '0';		-- unsigned
+				O_IMM_SIGN	<= '1';		-- signed
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_B_IMM	<= '1';		-- IMM
 				O_LD		<= "10";	-- load half word
@@ -370,7 +370,7 @@ begin
 			when OPCODE_LW		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
-				O_IMM_SIGN	<= '0';		-- not meaningful
+				O_IMM_SIGN	<= '1';		-- signed
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_B_IMM	<= '1';		-- IMM
 				O_LD		<= "11";	-- load word
@@ -383,7 +383,7 @@ begin
 			when OPCODE_SB		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
-				O_IMM_SIGN	<= '0';		-- not meaningful
+				O_IMM_SIGN	<= '1';		-- signed
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_B_IMM	<= '1';		-- IMM
 				O_LD		<= "00";	-- no load
@@ -396,7 +396,7 @@ begin
 			when OPCODE_SH		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
-				O_IMM_SIGN	<= '0';		-- not meaningful
+				O_IMM_SIGN	<= '1';		-- signed
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_B_IMM	<= '1';		-- IMM
 				O_LD		<= "00";	-- no load
@@ -409,7 +409,7 @@ begin
 			when OPCODE_SW		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
-				O_IMM_SIGN	<= '0';		-- not meaningful
+				O_IMM_SIGN	<= '1';		-- signed
 				O_ALUOP		<= FUNC_ADD;
 				O_SEL_B_IMM	<= '1';		-- IMM
 				O_LD		<= "00";	-- no load
