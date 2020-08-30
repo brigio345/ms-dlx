@@ -102,8 +102,7 @@ architecture MIXED of control_unit is
 			-- to CU
 			O_A_NEEDED_ID:	out std_logic;
 			O_A_NEEDED_EX:	out std_logic;
-			O_B_NEEDED_EX:	out std_logic;
-			O_B_NEEDED_MEM:	out std_logic
+			O_B_NEEDED_EX:	out std_logic
 		);
 	end component inst_decoder;
 	
@@ -141,7 +140,6 @@ architecture MIXED of control_unit is
 	signal A_NEEDED_ID:	std_logic;
 	signal A_NEEDED_EX:	std_logic;
 	signal B_NEEDED_EX:	std_logic;
-	signal B_NEEDED_MEM:	std_logic;
 	signal DATA_STALL:	std_logic;
 begin
 	config_register_0: config_register
@@ -171,8 +169,7 @@ begin
 			O_SEL_DST	=> SEL_DST,
 			O_A_NEEDED_ID	=> A_NEEDED_ID,
 			O_A_NEEDED_EX	=> A_NEEDED_EX,
-			O_B_NEEDED_EX	=> B_NEEDED_EX,
-			O_B_NEEDED_MEM	=> B_NEEDED_MEM
+			O_B_NEEDED_EX	=> B_NEEDED_EX
 		);
 
 	data_forwarder_0: data_forwarder

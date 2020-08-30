@@ -30,8 +30,7 @@ entity inst_decoder is
 		-- to CU
 		O_A_NEEDED_ID:	out std_logic;
 		O_A_NEEDED_EX:	out std_logic;
-		O_B_NEEDED_EX:	out std_logic;
-		O_B_NEEDED_MEM:	out std_logic
+		O_B_NEEDED_EX:	out std_logic
 	);
 end inst_decoder;
 
@@ -52,7 +51,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '1';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_ADDI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -65,7 +63,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_ADDUI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -78,7 +75,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SUBI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -91,7 +87,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SUBUI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -104,7 +99,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_ANDI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -117,7 +111,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_ORI		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -130,7 +123,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_XORI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -143,7 +135,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SLLI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -156,7 +147,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SRLI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -169,7 +159,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SRAI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -182,7 +171,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SEQI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -195,7 +183,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SNEI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -208,7 +195,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SLTI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -221,7 +207,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SGTI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -234,7 +219,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SLEI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -247,7 +231,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SGEI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -260,7 +243,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SLTUI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -273,7 +255,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SGTUI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -286,7 +267,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SLEUI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -299,7 +279,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SGEUI	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -312,7 +291,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 
 			-- Load & store instructions (register-immediate instructions subset)
 			when OPCODE_LB		=>
@@ -327,7 +305,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_LBU		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -340,7 +317,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_LH		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -353,7 +329,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_LHU		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -366,7 +341,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_LW		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -379,7 +353,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_SB		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -392,7 +365,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '1';
 			when OPCODE_SH		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -405,7 +377,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '1';
 			when OPCODE_SW		=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
@@ -418,7 +389,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '1';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '1';
 
 			-- Jump/branch instructions
 			when OPCODE_BEQZ	=>
@@ -433,7 +403,6 @@ begin
 				O_A_NEEDED_ID	<= '1';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_BNEZ	=>
 				O_TAKEN		<= (NOT I_ZERO);
 				O_SEL_JMP	<= JMP_REL_IMM;
@@ -446,7 +415,6 @@ begin
 				O_A_NEEDED_ID	<= '1';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_J		=>
 				O_TAKEN		<= '1';
 				O_SEL_JMP	<= JMP_REL_OFF;
@@ -459,7 +427,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_JAL		=>
 				O_TAKEN		<= '1';
 				O_SEL_JMP	<= JMP_REL_OFF;
@@ -472,7 +439,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_JR		=>
 				O_TAKEN		<= '1';
 				O_SEL_JMP	<= JMP_ABS;
@@ -485,7 +451,6 @@ begin
 				O_A_NEEDED_ID	<= '1';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 			when OPCODE_JALR	=>
 				O_TAKEN		<= '1';
 				O_SEL_JMP	<= JMP_ABS;
@@ -498,8 +463,6 @@ begin
 				O_A_NEEDED_ID	<= '1';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
-				O_SEL_B_IMM	<= '1';	-- IMM
 
 			-- General instructions
 			when others		=>
@@ -515,7 +478,6 @@ begin
 				O_A_NEEDED_ID	<= '0';
 				O_A_NEEDED_EX	<= '0';
 				O_B_NEEDED_EX	<= '0';
-				O_B_NEEDED_MEM	<= '0';
 		end case;
 	end process;
 end BEHAVIORAL;
