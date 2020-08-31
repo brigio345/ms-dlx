@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.coding.all;
 use work.types.all;
 
@@ -13,7 +14,7 @@ architecture TB_ARCH of tb_fetch_unit is
 			--	- '0' => BIG endian
 			--	- '1' => LITTLE endian
 			I_ENDIAN:	in std_logic;
-			I_PHYS_ADDR_SZ:	in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_MEM_SZ:	in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			I_NPC:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
@@ -35,20 +36,20 @@ architecture TB_ARCH of tb_fetch_unit is
 
 	constant WAIT_TIME:	time := 2 ns;
 
-	signal ENDIAN:		std_logic;
-	signal PHYS_ADDR_SZ:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal NPC_IN:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal TARGET:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal TAKEN:		std_logic;
-	signal IR_IN:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal PC:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal NPC_OUT:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal IR_OUT:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal ENDIAN:	std_logic;
+	signal MEM_SZ:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal NPC_IN:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal TARGET:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal TAKEN:	std_logic;
+	signal IR_IN:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal PC:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal NPC_OUT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal IR_OUT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 begin
 	dut: fetch_unit
 		port map (
 			I_ENDIAN	=> ENDIAN,
-			I_PHYS_ADDR_SZ	=> PHYS_ADDR_SZ,
+			I_MEM_SZ	=> MEM_SZ,
 			I_NPC		=> NPC_IN,
 			I_TARGET	=> TARGET,
 			I_TAKEN		=> TAKEN,
@@ -61,12 +62,56 @@ begin
 	stimuli: process
 	begin
 		ENDIAN		<= '1';
-		PHYS_ADDR_SZ	<= "00110";
+		MEM_SZ		<= x"00000020";
 		NPC_IN		<= x"01234567";
 		TARGET		<= x"76543210";
 		TAKEN		<= '0';
-		IR_IN		<= x"FFFFFFFF";
+		IR_IN		<= x"AABBCCDD";
+
 		wait for WAIT_TIME;
+		assert ((PC = (NPC_IN(NPC_IN'left downto 2) & "00")) AND
+				(NPC_OUT = std_logic_vector(unsigned(NPC_IN(NPC_IN'left downto 2) & "00") + 4)) AND
+				(IR_OUT = (OPCODE_NOP & (IR_OUT'length - OPCODE_SZ - 1 downto 0 => '0'))))
+			report "unexpected output detected when testing out of bound address";
+
+		ENDIAN		<= '1';
+		MEM_SZ		<= x"F0000020";
+		NPC_IN		<= x"01234567";
+		TARGET		<= x"76543210";
+		TAKEN		<= '0';
+		IR_IN		<= x"AABBCCDD";
+
+		wait for WAIT_TIME;
+		assert ((PC = (NPC_IN(NPC_IN'left downto 2) & "00")) AND
+				(NPC_OUT = std_logic_vector(unsigned(NPC_IN(NPC_IN'left downto 2) & "00") + 4)) AND
+				(IR_OUT = IR_IN))
+			report "unexpected output detected when testing little endian";
+
+		ENDIAN		<= '0';
+		MEM_SZ		<= x"F0000020";
+		NPC_IN		<= x"01234567";
+		TARGET		<= x"76543210";
+		TAKEN		<= '0';
+		IR_IN		<= x"AABBCCDD";
+
+		wait for WAIT_TIME;
+		assert ((PC = (NPC_IN(NPC_IN'left downto 2) & "00")) AND
+				(NPC_OUT = std_logic_vector(unsigned(NPC_IN(NPC_IN'left downto 2) & "00") + 4)) AND
+				(IR_OUT = x"DDCCBBAA"))
+			report "unexpected output detected when testing big endian";
+
+		ENDIAN		<= '0';
+		MEM_SZ		<= x"F0000020";
+		NPC_IN		<= x"01234567";
+		TARGET		<= x"76543210";
+		TAKEN		<= '1';
+		IR_IN		<= x"AABBCCDD";
+
+		wait for WAIT_TIME;
+		assert ((PC = (TARGET(TARGET'left downto 2) & "00")) AND
+				(NPC_OUT = std_logic_vector(unsigned(TARGET(TARGET'left downto 2) & "00") + 4)) AND
+				(IR_OUT = x"DDCCBBAA"))
+			report "unexpected output detected when testing taken branch";
 
 		wait;
 	end process stimuli;

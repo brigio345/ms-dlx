@@ -2,44 +2,46 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.utilities.all;
 
-entity LFSR is 
+entity lfsr is 
 	generic (
-		NBIT:	integer := 16
+		N_BIT:	integer := 16
 	);
 	port ( 
-		CLK:	in std_logic;
-		RESET:	in std_logic;
-		LD:	in std_logic;
-		EN:	in std_logic;
-		DIN:	in std_logic_vector (NBIT - 1 downto 0);
-		PRN:	out std_logic_vector (NBIT - 1 downto 0)
+		I_CLK:		in std_logic;
+		I_RST:		in std_logic;
+		I_LD:		in std_logic;
+		I_EN:		in std_logic;
+
+		I_SEED:		in std_logic_vector (N_BIT - 1 downto 0);
+
+		O_RANDOM:	out std_logic_vector (N_BIT - 1 downto 0)
 	);
-end LFSR;
+end lfsr;
 
-architecture RTL of LFSR is
-	constant NXOR: integer := log2(NBIT);
-	signal t_prn : std_logic_vector(NBIT - 1 downto 0);
+architecture BEHAVIORAL of lfsr is
+	constant N_XOR:	integer := log2(N_BIT);
+	signal T_PRN:	std_logic_vector(N_BIT - 1 downto 0);
 begin
-	PRN <= t_prn;
+	O_RANDOM <= T_PRN;
 
-	process(CLK,RESET) 
+	process(I_CLK,I_RST) 
 		variable tmp: std_logic;
 	begin 
-		if (RESET = '1') then 
-			t_prn <= (NBIT - 1 downto 1 => '0') & '1'; -- load 1 at reset 
-		elsif (CLK = '1' and CLK'event) then 
-			if (LD = '1') then -- load a new seed when ld is active 
-				t_prn <= DIN; 
-			elsif (EN = '1') then -- shift when enabled 
-				tmp := t_prn(2) xor t_prn(1);
-				for i in 2 to NXOR - 1 loop
-					tmp := tmp xor t_prn(2**i - 1);
+		if (I_RST = '1') then 
+			T_PRN <= (N_BIT - 1 downto 1 => '0') & '1'; -- load 1 at reset 
+		elsif (I_CLK = '1' and I_CLK'event) then 
+			if (I_LD = '1') then -- load a new seed when ld is active 
+				T_PRN <= I_SEED; 
+			elsif (I_EN = '1') then -- shift when enabled 
+				tmp := T_PRN(2) xor T_PRN(1);
+				for i in 2 to N_XOR - 1 loop
+					tmp := tmp xor T_PRN(2**i - 1);
 				end loop;
 				
-				t_prn(0) <= tmp;
-				t_prn(NBIT - 1 downto 1) <= t_prn(NBIT - 2 downto 0); 
+				T_PRN(0) <= tmp;
+				T_PRN(N_BIT - 1 downto 1) <= T_PRN(N_BIT - 2 downto 0); 
 			end if; 
 		end if;
 	  end process;
-end RTL;
+end BEHAVIORAL;
 

@@ -1,52 +1,127 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
-entity MULTIPLIER_tb is
-end MULTIPLIER_tb;
+entity tb_multiplier is
+end tb_multiplier;
 
-architecture TEST of MULTIPLIER_tb is
- constant numBit : integer := 8;    -- :=8  --:=16    
+architecture TB_ARCH of tb_multiplier is
+	component boothmul is
+		generic (
+			N_BIT:	integer := 32
+		);
+		port (
+			I_A:	in std_logic_vector(N_BIT - 1 downto 0);      
+			I_B:	in std_logic_vector(N_BIT - 1 downto 0);      
 
-  --  input	 
-  signal A_mp_i : std_logic_vector(numBit-1 downto 0) := (others => '0');
-  signal B_mp_i : std_logic_vector(numBit-1 downto 0) := (others => '0');
+			O_P:	out std_logic_vector(2 * N_BIT - 1 downto 0)
+		);  
+	end component boothmul;
 
-  -- output
-  signal Y_mp_i2 : std_logic_vector(2*numBit-1 downto 0); 
+	component lfsr is 
+		generic (
+			N_BIT:	integer := 16
+		);
+		port ( 
+			I_CLK:		in std_logic;
+			I_RST:		in std_logic;
+			I_LD:		in std_logic;
+			I_EN:		in std_logic;
 
--- MUL component declaration
---
---
-component BOOTHMUL is
-generic(N: integer:=NumBit);
-port(A: in std_logic_vector(N-1 downto 0);
-     B: in std_logic_vector(N-1 downto 0);
-     P: out std_logic_vector(2*N-1 downto 0));
-end component;
+			I_SEED:		in std_logic_vector (N_BIT - 1 downto 0);
 
+			O_RANDOM:	out std_logic_vector (N_BIT - 1 downto 0)
+		);
+	end component lfsr;
+
+	constant N_BIT:		integer := 16;
+	constant N_TESTS:	integer := 1023;
+	constant CLK_PERIOD:	time := 2 ns;
+
+	signal A:	std_logic_vector(N_BIT - 1 downto 0);
+	signal B:	std_logic_vector(N_BIT - 1 downto 0);
+	signal P:	std_logic_vector(N_BIT * 2 - 1 downto 0);
+
+	signal CLK:	std_logic;
+	signal RST:	std_logic;
+	signal LD:	std_logic;
+	signal EN:	std_logic;
+	signal SEED_A:	std_logic_vector(N_BIT - 1 downto 0);
+	signal SEED_B:	std_logic_vector(N_BIT - 1 downto 0);
 begin
+	dut: boothmul
+		generic map (
+			N_BIT	=> N_BIT
+		)
+		port map (
+			I_A	=> A,
+			I_B	=> B,
+			O_P	=> P
+		);
 
-  DUT2: BOOTHMUL 
-       generic map(numBit) 
-       port map (A_mp_i, B_mp_i, Y_mp_i2);
+	lfsr_a: lfsr
+		generic map (
+			N_BIT	=> N_BIT
+		)
+		port map (
+			I_CLK	=> CLK,
+			I_RST	=> RST,
+			I_LD	=> LD,
+			I_EN	=> EN,
+			I_SEED	=> SEED_A,
+			O_RANDOM=> A
+		);
 
-  test: process
-  begin
+	lfsr_b: lfsr
+		generic map (
+			N_BIT	=> N_BIT
+		)
+		port map (
+			I_CLK	=> CLK,
+			I_RST	=> RST,
+			I_LD	=> LD,
+			I_EN	=> EN,
+			I_SEED	=> SEED_B,
+			O_RANDOM=> B
+		);
 
-    -- cycle for operand A
-    NumROW : for i in 0 to 2**(NumBit)-1 loop
+	clk_gen: process
+	begin
+		CLK	<= '0';
+		wait for CLK_PERIOD / 2;
+		CLK	<= '1';
+		wait for CLK_PERIOD / 2;
+	end process clk_gen;
 
-        -- cycle for operand B
-    	NumCOL : for i in 0 to 2**(NumBit)-1 loop
-	    wait for 10 ns;
-	    B_mp_i <= B_mp_i + '1';
-	end loop NumCOL ;
-        
-	A_mp_i <= A_mp_i + '1'; 	
-    end loop NumROW ;
+	stimuli: process
+	begin
+		RST	<= '1';
+		LD	<= '0';
+		EN	<= '0';
+		SEED_A	<= (others => '0');
+		SEED_B	<= (others => '0');
 
-    wait;          
-  end process test;
-end TEST;
+		wait for CLK_PERIOD;
+
+		RST	<= '0';
+		LD	<= '1';
+		EN	<= '0';
+		SEED_A	<= x"ABCD";
+		SEED_B	<= x"FACA";
+
+		wait for CLK_PERIOD;
+
+		LD	<= '0';
+		EN	<= '1';
+
+		for i in 0 to N_TESTS loop
+			wait for CLK_PERIOD;
+
+			assert (P = std_logic_vector(signed(A) * signed(B)))
+				report "wrong product detected";
+		end loop;
+
+		wait;
+	end process stimuli;
+end TB_ARCH;
 

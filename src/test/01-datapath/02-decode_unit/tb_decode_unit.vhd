@@ -20,9 +20,8 @@ architecture TB_ARCH of tb_decode_unit is
 			I_RD2_DATA:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
 			-- from CU
-			I_SEL_JMP_OP1:		in std_logic;
-			I_SEL_JMP_OP2:		in std_logic_vector(1 downto 0);
-			I_SIGNED:		in std_logic;
+			I_SEL_JMP:		in jump_t;
+			I_IMM_SIGN:		in std_logic;
 			I_SEL_A:		in source_t;
 			I_SEL_B:		in source_t;
 			I_SEL_DST:		in dest_t;
@@ -30,8 +29,13 @@ architecture TB_ARCH of tb_decode_unit is
 			-- from MEM
 			I_ALUOUT_MEM:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
 
+			-- from WB
+			I_ALUOUT_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+			I_LOADED_WB:		in std_logic_vector(RF_DATA_SZ - 1 downto 0);
+
 			I_DST_EX:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 			I_DST_MEM:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+			I_DST_WB:		in std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 
 			-- O_RDx_ADDR: to rf; address at which rf has to be read
 			O_RD1_ADDR:		out std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -50,6 +54,8 @@ architecture TB_ARCH of tb_decode_unit is
 			O_SRC_B_EQ_DST_EX:	out std_logic;
 			O_SRC_A_EQ_DST_MEM:	out std_logic;
 			O_SRC_B_EQ_DST_MEM:	out std_logic;
+			O_SRC_A_EQ_DST_WB:	out std_logic;
+			O_SRC_B_EQ_DST_WB:	out std_logic;
 
 			-- to EX stage; ALU operands
 			O_A:			out std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -67,15 +73,17 @@ architecture TB_ARCH of tb_decode_unit is
 	signal NPC:			std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal RD1_DATA:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal RD2_DATA:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal SEL_JMP_OP1:		std_logic;
-	signal SEL_JMP_OP2:		std_logic_vector(1 downto 0);
-	signal S_SIGNED:		std_logic;
+	signal SEL_JMP:			jump_t;
+	signal IMM_SIGN:		std_logic;
 	signal SEL_A:			source_t;
 	signal SEL_B:			source_t;
 	signal SEL_DST:			dest_t;
 	signal ALUOUT_MEM:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal ALUOUT_WB:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
+	signal LOADED_WB:		std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal DST_EX:			std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal DST_MEM:			std_logic_vector(RF_ADDR_SZ - 1 downto 0);
+	signal DST_WB:			std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal RD1_ADDR:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal RD2_ADDR:		std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal DST:			std_logic_vector(RF_ADDR_SZ - 1 downto 0);
@@ -88,6 +96,8 @@ architecture TB_ARCH of tb_decode_unit is
 	signal SRC_B_EQ_DST_EX:		std_logic;
 	signal SRC_A_EQ_DST_MEM:	std_logic;
 	signal SRC_B_EQ_DST_MEM:	std_logic;
+	signal SRC_A_EQ_DST_WB:		std_logic;
+	signal SRC_B_EQ_DST_WB:		std_logic;
 	signal A:			std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal B:			std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal IMM:			std_logic_vector(RF_DATA_SZ - 1 downto 0);
@@ -99,15 +109,17 @@ begin
 			I_NPC			=> NPC,
 			I_RD1_DATA		=> RD1_DATA,
 			I_RD2_DATA		=> RD2_DATA,
-			I_SEL_JMP_OP1		=> SEL_JMP_OP1,
-			I_SEL_JMP_OP2		=> SEL_JMP_OP2,
-			I_SIGNED		=> S_SIGNED,
+			I_SEL_JMP		=> SEL_JMP,
+			I_IMM_SIGN		=> IMM_SIGN,
 			I_SEL_A			=> SEL_A,
 			I_SEL_B			=> SEL_B,
 			I_SEL_DST		=> SEL_DST,
 			I_ALUOUT_MEM		=> ALUOUT_MEM,
+			I_ALUOUT_WB		=> ALUOUT_WB,
+			I_LOADED_WB		=> LOADED_WB,
 			I_DST_EX		=> DST_EX,
 			I_DST_MEM		=> DST_MEM,
+			I_DST_WB		=> DST_WB,
 			O_RD1_ADDR		=> RD1_ADDR,
 			O_RD2_ADDR		=> RD2_ADDR,
 			O_DST			=> DST,
@@ -120,6 +132,8 @@ begin
 			O_SRC_B_EQ_DST_EX	=> SRC_B_EQ_DST_EX,
 			O_SRC_A_EQ_DST_MEM	=> SRC_A_EQ_DST_MEM,
 			O_SRC_B_EQ_DST_MEM	=> SRC_B_EQ_DST_MEM,
+			O_SRC_A_EQ_DST_WB	=> SRC_A_EQ_DST_WB,
+			O_SRC_B_EQ_DST_WB	=> SRC_B_EQ_DST_WB,
 			O_A			=> A,
 			O_B			=> B,
 			O_IMM			=> IMM,
@@ -141,17 +155,20 @@ begin
 		NPC		<= x"01234567";
 		RD1_DATA	<= (others => '0');
 		RD2_DATA	<= (others => '0');
-		SEL_JMP_OP1	<= '0';
-		SEL_JMP_OP2	<= "00";
-		S_SIGNED	<= '0';
+		SEL_JMP		<= JMP_ABS;
+		IMM_SIGN	<= '0';
 		SEL_A		<= SRC_RF;
 		SEL_B		<= SRC_RF;
 		SEL_DST		<= DST_NO;
 		ALUOUT_MEM	<= (others => '0');
+		ALUOUT_WB	<= (others => '0');
+		LOADED_WB	<= (others => '0');
 		DST_EX		<= (others => '0');
 		DST_MEM		<= (others => '0');
+		DST_WB		<= (others => '0');
 
 		wait for WAIT_TIME;
+
 		wait;
 	end process stimuli;
 end TB_ARCH;
