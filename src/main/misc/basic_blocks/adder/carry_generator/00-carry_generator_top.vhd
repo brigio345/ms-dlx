@@ -2,43 +2,44 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.utilities.all;
 
-entity CARRY_GENERATOR is
+entity carry_generator is
 	generic (
-		NBIT :		integer := 32;
-		NBIT_PER_BLOCK: integer := 4
+		N_BIT:			integer := 32;
+		N_BIT_PER_BLOCK: 	integer := 4
 	);
 	port (
-		A	:	in	std_logic_vector(NBIT-1 downto 0);
-		B	:	in	std_logic_vector(NBIT-1 downto 0);
-		Cin 	:	in	std_logic;
-		Co 	:	out	std_logic_vector((NBIT/NBIT_PER_BLOCK)-1 downto 0)
-	);
-end CARRY_GENERATOR;
+		I_A:	in std_logic_vector(N_BIT - 1 downto 0);
+		I_B:	in std_logic_vector(N_BIT - 1 downto 0);
+		I_C:	in std_logic;
 
-architecture STRUCTURAL of CARRY_GENERATOR is
+		O_C:	out std_logic_vector((N_BIT / N_BIT_PER_BLOCK) - 1 downto 0)
+	);
+end carry_generator;
+
+architecture STRUCTURAL of carry_generator is
 	type block_type is (
 		PG_T,
 		G_T,
 		PROP_T	-- not a real block: just propagate signal from previous level
 	);
 
-	-- check_block: given a position (i, j) and the number of bits per block (NBIT_PER_BLOCK)
+	-- check_block: given a position (i, j) and the number of bits per block (N_BIT_PER_BLOCK)
 	-- returns the type of block to be inserted in that position
 	function check_block (
 		i: integer;
 		j: integer;
-		NBIT_PER_BLOCK: integer)
+		N_BIT_PER_BLOCK: integer)
 	return block_type is
 	begin
 		-- check if j is less than the minimum value which can require a block
-		if (i <= log2(NBIT_PER_BLOCK) + 1) then
-		-- up to level log2(NBIT_PER_BLOCK) + 1 there are only "standard" blocks
+		if (i <= log2(N_BIT_PER_BLOCK) + 1) then
+		-- up to level log2(N_BIT_PER_BLOCK) + 1 there are only "standard" blocks
 		-- (i.e. one block every two of the previous level)
 			if (j + 1 < 2**i) then
 				return PROP_T;
 			end if;
 		else
-		-- from level log2(NBIT_PER_BLOCK) + 2 on there are "additional" blocks too
+		-- from level log2(N_BIT_PER_BLOCK) + 2 on there are "additional" blocks too
 		-- (i.e. blocks needed to get the desired carries)
 			if (j + 1 < 2**(i - 1)) then
 				return PROP_T;
@@ -55,8 +56,8 @@ architecture STRUCTURAL of CARRY_GENERATOR is
 		end if;
 
 		-- "additional" blocks
-		if ((i > log2(NBIT_PER_BLOCK) + 1) and
-			((j + 1) mod NBIT_PER_BLOCK = 0) and
+		if ((i > log2(N_BIT_PER_BLOCK) + 1) and
+			((j + 1) mod N_BIT_PER_BLOCK = 0) and
 			((j + 1) mod 2**i > 2**(i - 1))) then
 			if ((j + 1) / 2**i = 0) then
 				return G_T;
@@ -97,7 +98,7 @@ architecture STRUCTURAL of CARRY_GENERATOR is
 		);
 	end component PG_BLOCK; 
 
-	type std_logic_matrix is array (log2(NBIT) downto 0) of std_logic_vector(NBIT - 1 downto 0);
+	type std_logic_matrix is array (log2(N_BIT) downto 0) of std_logic_vector(N_BIT - 1 downto 0);
 	signal P: std_logic_matrix;
 	signal G: std_logic_matrix;
 	signal g1: std_logic;
@@ -105,8 +106,8 @@ begin
 	-- pg network: first element is different in order to take care of carry in
 	small_pg1_net: SMALL_PG_BLOCK
 		port map (
-			a => a(0),
-			b => b(0),
+			a => I_A(0),
+			b => I_B(0),
 			g => g1,
 			p => P(0)(0)
 		);
@@ -115,16 +116,16 @@ begin
 		port map (
 			G_ik => g1,
 			P_ik => P(0)(0),
-			G_k1j => Cin,
+			G_k1j => I_C,
 			G_ij => G(0)(0)
 		);
 			
 	-- pg network: all the elements from second to last are equal
-	pg_net: for i in 1 to NBIT - 1 generate
+	pg_net: for i in 1 to N_BIT - 1 generate
 		small_pg_net: SMALL_PG_BLOCK
 			port map (
-				a => a(i),
-				b => b(i),
+				a => I_A(i),
+				b => I_B(i),
 				g => G(0)(i),
 				p => P(0)(i)
 			);
@@ -133,9 +134,9 @@ begin
 	-- propagate network:
 	--	* every level inputs are taken from previous level outputs (i - 1)
 	-- 	* "k - 1" always corresponds to j / 2**(i - 1) * 2**(i - 1) - 1
-	level_loop: for i in 1 to log2(NBIT) generate
-		bit_loop: for j in NBIT - 1 downto 0 generate
-			pg_check: if (check_block(i, j, NBIT_PER_BLOCK) = PG_T) generate
+	level_loop: for i in 1 to log2(N_BIT) generate
+		bit_loop: for j in N_BIT - 1 downto 0 generate
+			pg_check: if (check_block(i, j, N_BIT_PER_BLOCK) = PG_T) generate
 				pg_net: PG_BLOCK
 					port map (
 						G_ik => G(i - 1)(j),
@@ -147,7 +148,7 @@ begin
 					);
 			end generate;
 
-			g_check: if (check_block(i, j, NBIT_PER_BLOCK) = G_T) generate
+			g_check: if (check_block(i, j, N_BIT_PER_BLOCK) = G_T) generate
 				g_net: G_BLOCK
 					port map (
 						G_ik => G(i - 1)(j),
@@ -158,7 +159,7 @@ begin
 				P(i)(j) <= P(i - 1)(j);
 			end generate;
 
-			prop_check: if (check_block(i, j, NBIT_PER_BLOCK) = PROP_T) generate
+			prop_check: if (check_block(i, j, N_BIT_PER_BLOCK) = PROP_T) generate
 				P(i)(j) <= P(i - 1)(j);
 				G(i)(j) <= G(i - 1)(j);
 			end generate;
@@ -167,9 +168,9 @@ begin
 
 	out_map: process(G)
 	begin
-		-- map one bit every NBIT_PER_BLOCK of last line of matrix G to Co
-		for i in 0 to NBIT / NBIT_PER_BLOCK - 1 loop
-			Co(i) <= G(log2(NBIT))((i + 1) * NBIT_PER_BLOCK - 1);
+		-- map one bit every N_BIT_PER_BLOCK of last line of matrix G to Co
+		for i in 0 to N_BIT / N_BIT_PER_BLOCK - 1 loop
+			O_C(i) <= G(log2(N_BIT))((i + 1) * N_BIT_PER_BLOCK - 1);
 		end loop;
 	end process out_map;
 end STRUCTURAL;

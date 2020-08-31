@@ -16,20 +16,20 @@ entity alu is
 end alu;
 
 architecture MIXED of alu is
-	component P4_ADDER is
+	component p4_adder is
 		generic (
-			NBIT:		integer := 32;
-			NBIT_PER_BLOCK:	integer := 4
+			N_BIT:			integer := 32;
+			N_BIT_PER_BLOCK:	integer := 4
 		);
 		port (
-			A:	in	std_logic_vector(NBIT-1 downto 0);
-			B:	in	std_logic_vector(NBIT-1 downto 0);
-			Cin:	in	std_logic;
-			S:	out	std_logic_vector(NBIT-1 downto 0);
-			Cout:	out	std_logic;
-			O_OF:	out	std_logic
+			I_A:	in std_logic_vector(N_BIT - 1 downto 0);
+			I_B:	in std_logic_vector(N_BIT - 1 downto 0);
+			I_C:	in std_logic;
+			O_S:	out std_logic_vector(N_BIT - 1 downto 0);
+			O_C:	out std_logic;
+			O_OF:	out std_logic
 		);
-	end component P4_ADDER;
+	end component p4_adder;
 
 	component comparator is
 		generic (
@@ -48,16 +48,16 @@ architecture MIXED of alu is
 		);
 	end component comparator;
 
-	component BOOTHMUL is
+	component boothmul is
 		generic (
-			N:	integer := 32
+			N_BIT:	integer := 32
 		);
 		port (
-			A: in std_logic_vector(N - 1 downto 0);      
-			B: in std_logic_vector(N - 1 downto 0);      
-			P: out std_logic_vector(2 * N - 1 downto 0)
+			I_A:	in std_logic_vector(N_BIT - 1 downto 0);      
+			I_B:	in std_logic_vector(N_BIT - 1 downto 0);      
+			O_P:	out std_logic_vector(2 * N_BIT - 1 downto 0)
 		);  
-	end component BOOTHMUL;
+	end component boothmul;
 
 	-- adder signals
 	signal C_IN:	std_logic;
@@ -85,15 +85,15 @@ begin
 
 	adder_0: p4_adder
 		generic map (
-			NBIT	=> N_BIT,
-			NBIT_PER_BLOCK	=> 4
+			N_BIT	=> N_BIT,
+			N_BIT_PER_BLOCK	=> 4
 		)
 		port map (
-			A	=> I_A,
-			B	=> B_ADDER,
-			Cin	=> C_IN,
-			S	=> SUM,
-			Cout	=> C_OUT,
+			I_A	=> I_A,
+			I_B	=> B_ADDER,
+			I_C	=> C_IN,
+			O_S	=> SUM,
+			O_C	=> C_OUT,
 			O_OF	=> OVERFLOW
 		);
 
@@ -115,14 +115,14 @@ begin
 	A_LOW <= I_A(N_BIT / 2 - 1 downto 0);
 	B_LOW <= I_B(N_BIT / 2 - 1 downto 0);
 
-	boothmul_0: BOOTHMUL
+	boothmul_0: boothmul
 		generic map (
-			N	=> N_BIT / 2
+			N_BIT	=> N_BIT / 2
 		)
 		port map (
-			A	=> A_LOW,
-			B	=> B_LOW,
-			P	=> PROD
+			I_A	=> A_LOW,
+			I_B	=> B_LOW,
+			O_P	=> PROD
 		);
 
 	-- perform A + B when an ADD is required,

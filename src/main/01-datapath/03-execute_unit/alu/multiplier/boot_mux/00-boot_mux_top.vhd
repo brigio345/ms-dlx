@@ -2,27 +2,28 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity BOOTH_MUX is
+entity booth_mux is
 	generic (
-		N:	integer := 32
+		N_BIT:	integer := 32
 	);
 	port (
-		A:	in std_logic_vector(2 * N - 1 downto 0);
-		B:	in std_logic_vector(2 downto 0);
-		Y:	out std_logic_vector(2 * N - 1 downto 0)
+		I_A:	in std_logic_vector(2 * N_BIT - 1 downto 0);
+		I_B:	in std_logic_vector(2 downto 0);
+
+		O_Y:	out std_logic_vector(2 * N_BIT - 1 downto 0)
 	);
-end BOOTH_MUX;
+end booth_mux;
 
-architecture BEHAVIORAL of BOOTH_MUX is
-	signal A_neg:	std_logic_vector(2 * N - 1 downto 0);
+architecture BEHAVIORAL of booth_mux is
+	signal A_NEG:	std_logic_vector(2 * N_BIT - 1 downto 0);
 begin
-	A_neg <= std_logic_vector(-signed(A));
+	A_NEG <= std_logic_vector(-signed(I_A));
 
-	with B select Y <=
-		A when "001" | "010",
-		A(2 * N - 2 downto 0) & '0' when "011",
-		A_neg(2 * N - 2 downto 0) & '0' when "100",
-		A_neg when "101" | "110",
-		(others => '0') when others;
+	with I_B select O_Y <=
+		I_A					when "001" | "010",
+		I_A(2 * N_BIT - 2 downto 0) & '0'	when "011",
+		A_NEG(2 * N_BIT - 2 downto 0) & '0'	when "100",
+		A_NEG					when "101" | "110",
+		(others => '0')				when others;
 end BEHAVIORAL;
 

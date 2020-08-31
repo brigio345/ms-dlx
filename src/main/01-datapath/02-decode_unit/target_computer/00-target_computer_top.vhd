@@ -20,35 +20,35 @@ entity target_computer is
 end target_computer;
 
 architecture MIXED of target_computer is
-	component P4_ADDER is
+	component p4_adder is
 		generic (
-			NBIT:		integer := 32;
-			NBIT_PER_BLOCK:	integer := 4
+			N_BIT:			integer := 32;
+			N_BIT_PER_BLOCK:	integer := 4
 		);
 		port (
-			A:	in	std_logic_vector(NBIT-1 downto 0);
-			B:	in	std_logic_vector(NBIT-1 downto 0);
-			Cin:	in	std_logic;
-			S:	out	std_logic_vector(NBIT-1 downto 0);
-			Cout:	out	std_logic;
-			O_OF:	out	std_logic
+			I_A:	in std_logic_vector(N_BIT - 1 downto 0);
+			I_B:	in std_logic_vector(N_BIT - 1 downto 0);
+			I_C:	in std_logic;
+			O_S:	out std_logic_vector(N_BIT - 1 downto 0);
+			O_C:	out std_logic;
+			O_OF:	out std_logic
 		);
-	end component P4_ADDER;
+	end component p4_adder;
 
 	signal OP1:	std_logic_vector(O_TARGET'range);
 	signal OP2:	std_logic_vector(O_TARGET'range);
 begin
 	adder: p4_adder
 		generic map (
-			NBIT		=> RF_DATA_SZ,
-			NBIT_PER_BLOCK	=> 4
+			N_BIT		=> RF_DATA_SZ,
+			N_BIT_PER_BLOCK	=> 4
 		)
 		port map (
-			A	=> OP1,
-			B	=> OP2,
-			Cin	=> '0',
-			S	=> O_TARGET,
-			Cout	=> open,
+			I_A	=> OP1,
+			I_B	=> OP2,
+			I_C	=> '0',
+			O_S	=> O_TARGET,
+			O_C	=> open,
 			O_OF	=> open
 		);
 	
