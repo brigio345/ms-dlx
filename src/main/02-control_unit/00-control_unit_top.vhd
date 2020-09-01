@@ -211,7 +211,8 @@ begin
 	-- Insert a data stall in ID stage when data is not in rf and cannot
 	--	be forwarded
 	DATA_STALL <= '1' when (
-			((A_NEEDED_ID = '1') AND ((SEL_A /= SRC_RF) AND (SEL_A /= SRC_ALU_MEM))) OR
+			((A_NEEDED_ID = '1') AND ((SEL_A = SRC_ALU_EX) OR
+				(SEL_A = SRC_LD_EX) OR (SEL_A = SRC_LD_MEM))) OR
 			((A_NEEDED_EX = '1') AND (SEL_A = SRC_LD_EX)) OR
 		    	((B_NEEDED_EX = '1') AND (SEL_B = SRC_LD_EX)))
 		    else '0';
