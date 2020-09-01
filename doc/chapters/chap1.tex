@@ -1,17 +1,18 @@
 \chapter{Design}
 \label{chap1}
 
-The DLXY is a \texttt{VHDL} implementation of a processor architecture partially
-compatible with the DLX architecture described in \textit{Fundamentals of
-Computer Design - Patterson, Hennessy}.
+The DLXY is a processor architecture inspired by the DLX architecture described
+in \textit{Fundamentals of Computer Design - Patterson, Hennessy}.
 
 \bigskip
 DLXY main characteristics include:
 \begin{itemize}
-	\item RISC Load \& Store architecture
-	\item 32-bit data parallelism
-	\item bi-endian data encoding
-	\item partial DLX instruction set
+	\item Instruction set: RISC (partial DLX instruction set support)
+	\item Memory addressing modes: dedicated Load \& Store instructions only
+	\item Data types and parallelism: integer, 32 bits
+	\item Endianness: bi-endian
+	\item Datapath: in-order 5 stages pipeline
+	\item Control unit: hardwired
 \end{itemize}
 
 \section{Outside}
@@ -25,9 +26,9 @@ The DLXY core is designed to be inserted in an environment which provides:
 	\item the \textbf{data memory}
 \end{itemize}
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=.5\textwidth]{chapters/figures/top_mounted} 
+	\frame{\includegraphics[width=.5\textwidth]{top_mounted}}
 	\caption{The DLXY core inserted in the required environment.}
 	\label{fig:env_top}
 \end{figure}
@@ -48,7 +49,7 @@ When the \textbf{reset signal} is:
 		\end{itemize}
 \end{itemize}
 
-\begin{table}[ht]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{ll}
 		\hline
@@ -75,7 +76,7 @@ The data memory must also provide synchronous writing capabilities.
 Table \ref{tab:i_mem_specs} and \ref{tab:d_mem_specs} show the required memory
 specifications in detail.
 
-\begin{table}[ht]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{llll}
 		\hline
@@ -88,7 +89,7 @@ specifications in detail.
 	\label{tab:i_mem_specs}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{lllll}
 		\hline
@@ -122,14 +123,14 @@ Figure \ref{fig:encoding} shows the encoding of each instruction type, while
 tables \ref{tab:r_type_inst}, \ref{tab:i_type_inst} and \ref{tab:j_type_inst}
 display all the supported instructions.
 
-\begin{figure}[ht]
+\begin{figure}[H]
 	\centering
-	\includegraphics[width=.75\textwidth]{chapters/figures/encoding} 
+	\frame{\includegraphics[width=.75\textwidth]{encoding}}
 	\caption{The DLXY instruction encoding.}
 	\label{fig:encoding}
 \end{figure}
 
-\begin{table}[ht]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{ll}
 		\hline
@@ -140,13 +141,13 @@ display all the supported instructions.
 		\texttt{SRL} & \texttt{RF(RD) <= RF(RS1) logic shifted to the right by unsigned(RF(RS2)) bits} \\
 		\texttt{SRA} & \texttt{RF(RD) <= RF(RS1) arithmetic shifted to the right by unsigned(RF(RS2)) bits} \\
 		\rowcolor{gray!25}
-		\texttt{ADD} & \texttt{RF(RD) <= RF(RS1) + RF(RS2)} \\
-		\texttt{ADDU} & \texttt{RF(RD) <= RF(RS1) + RF(RS2)} \\
+		\texttt{ADD} & \texttt{RF(RD) <= signed(RF(RS1)) + signed(RF(RS2))} \\
+		\texttt{ADDU} & \texttt{RF(RD) <= unsigned(RF(RS1)) + unsigned(RF(RS2))} \\
 		\rowcolor{gray!25}
-		\texttt{SUB} & \texttt{RF(RD) <= RF(RS1) - RF(RS2)} \\
-		\texttt{SUBU} & \texttt{RF(RD) <= RF(RS1) - RF(RS2)} \\
+		\texttt{SUB} & \texttt{RF(RD) <= signed(RF(RS1)) - signed(RF(RS2))} \\
+		\texttt{SUBU} & \texttt{RF(RD) <= unsigned(RF(RS1)) - unsigned(RF(RS2))} \\
 		\rowcolor{gray!25}
-		\texttt{MULT} & \texttt{RF(RD) <= low\_half(RF(RS1)) * low\_half(RF(RS2))} \\
+		\texttt{MULT} & \texttt{RF(RD) <= signed(low\_half(RF(RS1))) * signed(low\_half(RF(RS2)))} \\
 		\texttt{AND} & \texttt{RF(RD) <= RF(RS1) AND RF(RS2)} \\
 		\rowcolor{gray!25}
 		\texttt{OR} & \texttt{RF(RD) <= RF(RS1) OR RF(RS2)} \\
@@ -172,7 +173,7 @@ display all the supported instructions.
 	\label{tab:r_type_inst}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{ll}
 		\hline
@@ -181,12 +182,12 @@ display all the supported instructions.
 		\texttt{BEQZ} & \texttt{PC <= (PC + 4 + signed(IMM)) when (RF(RS) = 0) else (PC + 4)} \\
 		\rowcolor{gray!25}
 		\texttt{BNEZ} & \texttt{PC <= (PC + 4 + signed(IMM)) when (RF(RS) != 0) else (PC + 4)} \\
-		\texttt{ADDI} & \texttt{RF(RD) <= RF(RS) + signed(IMM)} \\
+		\texttt{ADDI} & \texttt{RF(RD) <= signed(RF(RS)) + signed(IMM)} \\
 		\rowcolor{gray!25}
-		\texttt{ADDUI} & \texttt{RF(RD) <= RF(RS) + unsigned(IMM)} \\
-		\texttt{SUBI} & \texttt{RF(RD) <= RF(RS) - signed(IMM)} \\
+		\texttt{ADDUI} & \texttt{RF(RD) <= unsigned(RF(RS)) + unsigned(IMM)} \\
+		\texttt{SUBI} & \texttt{RF(RD) <= signed(RF(RS)) - signed(IMM)} \\
 		\rowcolor{gray!25}
-		\texttt{SUBUI} & \texttt{RF(RD) <= RF(RS) - unsigned(IMM)} \\
+		\texttt{SUBUI} & \texttt{RF(RD) <= unsigned(RF(RS)) - unsigned(IMM)} \\
 		\texttt{ANDI} & \texttt{RF(RD) <= RF(RS) AND unsigned(IMM)} \\
 		\rowcolor{gray!25}
 		\texttt{ORI} & \texttt{RF(RD) <= RF(RS) OR unsigned(IMM)} \\
@@ -230,7 +231,7 @@ display all the supported instructions.
 	\label{tab:i_type_inst}
 \end{table}
 
-\begin{table}[ht]
+\begin{table}[H]
 	\centering
 	\begin{tabular}{ll}
 		\hline
@@ -238,10 +239,10 @@ display all the supported instructions.
 		Symbol & Result \\
 		\texttt{J} & \texttt{PC <= PC + 4 + signed(OFF)} \\
 		\rowcolor{gray!25}
-		\texttt{JAL} & \texttt{PC <= PC + 4 + signed(OFF); R31 <= PC + 4} \\
+		\texttt{JAL} & \texttt{PC <= PC + 4 + signed(OFF); RF(R31) <= PC + 4} \\
 		\texttt{JR} & \texttt{PC <= RF(RS)} \\
 		\rowcolor{gray!25}
-		\texttt{JALR} & \texttt{PC <= RF(RS); R31 <= PC + 4} \\
+		\texttt{JALR} & \texttt{PC <= RF(RS); RF(R31) <= PC + 4} \\
 		\hline
 	\end{tabular}
 	\caption{J-type instructions supported by DLXY.}
@@ -251,8 +252,77 @@ display all the supported instructions.
 \section{Architecture}
 The DLXY core is made up of two components: an hardwired \textbf{control unit}
 and a pipelined \textbf{datapath}.
+Figure \ref{fig:pipeline} shows the DLXY architecture, displaying the internals
+of the datapath.
+
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{pipeline}}
+	\caption{The DLXY architecture.}
+	\label{fig:pipeline}
+\end{figure}
 
 \subsection{Datapath}
+The DLXY datapath is a customized DLX pipeline, which still maintains the in-order
+5 stages structure but includes some other features such as data forwarding,
+anticipated branch target computation, disabling out-of-bound memory accesses.
+
+\bigskip
+The pipeline stages are:
+\begin{enumerate}
+	\item \textbf{Fetch stage} (IF):
+		\begin{itemize}
+			\item select program counter according to previous branch
+				taken status
+			\item read instruction memory at address corresponding
+				to program counter and forward the read data to
+				the next stage
+			\item perform conversion of the read data from big to
+				little endian, if the processor is configured in
+				big endian
+			\item compute next sequential program counter
+		\end{itemize}
+	\item \textbf{Decode stage} (ID):
+		\begin{itemize}
+			\item forward data from following stages, if necessary
+			\item extract data from encoded instruction
+			\item extend immediate operands
+			\item read from registerfile
+			\item compute branch target
+			\item compare sources with 0 and with destination of
+				other instructions in the pipeline
+		\end{itemize}
+	\item \textbf{Execute stage} (EX):
+		\begin{itemize}
+			\item forward data from following stages, if necessary
+			\item execute the selected operation
+		\end{itemize}
+	\item \textbf{Memory stage} (MEM):
+		\begin{itemize}
+			\item forward data from following stages, if necessary
+			\item disable memory access if address exceeds data
+				memory size
+			\item align address according to access size
+			\item read/write data memory
+			\item perform conversion of the read/written data from
+				little to big endian, if the processor is
+				configured in big endian
+		\end{itemize}
+	\item \textbf{Writeback stage} (WB):
+		\begin{itemize}
+			\item write instruction result to register file
+		\end{itemize}
+\end{enumerate}
+
+At the \textbf{steady state} (when no hazard happens) all the 5 stages operates
+in parallel on different data, completing one instruction per clock cycle, as
+shown in figure \ref{fig:pipeline_steady}.
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{pipeline_steady}}
+	\caption{The DLXY pipeline at the steady state.}
+	\label{fig:pipeline_steady}
+\end{figure}
 
 \subsection{Control unit}
 The DLXY control unit is the component in charge of translating the code
@@ -271,31 +341,106 @@ The control unit work consists in two main subtasks:
 \subsubsection{Hazard management}
 
 \paragraph{Control hazards} \mbox{} \\
-A control hazard happens whenever a \textbf{branch is taken}: since the control
-unit operates during the decode stage, while the branch is detected, the 
-instruction stored at the address following the current one's is fetched, as if
-there wasn't any branch.
+During normal operation the fetch unit automatically updates the program counter
+with the address of the next sequential instruction: when the instruction in
+execution is a \textbf{taken branch} this automatic mechanism leads to the fetch
+of a wrong instruction: this is a \textbf{control hazard}.
 
-In order to solve this issue, \textbf{forces a \texttt{NOP}} to the instruction
-following a taken branch, since it could possibly bring the processor to an
-incorrect state.
+\bigskip
+In order to solve this issue, the control unit \textbf{forces a \texttt{NOP}} to
+the instruction following a taken branch, since it shouldn't be executed, and
+informs the fetch unit to use as next program counter the target value computed
+in the decode stage. Therefore this solution introduce a penalty of one clock
+cycle for each taken branch.
 
 \bigskip
 If a conditional branch is not taken the execution can proceed without any
 penalty to pay: this technique is called \textbf{static untaken branch prediction}.
 
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{ctrl_hazard}}
+	\caption{The DLXY pipeline when a control hazard occurs.}
+	\label{fig:ctrl_hazard}
+\end{figure}
+
 \paragraph{Data hazards} \mbox{} \\
 In an in-order pipeline the only possible data hazard is the \textbf{Read After
-Write} hazard, which occurs when an instruction $I_A$ source operand matches
-another instruction $I_B$ destination operand and $I_A$ enters the pipeline
-before $I_B$ exits it.
+Write} hazard, which occurs when an instruction $I_B$ source operand matches
+another instruction $I_A$ destination operand and $I_B$ enters the pipeline
+before $I_A$ exits it.
 
 \bigskip
-The DLXY solves these hazards in two ways:
-\begin{itemize}
-	\item \textbf{data forwarding}:
-	\item \textbf{stall insertion}:
-\end{itemize}
+The DLXY solves these hazards forwading data or inserting stalls, depending on
+$I_A$ and $I_B$ instruction types and their relative position in the pipeline.
+
+\bigskip
+The \textbf{producer result types} are:
+\begin{enumerate}
+	\item \textbf{ALU}: it is produced by the ALU, therefore it will be
+		ready after the EX stage
+	\item \textbf{LOAD}: it is loaded from the data memory, therefore it
+		will be ready after the MEM stage
+	\item \textbf{NULL}: it does not affect the registerfile, therefore it
+		cannot cause any data hazard
+\end{enumerate}
+
+\bigskip
+The \textbf{consumer operand types} are:
+\begin{enumerate}
+	\item \textbf{ID}: it is needed in the ID stage
+	\item \textbf{EX}: it is needed in the EX stage
+	\item \textbf{MEM}: it is needed in the MEM stage
+\end{enumerate}
+
+\bigskip
+Table \ref{tab:data_hazard} displays the data hazard management in detail.
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}{cccc}
+		\hline
+		\rowcolor{gray!50}
+		Producer result type & Producer instruction stage &
+			Consumer operand type & Hazard solution \\
+		ALU &	EX &	ID &	Stall \\
+		\rowcolor{gray!25}
+		ALU &	MEM &	ID &	Forward \\
+		ALU &	WB &	ID &	Forward \\
+		\hdashline
+		\rowcolor{gray!25}
+		ALU & 	EX &	EX &	Forward \\
+		ALU & 	MEM &	EX &	Forward \\
+		\rowcolor{gray!25}
+		ALU & 	WB &	EX &	Forward \\
+		\hdashline
+		ALU & 	EX &	MEM &	Forward \\
+		\rowcolor{gray!25}
+		ALU & 	MEM &	MEM &	Forward \\
+		ALU & 	WB &	MEM &	Forward \\
+		\hdashline
+		\rowcolor{gray!25}
+		LOAD & 	EX &	ID &	Stall \\
+		LOAD & 	MEM &	ID &	Stall \\
+		\rowcolor{gray!25}
+		LOAD & 	WB &	ID &	Forward \\
+		\hdashline
+		LOAD & 	EX &	EX &	Stall \\
+		\rowcolor{gray!25}
+		LOAD & 	MEM &	EX &	Forward \\
+		LOAD & 	WB &	EX &	Forward \\
+		\hdashline
+		\rowcolor{gray!25}
+		LOAD & 	EX &	MEM &	Forward \\
+		LOAD & 	MEM &	MEM &	Forward \\
+		\rowcolor{gray!25}
+		LOAD & 	WB &	MEM &	Forward \\
+		\hline
+	\end{tabular}
+	\caption{Data hazard management (producer instruction stage is where
+		$I_A$ is located when $I_B$ is in ID stage)}
+	\label{tab:data_hazard}
+\end{table}
 
 \subsubsection{Design style considerations}
 An \textbf{hardwired} control unit is an ad-hoc combinational circuit:
@@ -307,5 +452,5 @@ at the expense of a \underline{lower mantainability}.
 Since the DLXY is quite a simple core, the hardwired design style had been the
 natural choice.
 
-\section{Circuit}
+\section{Implementation}
 
