@@ -8,7 +8,9 @@ use work.utilities.all;
 --	* extract data from encoded instruction
 --	* extend operands
 --	* read from registerfile
---	* compute next PC
+--	* compute branch target
+--	* compare sources with 0 and with destination of other instructions
+--		in the pipeline
 entity decode_unit is
 	port (
 		-- I_IR: from IF stage; encoded instruction
