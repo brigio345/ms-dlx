@@ -252,20 +252,19 @@ display all the supported instructions.
 \section{Architecture}
 The DLXY core is made up of two components: an hardwired \textbf{control unit}
 and a pipelined \textbf{datapath}.
-Figure \ref{fig:pipeline} shows the DLXY architecture, displaying the internals
-of the datapath.
 
 \begin{figure}[H]
 	\centering
-	\frame{\includegraphics[width=.75\textwidth]{pipeline}}
+	\frame{\includegraphics[width=.35\textwidth]{architecture}}
 	\caption{The DLXY architecture.}
-	\label{fig:pipeline}
+	\label{fig:architecture}
 \end{figure}
 
 \subsection{Datapath}
 The DLXY datapath is a customized DLX pipeline, which still maintains the in-order
 5 stages structure but includes some other features such as data forwarding,
-anticipated branch target computation, disabling out-of-bound memory accesses.
+anticipated branch target computation, disabling out-of-bound memory accesses,
+configurable endianness.
 
 \bigskip
 The pipeline stages are:
@@ -453,4 +452,85 @@ Since the DLXY is quite a simple core, the hardwired design style had been the
 natural choice.
 
 \section{Implementation}
+The DLXY has been implemented in \texttt{VHDL}; most of the code is written in a
+\textbf{behavioral} style: this makes it more future proof for two main reasons:
+\begin{itemize}
+	\item better \textbf{maintainability}: since behavioral code is much
+		more readable, it is easier for the designer to find possible
+		bugs and modifying existing code
+	\item bigger \textbf{design space} for synthesis tools: the behavioral
+		code specifies what the ciruit should do and the tool decides
+		how this should be done and it is free to apply any optimization:
+		advancement in the tools technology can be reflected in better
+		optimization of the code
+\end{itemize}
+
+\subsection{Datapath}
+The DLXY datapath is made up of \textbf{one unit for each pipeline stage}.
+Between each stage and the previous there are some \textbf{pipeline registers},
+which may contain control or data signals and are loaded with new values every
+clock cycle.
+
+There is also a bunch of registers between the decode and the fetch units, which
+can be disabled in case of data hazards.
+
+\bigskip
+Figure \ref{fig:datapath} shows an overview of the datapath internals.
+
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{datapath}}
+	\caption{The DLXY datapath.}
+	\label{fig:datapath}
+\end{figure}
+
+\subsubsection{Fetch unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{fetch_unit}}
+	\caption{The DLXY fetch unit.}
+	\label{fig:fetch_unit}
+\end{figure}
+\subsubsection{Decode unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=\textwidth]{decode_unit}}
+	\caption{The DLXY decode unit.}
+	\label{fig:decode_unit}
+\end{figure}
+\paragraph{Data forwarder} \mbox{} \\
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.3\textwidth]{id_fwd}}
+	\caption{The DLXY decode unit data forwarder.}
+	\label{fig:id_fwd}
+\end{figure}
+\paragraph{Target computer} \mbox{} \\
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.5\textwidth]{target_computer}}
+	\caption{The DLXY decode unit target computer.}
+	\label{fig:target_computer}
+\end{figure}
+\subsubsection{Execute unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{execute_unit}}
+	\caption{The DLXY execute unit.}
+	\label{fig:execute_unit}
+\end{figure}
+\subsubsection{Memory unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=\textwidth]{memory_unit}}
+	\caption{The DLXY memory unit.}
+	\label{fig:memory_unit}
+\end{figure}
+\subsubsection{Write unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{write_unit}}
+	\caption{The DLXY write unit.}
+	\label{fig:write_unit}
+\end{figure}
 
