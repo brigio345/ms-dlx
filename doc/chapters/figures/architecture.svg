@@ -7,46 +7,46 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   sodipodi:docname="architecture.svg"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   id="svg8"
-   version="1.1"
-   viewBox="0 0 152.48604 168.30626"
+   width="152.48604mm"
    height="168.30626mm"
-   width="152.48604mm">
+   viewBox="0 0 152.48604 168.30626"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi:docname="architecture.svg">
   <style
      id="style833"></style>
   <defs
      id="defs2" />
   <sodipodi:namedview
-     inkscape:window-maximized="0"
-     inkscape:window-y="0"
-     inkscape:window-x="0"
-     inkscape:window-height="744"
-     inkscape:window-width="1360"
-     fit-margin-bottom="2"
-     fit-margin-right="2"
-     fit-margin-left="2"
-     fit-margin-top="2"
-     lock-margins="true"
-     showgrid="true"
-     inkscape:document-rotation="0"
-     inkscape:current-layer="layer1"
-     inkscape:document-units="mm"
-     inkscape:cy="313.89011"
-     inkscape:cx="175.59612"
-     inkscape:zoom="0.7"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     borderopacity="1.0"
-     bordercolor="#666666"
+     id="base"
      pagecolor="#ffffff"
-     id="base">
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.7"
+     inkscape:cx="175.59612"
+     inkscape:cy="313.89011"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     lock-margins="true"
+     fit-margin-top="2"
+     fit-margin-left="2"
+     fit-margin-right="2"
+     fit-margin-bottom="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="744"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0">
     <inkscape:grid
-       originy="-3.1593749"
-       originx="-61.367708"
+       type="xygrid"
        id="grid844"
-       type="xygrid" />
+       originx="-61.367708"
+       originy="-3.1593749" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -61,84 +61,85 @@
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(-61.367709,-3.159375)"
-     id="layer1"
+     inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     inkscape:label="Layer 1">
+     id="layer1"
+     transform="translate(-61.367709,-3.159375)">
     <g
-       transform="translate(-5.2916641)"
-       id="g871">
+       style="stroke-width:0.79375;stroke-miterlimit:4;stroke-dasharray:none"
+       id="g871"
+       transform="translate(-5.2916641)">
       <text
-         xml:space="preserve"
-         style="font-size:16.9333px;line-height:0.85;font-family:mono;-inkscape-font-specification:mono;stroke-width:0.264583"
-         x="94.29097"
+         id="text850"
          y="56.339699"
-         id="text850"><tspan
-           sodipodi:role="line"
-           id="tspan848"
-           x="94.29097"
+         x="94.29097"
+         style="font-size:16.9333px;line-height:0.85;font-family:mono;-inkscape-font-specification:mono;stroke-width:0.79375;stroke-miterlimit:4;stroke-dasharray:none"
+         xml:space="preserve"><tspan
+           style="stroke-width:0.79375;stroke-miterlimit:4;stroke-dasharray:none"
            y="56.339699"
-           style="stroke-width:0.264583">DATAPATH</tspan></text>
+           x="94.29097"
+           id="tspan848"
+           sodipodi:role="line">DATAPATH</tspan></text>
       <rect
-         style="opacity:0.999;fill:none;fill-opacity:0.2;stroke:#000000;stroke-width:0.264583;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect858"
-         width="111.125"
-         height="68.791664"
+         y="15.875"
          x="79.375"
-         y="15.875" />
+         height="68.791664"
+         width="111.125"
+         id="rect858"
+         style="opacity:0.999;fill:#ffff00;fill-opacity:0.25;stroke:#ffff00;stroke-width:0.79375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
     <g
-       transform="translate(0,-5.2916669)"
-       id="g866">
+       id="g866"
+       transform="translate(0,-5.2916669)">
       <text
-         xml:space="preserve"
-         style="font-size:16.9333px;line-height:0.85;font-family:mono;-inkscape-font-specification:mono;text-align:center;text-anchor:middle;stroke-width:0.264583"
-         x="129.83186"
+         id="text854"
          y="139.08897"
-         id="text854"><tspan
-           sodipodi:role="line"
-           id="tspan852"
-           x="129.83186"
-           y="139.08897"
-           style="text-align:center;text-anchor:middle;stroke-width:0.264583">CONTROL</tspan><tspan
-           sodipodi:role="line"
-           x="129.83186"
-           y="153.48228"
+         x="129.83186"
+         style="font-size:16.9333px;line-height:0.85;font-family:mono;-inkscape-font-specification:mono;text-align:center;text-anchor:middle;stroke-width:0.264583"
+         xml:space="preserve"><tspan
            style="text-align:center;text-anchor:middle;stroke-width:0.264583"
-           id="tspan856">UNIT</tspan></text>
+           y="139.08897"
+           x="129.83186"
+           id="tspan852"
+           sodipodi:role="line">CONTROL</tspan><tspan
+           id="tspan856"
+           style="text-align:center;text-anchor:middle;stroke-width:0.264583"
+           y="153.48228"
+           x="129.83186"
+           sodipodi:role="line">UNIT</tspan></text>
       <rect
-         style="opacity:0.999;fill:none;fill-opacity:0.2;stroke:#000000;stroke-width:0.264583;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="rect860"
-         width="79.375"
-         height="47.625"
+         y="116.41666"
          x="89.958336"
-         y="116.41666" />
+         height="47.625"
+         width="79.375"
+         id="rect860"
+         style="opacity:0.999;fill:#00ffff;fill-opacity:0.2;stroke:#00ffff;stroke-width:0.79375;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     </g>
-    <path
-       id="path873"
-       d="m 129.64583,84.666666 -5.29166,5.291666 H 127 v 15.874998 h -2.64583 l 5.29166,5.29167 5.29167,-5.29167 h -2.64584 V 89.958332 h 2.64584 z"
-       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 129.64583,84.666666 -5.29166,5.291666 H 127 v 15.874998 h -2.64583 l 5.29166,5.29167 5.29167,-5.29167 h -2.64584 V 89.958332 h 2.64584 z"
+       id="path873" />
+    <path
+       id="path873-1"
        d="m 211.66666,50.270827 -5.29166,-5.29166 v 2.64583 H 190.5 v -2.64583 l -5.29167,5.29166 5.29167,5.29167 v -2.64584 h 15.875 v 2.64584 z"
-       id="path873-1" />
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     <rect
-       y="5.2916665"
-       x="63.5"
-       height="164.04167"
-       width="132.29167"
+       style="opacity:0.999;fill:none;fill-opacity:0.2;stroke:#00ff00;stroke-width:1.32292;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.97308016"
        id="rect890"
-       style="opacity:0.999;fill:none;fill-opacity:0.2;stroke:#000000;stroke-width:0.264583;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       width="132.29167"
+       height="164.04167"
+       x="63.5"
+       y="5.2916665" />
     <text
-       id="text894"
-       y="167.89662"
-       x="63.944412"
+       xml:space="preserve"
        style="font-size:14.1111px;line-height:0.85;font-family:mono;-inkscape-font-specification:mono;stroke-width:0.264583"
-       xml:space="preserve"><tspan
-         style="font-size:14.1111px;stroke-width:0.264583"
-         y="167.89662"
-         x="63.944412"
+       x="63.944412"
+       y="167.89662"
+       id="text894"><tspan
+         sodipodi:role="line"
          id="tspan892"
-         sodipodi:role="line">DLX</tspan></text>
+         x="63.944412"
+         y="167.89662"
+         style="font-size:14.1111px;stroke-width:0.264583">DLX</tspan></text>
   </g>
 </svg>
