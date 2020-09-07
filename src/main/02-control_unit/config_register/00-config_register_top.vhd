@@ -20,7 +20,7 @@ end config_register;
 
 architecture BEHAVIORAL of config_register is
 begin
-	reg: process (I_RST, I_LD)
+	reg: process (I_RST, I_LD, I_ENDIAN, I_I_MEM_SZ, I_D_MEM_SZ)
 	begin
 		if (I_RST = '1') then
 			O_ENDIAN	<= '0';

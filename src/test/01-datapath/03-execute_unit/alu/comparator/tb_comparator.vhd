@@ -23,20 +23,20 @@ architecture TB_ARCH of tb_comparator is
 		);
 	end component comparator;
 
-	component P4_ADDER is
+	component p4_adder is
 		generic (
-			NBIT:		integer := 32;
-			NBIT_PER_BLOCK:	integer := 4
+			N_BIT:			integer := 32;
+			N_BIT_PER_BLOCK:	integer := 4
 		);
 		port (
-			A:	in	std_logic_vector(NBIT-1 downto 0);
-			B:	in	std_logic_vector(NBIT-1 downto 0);
-			Cin:	in	std_logic;
-			S:	out	std_logic_vector(NBIT-1 downto 0);
-			Cout:	out	std_logic;
-			O_OF:	out	std_logic
+			I_A:	in std_logic_vector(N_BIT - 1 downto 0);
+			I_B:	in std_logic_vector(N_BIT - 1 downto 0);
+			I_C:	in std_logic;
+			O_S:	out std_logic_vector(N_BIT - 1 downto 0);
+			O_C:	out std_logic;
+			O_OF:	out std_logic
 		);
-	end component P4_ADDER;
+	end component p4_adder;
 
 	constant N_BIT:			integer := 4;
 	constant N_BIT_PER_BLOCK:	integer := 4;
@@ -71,17 +71,17 @@ begin
 
 	B_NEG	<= NOT B;
 
-	adder: P4_ADDER
+	adder: p4_adder
 		generic map (
-			NBIT		=> N_BIT,
-			NBIT_PER_BLOCK	=> N_BIT_PER_BLOCK
+			N_BIT		=> N_BIT,
+			N_BIT_PER_BLOCK	=> N_BIT_PER_BLOCK
 		)
 		port map (
-			A	=> A,
-			B	=> B_NEG,
-			Cin	=> '1',
-			S	=> DELTA,
-			Cout	=> CO,
+			I_A	=> A,
+			I_B	=> B_NEG,
+			I_C	=> '1',
+			O_S	=> DELTA,
+			O_C	=> CO,
 			O_OF	=> OVERFLOW
 		);
 

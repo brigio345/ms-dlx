@@ -67,7 +67,7 @@ begin
 		end if;
 	end process write;
 
-	read: process (ADDR_INT, I_RD)
+	read: process (ADDR_INT, I_RD, MEM)
 	begin
 		case I_RD is
 			when "11"	=>

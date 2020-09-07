@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use work.specs.all;
-use work.aluops.all;
+use work.coding.all;
 
 entity tb_alu is
 end tb_alu;
@@ -12,16 +11,16 @@ architecture TB_ARCH of tb_alu is
 			N_BIT:	integer := 32
 		);
 		port (
-			I_OP:		in aluop_t;
+			I_OP:		in std_logic_vector(FUNC_SZ - 1 downto 0);
 			I_A:		in std_logic_vector(N_BIT - 1 downto 0);
 			I_B:		in std_logic_vector(N_BIT - 1 downto 0);
 			O_DATA:		out std_logic_vector(N_BIT - 1 downto 0)
 		);
 	end component alu;
 
-	constant N_BIT:	integer := REG_SZ;
+	constant N_BIT:	integer := RF_DATA_SZ;
 
-	signal OP:	aluop_t;
+	signal OP:	std_logic_vector(FUNC_SZ - 1 downto 0);
 	signal A:	std_logic_vector(N_BIT - 1 downto 0);
 	signal B:	std_logic_vector(N_BIT - 1 downto 0);
 	signal ALU_OUT:	std_logic_vector(N_BIT - 1 downto 0);
@@ -42,61 +41,61 @@ begin
 		A <= x"00000014";
 		B <= x"00000005";
 
-		OP <= ALUOP_SLL;
+		OP <= FUNC_SLL;
 		wait for 5 ns;
 
-		OP <= ALUOP_SRL;
+		OP <= FUNC_SRL;
 		wait for 5 ns;
 
-		OP <= ALUOP_SRA;
+		OP <= FUNC_SRA;
 		wait for 5 ns;
 
-		OP <= ALUOP_SLL;
+		OP <= FUNC_SLL;
 		wait for 5 ns;
 
-		OP <= ALUOP_ADD;
+		OP <= FUNC_ADD;
 		wait for 5 ns;
 
-		OP <= ALUOP_SUB;
+		OP <= FUNC_SUB;
 		wait for 5 ns;
 
-		OP <= ALUOP_AND;
+		OP <= FUNC_AND;
 		wait for 5 ns;
 
-		OP <= ALUOP_OR;
+		OP <= FUNC_OR;
 		wait for 5 ns;
 
-		OP <= ALUOP_XOR;
+		OP <= FUNC_XOR;
 		wait for 5 ns;
 
-		OP <= ALUOP_SEQ;
+		OP <= FUNC_SEQ;
 		wait for 5 ns;
 
-		OP <= ALUOP_SNE;
+		OP <= FUNC_SNE;
 		wait for 5 ns;
 
-		OP <= ALUOP_SLT;
+		OP <= FUNC_SLT;
 		wait for 5 ns;
 
-		OP <= ALUOP_SGT;
+		OP <= FUNC_SGT;
 		wait for 5 ns;
 
-		OP <= ALUOP_SLE;
+		OP <= FUNC_SLE;
 		wait for 5 ns;
 
-		OP <= ALUOP_SGE;
+		OP <= FUNC_SGE;
 		wait for 5 ns;
 
-		OP <= ALUOP_SLTU;
+		OP <= FUNC_SLTU;
 		wait for 5 ns;
 
-		OP <= ALUOP_SGTU;
+		OP <= FUNC_SGTU;
 		wait for 5 ns;
 
-		OP <= ALUOP_SLEU;
+		OP <= FUNC_SLEU;
 		wait for 5 ns;
 
-		OP <= ALUOP_SGEU;
+		OP <= FUNC_SGEU;
 
 		wait;
 	end process stimuli;
