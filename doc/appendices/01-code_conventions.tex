@@ -1,0 +1,30 @@
+\chapter{Source code conventions}
+\label{app:code_conventions}
+
+\section{Files organization}
+The DLXY \texttt{VHDL} source code is placed in the \texttt{src} directory.
+Synthesizable code is stored in \texttt{src/main} according to the following rules:
+\begin{itemize}
+	\item all files containing packages or entities used in different places
+		throughout the source code must be placed in \texttt{misc} directory
+	\item if an entity \texttt{<ent\_name>} includes different components
+		(besides those contained in the \texttt{misc} directory):
+		\begin{itemize}
+			\item \texttt{<ent\_name>} file is called \texttt{00-<ent\_name>\_top.vhd}
+				and is placed in \texttt{<ent\_name>} directory
+			\item its components are placed in subdirectories of \texttt{<ent\_name>}
+				directory
+		\end{itemize}
+\end{itemize}
+
+Simulation code is stored in \texttt{src/test}; the testbench of entity
+\texttt{<end\_name>} is called \texttt{tb\_<ent\_name>} and is placed in a
+directory with the same name of that containing \texttt{<ent\_name>}.
+
+\section{Signals naming}
+\begin{itemize}
+	\item \textbf{Input port}: \texttt{I\_<SIG\_NAME>}
+	\item \textbf{Internal signal}: \texttt{<SIG\_NAME>}
+	\item \textbf{Output port}: \texttt{O\_<SIG\_NAME>}
+\end{itemize}
+

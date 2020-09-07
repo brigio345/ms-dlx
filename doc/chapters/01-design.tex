@@ -1,8 +1,9 @@
 \chapter{Design}
-\label{chap1}
+\label{chap:design}
 
-The DLXY is a processor architecture inspired by the DLX architecture described
-in \textit{Fundamentals of Computer Design - Patterson, Hennessy}.
+The DLXY is a processor architecture based on the DLX architecture described
+in \textit{Fundamentals of Computer Design - Patterson, Hennessy}, with few
+modifications.
 
 \bigskip
 DLXY main characteristics include:
@@ -29,22 +30,22 @@ The DLXY core is designed to be inserted in an environment which provides:
 \begin{figure}[H]
 	\centering
 	\frame{\includegraphics[width=.5\textwidth]{top_mounted}}
-	\caption{The DLXY core inserted in the required environment.}
+	\caption{The DLXY core inserted in the appropriate environment.}
 	\label{fig:env_top}
 \end{figure}
 
 \subsubsection{Configuration signals}
 When the \textbf{reset signal} is:
 \begin{itemize}
-	\item not active (low): the processor runs in the "operating mode":
+	\item inactive (low): the processor runs in the \textit{operating mode}:
 		the execution flows according to the content of the instruction
 		memory
-	\item active (high): the processor runs in the "configuration mode":
+	\item active (high): the processor runs in the \textit{configuration mode}:
 		\begin{itemize}
-			\item the internal status is cleared and is set up for
+			\item internal status is cleared and is set up for
 				starting the execution from address 0 of the
 				instruction memory
-			\item the values of the configuration signals are stored
+			\item values of the configuration signals are stored
 				and will be used during the operating mode
 		\end{itemize}
 \end{itemize}
@@ -55,11 +56,11 @@ When the \textbf{reset signal} is:
 		\hline
 		\rowcolor{gray!50}
 		Signal & Meaning \\
-		ENDIAN & '0': big endian; '1': little endian \\
+		\textit{ENDIAN} & \textit{'0'}: big endian; \textit{'1'}: little endian \\
 		\rowcolor{gray!25}
-		I\_MEM\_SZ & Size (in lines) of the physical intruction memory 
-			(max $2^{32}$) \\
-		D\_MEM\_SZ & Size (in lines) of the physical data memory 
+		\textit{I\_MEM\_SZ} & Size (in lines) of the physical intruction
+			memory (max $2^{32}$) \\
+		\textit{D\_MEM\_SZ} & Size (in lines) of the physical data memory 
 			(max $2^{32}$) \\
 		\hline
 	\end{tabular}
@@ -67,10 +68,10 @@ When the \textbf{reset signal} is:
 \end{table}
 
 \subsubsection{Memories}
-Both the instruction and the data memory must support asynchronous reading and
-must provide the read data within one clock cycle.
+Both instruction and data memory must support \textbf{asynchronous reading} and
+the \textbf{delay} of the response must be below \textbf{one clock cycle}.
 
-The data memory must also provide synchronous writing capabilities.
+The \textbf{data memory} must also provide \textbf{synchronous writing} capabilities.
 
 \bigskip
 Table \ref{tab:i_mem_specs} and \ref{tab:d_mem_specs} show the required memory
@@ -111,12 +112,17 @@ specifications in detail.
 \end{table}
 
 \subsection{Instruction set}
-The DLXY instruction set is a subset of the original DLX one: it supports all
-the instructions involving integers (except for \texttt{LHI}, which can be
-easily obtained using the other instructions).
+The DLXY instruction set is a \textbf{subset of the original DLX} one:
+it supports all the \textbf{instructions involving integers} (except for
+\texttt{LHI}, which can be easily obtained using other instructions).
 
 A modified version of \texttt{MULT} instruction between integer half words is
 supported too.
+
+\bigskip
+The programmer has at his disposal \textbf{32 general purpose integer 32-bits registers}.
+Register \texttt{R0} is actually a special register, which \textbf{always returns 0}
+when it is read and writing to it has no effect.
 
 \bigskip
 Figure \ref{fig:encoding} shows the encoding of each instruction type, while
@@ -252,20 +258,19 @@ display all the supported instructions.
 \section{Architecture}
 The DLXY core is made up of two components: an hardwired \textbf{control unit}
 and a pipelined \textbf{datapath}.
-Figure \ref{fig:pipeline} shows the DLXY architecture, displaying the internals
-of the datapath.
 
 \begin{figure}[H]
 	\centering
-	\frame{\includegraphics[width=.75\textwidth]{pipeline}}
+	\frame{\includegraphics[width=.35\textwidth]{architecture}}
 	\caption{The DLXY architecture.}
-	\label{fig:pipeline}
+	\label{fig:architecture}
 \end{figure}
 
 \subsection{Datapath}
-The DLXY datapath is a customized DLX pipeline, which still maintains the in-order
-5 stages structure but includes some other features such as data forwarding,
-anticipated branch target computation, disabling out-of-bound memory accesses.
+The DLXY datapath is a customized DLX pipeline, which still maintains the
+\textbf{in-order 5 stages} structure but includes some other features such as
+data forwarding, anticipated branch target computation, disabling out-of-bound
+memory accesses, configurable endianness.
 
 \bigskip
 The pipeline stages are:
@@ -453,4 +458,216 @@ Since the DLXY is quite a simple core, the hardwired design style had been the
 natural choice.
 
 \section{Implementation}
+The DLXY has been implemented in \texttt{VHDL}; most of the code is written in a
+\textbf{behavioral} style: this makes it more future proof for two main reasons:
+\begin{itemize}
+	\item better \textbf{maintainability}: since behavioral code is much
+		more readable, it is easier for the designer to find possible
+		bugs and modifying existing code
+	\item bigger \textbf{design space} for synthesis tools: the behavioral
+		code specifies what the ciruit should do and the tool decides
+		how this should be done and it is free to apply any optimization:
+		advancement in the tools technology can be reflected in better
+		optimization of the code
+\end{itemize}
+
+\subsection{Datapath}
+The DLXY datapath is made up of \textbf{one unit for each pipeline stage}.
+Between each stage and the previous there are some \textbf{pipeline registers},
+which may contain control or data signals and are loaded with new values every
+clock cycle.
+
+There is also a bunch of registers between the decode and the fetch units, which
+can be disabled in case of data hazards.
+
+\bigskip
+Figure \ref{fig:datapath} shows an overview of the datapath internals.
+
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{datapath}}
+	\caption{The DLXY datapath.}
+	\label{fig:datapath}
+\end{figure}
+
+\bigskip
+The following subsections show a possible implementation for each datapath unit
+(the synthesizer might produce sligthly different circuits, with the same
+functionality, depending on optimizations it applies).
+
+\bigskip
+In the schematics there are some common blocks, such as:
+\begin{itemize}
+	\item \textbf{Multiplexers}:
+		\begin{itemize}
+			\item \underline{Input(s):} 2 or more data signals,
+				1 selection signal
+			\item \underline{Output(s):} selected data signal
+		\end{itemize}
+	\item \textbf{Adders}:
+		\begin{itemize}
+			\item \underline{Input(s):} 2 signed/unsigned data signals
+			\item \underline{Output(s):} sum between the inputs
+		\end{itemize}
+	\item \textbf{Comparators}:
+		\begin{itemize}
+			\item \underline{Input(s):} 2 unsigned data signals
+			\item \underline{Output(s):} result of comparison
+				(equality, unequality, magnitude) between the
+				inputs
+		\end{itemize}
+	\item \textbf{Extenders}:
+		\begin{itemize}
+			\item \underline{Input(s):} 1 data signal
+			\item \underline{Output(s):} data signal extended on
+				a bigger number of bits, adding to the MSBs:
+				'0's, if it is a zero extender or a value equal
+				to the original MSB, if it is a sign extender
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Fetch unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.75\textwidth]{fetch_unit}}
+	\caption{The DLXY fetch unit.}
+	\label{fig:fetch_unit}
+\end{figure}
+\subsubsection{Decode unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=\textwidth]{decode_unit}}
+	\caption{The DLXY decode unit.}
+	\label{fig:decode_unit}
+\end{figure}
+\paragraph{Data forwarder} \mbox{} \\
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.3\textwidth]{id_fwd}}
+	\caption{The DLXY decode unit data forwarder.}
+	\label{fig:id_fwd}
+\end{figure}
+\paragraph{Target computer} \mbox{} \\
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.5\textwidth]{target_computer}}
+	\caption{The DLXY decode unit target computer.}
+	\label{fig:target_computer}
+\end{figure}
+\paragraph{Register file} \mbox{} \\
+The DLXY register file provides 2 asynchronous read ports and 1 synchronous
+write port.
+
+\bigskip
+Since it is inserted in one of the most critical stages of the pipeline, it must
+be simple and fast: no additional feature has been included.
+
+In particular, a "windowed" register file has been discarded not only for the
+additional hardware complexity requirement, but also because it reduces the
+visible register space seen by the compiler: letting the compiler use the whole
+register file might end up in better optimizations.
+\subsubsection{Execute unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.7\textwidth]{execute_unit}}
+	\caption{The DLXY execute unit.}
+	\label{fig:execute_unit}
+\end{figure}
+
+\paragraph{ALU} \mbox{} \\
+The DLXY ALU supports all the operations required by the instruction set.
+Some components have been described making use of standard libraries, while
+other have been explicitly described.
+
+Among the explicitly described components there are:
+\begin{itemize}
+	\item \textbf{Adder}: \\
+		it is a performance-oriented adder based on the \texttt{Pentium 4}
+		adder: it is composed of a sparse tree \textbf{carry lookahead}
+		generator and a carry select \textbf{sum generator}.
+		Both operands and result are on 32 bits.
+
+		Differently from the original structure, the DLXY adder accepts
+		a \textbf{carry in}, in order to support the subtraction
+		(since \texttt{-A = NOT (A) + 1}, if the second operand is
+		bitwise negated and the carry in is set to '1', the adder
+		performs a subtraction).
+
+		Another difference from the \texttt{P4} adder is that DLXY one
+		outputs an \textbf{overflow} signal, which is set to '1' whenever
+		a signed overflow is detected.
+	\item \textbf{Comparator}: \\
+		in order to limit the occupied area, it reuses the adder,
+		configured as subtractor: according to the subtraction result,
+		the carry out and the overflow flag, it performs any magnitude
+		comparison, both signed and unsigned.
+	\item \textbf{Multiplier}: \\
+		it is an implementation of the Booth algorithm.
+		Its operands are on 16 bits and its result is on 32 bits: thanks
+		to this sizing, no overflow is possible.
+\end{itemize}
+
+\subsubsection{Memory unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=\textwidth]{memory_unit}}
+	\caption{The DLXY memory unit.}
+	\label{fig:memory_unit}
+\end{figure}
+
+\paragraph{Align address block} \mbox{} \\
+\begin{itemize}
+	\item \underline{Inputs}:
+		\begin{itemize}
+			\item \texttt{ADDRESS}: 32 bits signal
+			\item \texttt{LD}: 2 bits signal:
+
+				\texttt{"00"} = no load; \texttt{"01"} = load byte;
+				\texttt{"10"} = load half word; \texttt{"11"} = load word
+			\item \texttt{STR}: 2 bits signal
+
+				\texttt{"00"} = no store; \texttt{"01"} = store byte;
+				\texttt{"10"} = store half word; \texttt{"11"} = store word
+		\end{itemize}
+	\item \underline{Outputs}:
+		\begin{itemize}
+			\item \texttt{ADDRESS}:
+				\begin{itemize}
+					\item when load or store a word: word aligned (2 LSBs to \texttt{0})
+					\item when load or store an half word: half word aligned (LSB to \texttt{0})
+					\item otherwise: untouched
+				\end{itemize}
+		\end{itemize}
+\end{itemize}
+
+\subsubsection{Write unit}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.5\textwidth]{write_unit}}
+	\caption{The DLXY write unit.}
+	\label{fig:write_unit}
+\end{figure}
+
+\subsubsection{Forwarding subsystem}
+The forwarding subsystem is distributed in ID, EX and MEM stages.
+
+If it is not possible to forward a certain data to a certain stage, the control
+unit would insert a stall, until it is possible to ensure that all data is
+up-to-date when it is used.
+
+Figures \ref{fig:fwd_a} and \ref{fig:fwd_b} show the forwarding subsystem alone,
+extracted from the datapath (the forwarding of A operand ends in EX stage since
+there is no instruction requiring its value in MEM stage).
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.5\textwidth]{fwd_a}}
+	\caption{The DLXY forwarding subsystem for A operand.}
+	\label{fig:fwd_a}
+\end{figure}
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.8\textwidth]{fwd_b}}
+	\caption{The DLXY forwarding subsystem for B operand.}
+	\label{fig:fwd_b}
+\end{figure}
 
