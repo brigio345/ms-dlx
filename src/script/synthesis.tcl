@@ -30,6 +30,7 @@ proc analyze_dir {dir {src_format "vhdl"}} {
 #		- synthesized top_entity (written to $top_entity-YYMMDDHHmm-postsyn.v)
 #		- timing report (written to $top_entity-YYMMDDHHmm-timing.rpt)
 #		- power report (written to $top_entity-YYMMDDHHmm-power.rpt)
+#		- area report (written to $top_entity-YYMMDDHHmm-area.rpt)
 #		- threshold voltage group report (written to $top_entity-YYMMDDHHmm-threshold.rpt)
 #		- clock gating report (written to $top_entity-YYMMDDHHmm-gating.rpt)
 #	* Return:
@@ -56,6 +57,7 @@ proc synthesize {{top_entity "dlx"} {time_constraint 1.0005}
 	write -format verilog -hierarchy -output "$name-postsyn.v"
 	report_timing > "$name-timing.rpt"
 	report_power > "$name-power.rpt"
+	report_area > "$name-area.rpt"
 	report_threshold_voltage_group > "$name-threshold-rpt"
 	report_clock_gating > "$name-gating.rpt"
 }
