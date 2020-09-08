@@ -1,0 +1,67 @@
+Information: Changed wire load model for 'dlx' from 'area_36Kto42K' to 'area_30Kto36K'. (OPT-170)
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : dlx
+Version: O-2018.06-SP4
+Date   : Tue Sep  8 13:20:49 2020
+****************************************
+
+Operating Conditions: nom_1.20V_25C   Library: CORE65LPLVT
+Wire Load Model Mode: enclosed
+
+  Startpoint: datapath_0/mem_wb_registers_0/O_DST_reg[1]
+              (rising edge-triggered flip-flop clocked by I_CLK)
+  Endpoint: clk_gate_datapath_0/register_file_0/REGISTERS_reg[5]/latch
+            (positive level-sensitive latch clocked by I_CLK)
+  Path Group: I_CLK
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  dlx                area_30Kto36K         CORE65LPLVT
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock I_CLK (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  datapath_0/mem_wb_registers_0/O_DST_reg[1]/CP (HS65_LL_DFPQX9)
+                                                          0.00       0.00 r
+  datapath_0/mem_wb_registers_0/O_DST_reg[1]/Q (HS65_LL_DFPQX9)
+                                                          0.11       0.11 f
+  U5450/Z (HS65_LL_IVX18)                                 0.03       0.14 r
+  U10423/Z (HS65_LL_NAND3X5)                              0.05       0.19 f
+  U5407/Z (HS65_LH_OAI12X3)                               0.08       0.27 r
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[5]/EN (SNPS_CLOCK_GATE_LOW_dlx_6)
+                                                          0.00       0.27 r
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[5]/latch/D (HS65_LH_LDHQNX4)
+                                                          0.00       0.27 r
+  data arrival time                                                  0.27
+
+  clock I_CLK (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[5]/latch/G (HS65_LH_LDHQNX4)
+                                                          0.00       0.00 r
+  time borrowed from endpoint                             0.27       0.27
+  data required time                                                 0.27
+  --------------------------------------------------------------------------
+  data required time                                                 0.27
+  data arrival time                                                 -0.27
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.00
+
+  Time Borrowing Information
+  --------------------------------------------------------------
+  I_CLK nominal pulse width                               0.50   
+  library setup time                                     -0.05   
+  --------------------------------------------------------------
+  max time borrow                                         0.46   
+  actual time borrow                                      0.27   
+  --------------------------------------------------------------
+
+
+1

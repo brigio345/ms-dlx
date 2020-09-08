@@ -1,0 +1,118 @@
+ 
+****************************************
+Report : power
+        -analysis_effort low
+Design : dlx
+Version: O-2018.06-SP4
+Date   : Tue Sep  8 13:20:49 2020
+****************************************
+
+
+Library(s) Used:
+
+    CORE65LPHVT (File: /space/s274148/dc/WORK_SYNTHESIS/tech/STcmos65/CORE65LPHVT_nom_1.20V_25C.db)
+    CORE65LPLVT (File: /space/s274148/dc/WORK_SYNTHESIS/tech/STcmos65/CORE65LPLVT_nom_1.20V_25C.db)
+
+
+Operating Conditions: nom_1.20V_25C   Library: CORE65LPLVT
+Wire Load Model Mode: enclosed
+
+Design        Wire Load Model            Library
+------------------------------------------------
+dlx                    area_30Kto36K     CORE65LPLVT
+SNPS_CLOCK_GATE_HIGH_dlx
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_0
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_2
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_3
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_4
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_5
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_6
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_7
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_8
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_9
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_10
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_11
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_12
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_13
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_14
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_15
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_16
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_17
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_18
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_19
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_20
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_21
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_22
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_23
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_24
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_25
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_26
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_27
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_28
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_29
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_30
+                       area_0Kto1K       CORE65LPLVT
+SNPS_CLOCK_GATE_LOW_dlx_31
+                       area_0Kto1K       CORE65LPLVT
+
+
+Global Operating Voltage = 1.2  
+Power-specific unit information :
+    Voltage Units = 1V
+    Capacitance Units = 1.000000pf
+    Time Units = 1ns
+    Dynamic Power Units = 1mW    (derived from V,C,T units)
+    Leakage Power Units = 1mW
+
+
+  Cell Internal Power  =  10.7481 mW   (75%)
+  Net Switching Power  =   3.6411 mW   (25%)
+                         ---------
+Total Dynamic Power    =  14.3892 mW  (100%)
+
+Cell Leakage Power     =  24.9000 uW
+
+
+                 Internal         Switching           Leakage            Total
+Power Group      Power            Power               Power              Power   (   %    )  Attrs
+--------------------------------------------------------------------------------------------------
+io_pad             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+memory             0.0000            0.0000            0.0000            0.0000  (   0.00%)
+black_box          0.0000            0.0000            0.0000            0.0000  (   0.00%)
+clock_network      0.3779            1.8608        1.5378e-06            2.2387  (  15.53%)
+register           9.2545            0.1490        5.8112e-03            9.4094  (  65.28%)
+sequential     3.2261e-02        1.3250e-02        1.3496e-06        4.5512e-02  (   0.32%)
+combinational      1.0834            1.6180        1.9086e-02            2.7205  (  18.87%)
+--------------------------------------------------------------------------------------------------
+Total             10.7481 mW         3.6411 mW     2.4900e-02 mW        14.4141 mW
+1
