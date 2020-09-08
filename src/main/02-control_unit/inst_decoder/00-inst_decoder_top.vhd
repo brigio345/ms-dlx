@@ -39,7 +39,7 @@ architecture BEHAVIORAL of inst_decoder is
 begin
 	process (I_FUNC, I_OPCODE, I_ZERO)
 	begin
-		case (I_OPCODE) is
+		case I_OPCODE is
 			when OPCODE_RTYPE | OPCODE_FRTYPE	=>
 				O_TAKEN		<= '0';
 				O_SEL_JMP	<= JMP_REL_IMM;	-- not meaningful
