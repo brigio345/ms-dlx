@@ -330,33 +330,31 @@ shown in figure \ref{fig:pipeline_steady}.
 \end{figure}
 
 \subsection{Control unit}
-The DLXY control unit is the component in charge of translating the code
-of the instruction in the \textbf{decode stage} into control signals
-needed by the datapath to correctly execute the instruction.
-
-\bigskip
-The control unit work consists in two main subtasks:
+The DLXY control unit operates in the \textbf{decode stage} of each instruction
+and is in charge of the generation of control signals which depend on:
 \begin{itemize}
-	\item \textbf{instruction decoding}: translate instruction code into
-		control signals, regardless of the processor status
-	\item \textbf{hazard management}: ensure the correct instruction result,
-		depending on the other instructions being executed in the pipeline
+	\item \underline{instruction code} $\Rightarrow$ \textbf{instruction decoding}
+	\item \underline{other instructions} in the pipeline $\Rightarrow$
+		\textbf{hazard management}
 \end{itemize}
 
 \subsubsection{Hazard management}
 
 \paragraph{Control hazards} \mbox{} \\
-During normal operation the fetch unit automatically updates the program counter
-with the address of the next sequential instruction: when the instruction in
-execution is a \textbf{taken branch} this automatic mechanism leads to the fetch
-of a wrong instruction: this is a \textbf{control hazard}.
+At the steady state the fetch unit automatically updates the program counter
+with the address of the next sequential instruction.
+When the instruction in execution is a \textbf{taken branch} this automatic
+mechanism leads to the fetch of a wrong instruction: this is a
+\textbf{control hazard}.
 
 \bigskip
-In order to solve this issue, the control unit \textbf{forces a \texttt{NOP}} to
-the instruction following a taken branch, since it shouldn't be executed, and
-informs the fetch unit to use as next program counter the target value computed
-in the decode stage. Therefore this solution introduce a penalty of one clock
-cycle for each taken branch.
+In order to solve control hazards, the control unit \textbf{transforms
+the instruction following a taken branch into a \texttt{NOP}} (disabling any
+possible write, both to the register file and to the data memory, and disabling
+any possible taken branch), since that instruction shouldn't have been fetched,
+and informs the fetch unit to \textbf{use the target value} computed in the
+decode stage as next program counter. This solution introduces therefore a
+\textbf{penalty of one clock cycle} for each taken branch.
 
 \bigskip
 If a conditional branch is not taken the execution can proceed without any
@@ -378,6 +376,14 @@ before $I_A$ exits it.
 \bigskip
 The DLXY solves these hazards forwading data or inserting stalls, depending on
 $I_A$ and $I_B$ instruction types and their relative position in the pipeline.
+
+\bigskip
+A \textbf{stall} consists in disabling:
+\begin{itemize}
+	\item writes to both register file and data memory
+	\item branches
+	\item load to registers between decode and fetch units
+\end{itemize}
 
 \bigskip
 The \textbf{producer result types} are:
@@ -468,13 +474,13 @@ The DLXY has been implemented in \texttt{VHDL}; most of the code is written in a
 		code specifies what the ciruit should do and the tool decides
 		how this should be done and it is free to apply any optimization:
 		advancement in the tools technology can be reflected in better
-		optimization of the code
+		optimized circuit
 \end{itemize}
 
 \subsection{Datapath}
 The DLXY datapath is made up of \textbf{one unit for each pipeline stage}.
 Between each stage and the previous there are some \textbf{pipeline registers},
-which may contain control or data signals and are loaded with new values every
+which contain both control and data signals and are loaded with new values every
 clock cycle.
 
 There is also a bunch of registers between the decode and the fetch units, which
@@ -540,7 +546,7 @@ In the schematics there are some common blocks, such as:
 	\caption{The DLXY decode unit.}
 	\label{fig:decode_unit}
 \end{figure}
-\paragraph{Data forwarder} \mbox{} \\
+\paragraph{Data forwarder (ID)} \mbox{} \\
 \begin{figure}[H]
 	\centering
 	\frame{\includegraphics[width=.3\textwidth]{id_fwd}}
@@ -562,8 +568,8 @@ write port.
 Since it is inserted in one of the most critical stages of the pipeline, it must
 be simple and fast: no additional feature has been included.
 
-In particular, a "windowed" register file has been discarded not only for the
-additional hardware complexity requirement, but also because it reduces the
+In particular, a \textit{windowed register file} has been discarded not only for
+the additional hardware complexity requirement, but also because it reduces the
 visible register space seen by the compiler: letting the compiler use the whole
 register file might end up in better optimizations.
 \subsubsection{Execute unit}

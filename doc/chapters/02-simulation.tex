@@ -2,7 +2,7 @@
 \label{chap:simulation}
 
 \section{Approach}
-The DLXY code is written and tested according to a \textbf{bottom-up} approach:
+The DLXY code has been tested according to a \textbf{bottom-up} approach:
 \begin{enumerate}
 	\item test \textbf{low level entities} (i.e. not containing other
 		entities as components)
@@ -25,11 +25,35 @@ a compatible \texttt{asm} file.
 Script \texttt{src/script/simulation.tcl} contains a set of \texttt{TCL}
 procedures useful for simulation automation, compatible with
 \textit{ModelSim SE-64 6.5c}.
-\subsection{\texttt{compile\_all}}
-The \texttt{compile\_all} procedure recursively compiles all the entities
-contained in the directory specified as parameter, using the \texttt{vcom} command.
+\subsection{\texttt{compile\_dir}}
+\begin{itemize}
+	\item \underline{Argument(s):}
+		\begin{itemize}
+			\item \texttt{dir}: name of the directory containing
+				source code to be compiled
+			\item \texttt{file\_extension}: extension of source files
+				to be compiled (default is \textit{vhd})
+		\end{itemize}
+	\item \underline{Result:} \\
+		recursively compiles all the entities contained in \texttt{dir},
+		using the \texttt{vcom} command. \\
+		Compilation starts from \textbf{deepest directory upwards} (in
+		\textbf{reverse alphanumerical order}): this, toghether with the
+		files organization described in appendix
+		\ref{app:code_conventions} avoids any dependency compilation errors.
+\end{itemize}
 
-The compilation starts from deepest directory upwards: this, toghether with the
-files organization described in appendix \ref{app:code_conventions} avoids any
-dependency compilation errors.
+\subsection{\texttt{simulate\_dlx}}
+\begin{itemize}
+	\item \underline{Argument(s):}
+		\begin{itemize}
+			\item \texttt{asm\_file}: assembly source code to be
+				loaded to instruction memory
+			\item \texttt{run\_time}: duration (in ns) of the
+				simulation
+		\end{itemize}
+	\item \underline{Result:} \\
+		make the DLXY run \texttt{asm\_file} code for \texttt{run\_time}
+		nanoseconds (or 100 ns if \texttt{run\_time} is not specified)
+\end{itemize}
 
