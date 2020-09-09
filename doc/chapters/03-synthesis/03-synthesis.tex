@@ -1,0 +1,144 @@
+\chapter{Synthesis}
+\label{chap:synthesis}
+
+\section{Scripts}
+Script \texttt{src/script/synthesis.tcl} contains a set of \texttt{TCL}
+procedures useful for synthesis automation, compatible with
+\textit{DC Ultra - Version O-2018.06-SP4}.
+
+\paragraph{\texttt{analyze\_dir}}
+\begin{itemize}
+	\item \underline{Argument(s):}
+		\begin{itemize}
+			\item \texttt{dir}: name of the directory containing
+				source code to be compiled
+			\item \texttt{src\_format}: format of source files
+				to be analyzed (default is \textit{vhdl})
+		\end{itemize}
+	\item \underline{Result:} \\
+		recursively analyzes all the entities contained in \texttt{dir},
+		using the \texttt{analyze} command. \\
+		Analysis starts from \textbf{deepest directory upwards} (in
+		\textbf{reverse alphanumerical order}): this, toghether with the
+		files organization described in appendix
+		\ref{app:code_conventions} avoids any dependency analysis errors.
+\end{itemize}
+
+\paragraph{\texttt{synthesize}}
+\begin{itemize}
+	\item \underline{Argument(s):}
+		\begin{itemize}
+			\item \texttt{top\_entity}: name of top level entity to
+				be synthesized (default is \texttt{dlx})
+			\item \texttt{time\_contraint}: maximum delay between
+				inputs and output and clock period in ns
+				(default is \texttt{1.0005})
+			\item \texttt{lvt\_lib}: low threshold voltage library
+				(default is \texttt{CORE65LPLVT})
+			\item \texttt{hvt\_lib}: high threshold voltage library
+				(default is \texttt{CORE65LPHVT})
+		\end{itemize}
+	\item \underline{Result:} \\
+		Run synthesis using \texttt{compile\_ultra} command, with
+		\textbf{clock gating} enabled.
+		\begin{itemize}
+			\item \texttt{top\_entity-YYMMDDhhmm-postsyn.v}: verilog
+				file containing the post-sythesis netlist
+			\item \texttt{top\_entity-yyMMDDhhmm.sdc}
+			\item \texttt{top\_entity-YYMMDDhhmm-timing.rpt}: timing
+				report
+			\item \texttt{top\_entity-YYMMDDhhmm-power.rpt}: power
+				report
+			\item \texttt{top\_entity-YYMMDDhhmm-area.rpt}: area
+				report
+			\item \texttt{top\_entity-YYMMDDhhmm-threshold.rpt}:
+				thresold voltage group report
+			\item \texttt{top\_entity-YYMMDDhhmm-gating.rpt}: clock
+				gating report
+		\end{itemize}
+\end{itemize}
+
+\paragraph{\texttt{synthesize\_dual\_vth}}
+\begin{itemize}
+	\item \underline{Argument(s):}
+		\begin{itemize}
+			\item \texttt{top\_entity}: name of top level entity to
+				be synthesized (default is \texttt{dlx})
+			\item \texttt{time\_contraint}: maximum delay between
+				inputs and output and clock period in ns
+				(default is \texttt{1.0005})
+			\item \texttt{wire\_model}: (default is \texttt{5K\_hvratio\_1\_4})
+		\end{itemize}
+	\item \underline{Result:} \\
+		Run synthesis using \texttt{compile\_ultra} command, with
+		\textbf{dual V$_{\text{th}}$} and \textbf{clock gating} enabled.
+		\begin{itemize}
+			\item \texttt{top\_entity-YYMMDDhhmm-postsyn.v}: verilog
+				file containing the post-sythesis netlist
+			\item \texttt{top\_entity-yyMMDDhhmm.sdc}
+			\item \texttt{top\_entity-YYMMDDhhmm-timing.rpt}: timing
+				report
+			\item \texttt{top\_entity-YYMMDDhhmm-power.rpt}: power
+				report
+			\item \texttt{top\_entity-YYMMDDhhmm-area.rpt}: area
+				report
+			\item \texttt{top\_entity-YYMMDDhhmm-gating.rpt}: clock
+				gating report
+		\end{itemize}
+\end{itemize}
+
+\section{Reports}
+\subsection{Standard synthesis}
+\label{subsec:std_syn}
+The following reports have been obtained running
+\begin{enumerate}
+	\item \texttt{analyze\_dir src/main}
+	\item \texttt{synthesize dlx 1.5}
+\end{enumerate}
+
+\bigskip
+This way the DLXY synthesis has been performed with the following setup:.
+\begin{itemize}
+	\item \underline{Library}: \textit{NandgateOpenCellLibrary}
+	\item \underline{Clock period and maximum delay:} \texttt{1.5 ns}
+	\item \underline{Clock gating}
+\end{itemize}
+
+\paragraph{Timing report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/timing.rpt}
+\paragraph{Power report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/power.rpt}
+\paragraph{Area report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/area.rpt}
+\paragraph{Clock gating report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/gating.rpt}
+\paragraph{Threshold voltage group report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/threshold.rpt}
+
+\subsection{Dual V-th synthesis}
+The following reports have been obtained running
+\begin{enumerate}
+	\item \texttt{analyze\_dir src/main}
+	\item \texttt{synthesize\_dual\_vth}
+\end{enumerate}
+
+\bigskip
+This way the DLXY synthesis has been performed with the following setup:.
+\begin{itemize}
+	\item \underline{Library}: \textit{STcmos65}
+	\item \underline{Clock period and maximum delay:} \texttt{1.0005 ns}
+	\item \underline{Dual V-th}
+	\item \underline{Clock gating}
+\end{itemize}
+
+\paragraph{Timing report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/timing.rpt}
+\paragraph{Power report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/power.rpt}
+\paragraph{Area report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/area.rpt}
+\paragraph{Clock gating report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/gating.rpt}
+\paragraph{Threshold voltage group report} \mbox{} \\
+\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/threshold.rpt}
+

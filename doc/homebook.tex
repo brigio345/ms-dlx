@@ -48,8 +48,6 @@
 
 \lstdefinestyle{vhdl}{language = VHDL, basicstyle = \ttfamily, keywordstyle = \color{keyword}\bfseries, commentstyle = \color{comment}}
 
-\graphicspath{{./chapters/figures/}}
-
 \setcounter{secnumdepth}{3}
 
 \titleformat{\chapter}[display]
@@ -102,14 +100,14 @@
 \mainmatter
 
 % Include chapters
-\input{./chapters/01-design}
-\input{./chapters/02-simulation}
-\input{./chapters/03-synthesis}
-\input{./chapters/04-physical_design}
+\input{./chapters/01-design/01-design.tex}
+\input{./chapters/02-simulation/02-simulation.tex}
+\input{./chapters/03-synthesis/03-synthesis.tex}
+\input{./chapters/04-physical_design/04-physical_design.tex}
 
 % Include appendices
 \appendix
-\input{./appendices/01-code_conventions}
+\input{./appendices/01-code_conventions/01-code_conventions.tex}
 
 \end{document}
 
