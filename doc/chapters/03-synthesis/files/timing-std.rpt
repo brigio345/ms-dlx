@@ -1,0 +1,68 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : dlx
+Version: F-2011.09-SP3
+Date   : Wed Sep  9 19:01:27 2020
+****************************************
+
+Operating Conditions: typical   Library: NangateOpenCellLibrary
+Wire Load Model Mode: top
+
+  Startpoint: datapath_0/mem_wb_registers_0/O_DST_reg[0]
+              (rising edge-triggered flip-flop clocked by I_CLK)
+  Endpoint: clk_gate_datapath_0/register_file_0/REGISTERS_reg[21]/latch
+            (positive level-sensitive latch clocked by I_CLK)
+  Path Group: I_CLK
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  dlx                5K_hvratio_1_4        NangateOpenCellLibrary
+
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock I_CLK (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  datapath_0/mem_wb_registers_0/O_DST_reg[0]/CK (DFF_X1)
+                                                          0.00       0.00 r
+  datapath_0/mem_wb_registers_0/O_DST_reg[0]/Q (DFF_X1)
+                                                          0.12       0.12 r
+  U6752/ZN (NAND2_X1)                                     0.04       0.16 f
+  U6318/ZN (OR2_X1)                                       0.07       0.23 f
+  U6750/ZN (OAI21_X1)                                     0.05       0.28 r
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[21]/EN (SNPS_CLOCK_GATE_LOW_dlx_22)
+                                                          0.00       0.28 r
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[21]/test_or/ZN (OR2_X1)
+                                                          0.04       0.32 r
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[21]/latch/D (DLH_X1)
+                                                          0.01       0.33 r
+  data arrival time                                                  0.33
+
+  clock I_CLK (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.00       0.00
+  clk_gate_datapath_0/register_file_0/REGISTERS_reg[21]/latch/G (DLH_X1)
+                                                          0.00       0.00 r
+  time borrowed from endpoint                             0.33       0.33
+  data required time                                                 0.33
+  --------------------------------------------------------------------------
+  data required time                                                 0.33
+  data arrival time                                                 -0.33
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.00
+
+  Time Borrowing Information
+  --------------------------------------------------------------
+  I_CLK pulse width                                       0.75   
+  library setup time                                     -0.02   
+  --------------------------------------------------------------
+  max time borrow                                         0.73   
+  actual time borrow                                      0.33   
+  --------------------------------------------------------------
+
+
+1
