@@ -61,7 +61,7 @@ proc synthesize_dual_vth {{top_entity "dlx"} {time_constraint 2}
 	report_timing > "$name-timing.rpt"
 	report_power > "$name-power.rpt"
 	report_area > "$name-area.rpt"
-	report_threshold_voltage_group > "$name-threshold-rpt"
+	report_threshold_voltage_group > "$name-threshold.rpt"
 	report_clock_gating > "$name-gating.rpt"
 }
 
