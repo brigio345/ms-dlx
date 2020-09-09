@@ -1,3 +1,5 @@
+\graphicspath{{./chapters/04-physical_design/figures/}}
+
 \chapter{Physical design}
 \label{chap:physical_design}
 The physical design has been performed using \textit{Innovus 17.11} starting
@@ -8,7 +10,18 @@ synthesis} described in \ref{subsec:std_syn}.
 Following paragraphs summarize results obtained by the physical design process.
 
 \paragraph{Screen capture} \mbox{} \\
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.5\textwidth]{screen_capture}}
+	\label{fig:scr_cap}
+\end{figure}
 
 \paragraph{Timing reports} \mbox{} \\
-\lstinputlisting[basicstyle=\tiny, frame=single]{chapters/files/threshold.rpt}
+\lstset{
+	basicstyle=\tiny,
+	frame=single,
+	breaklines=true
+}
+\lstinputlisting{chapters/04-physical_design/files/dlx_postRoute.summary}
+\lstinputlisting{chapters/04-physical_design/files/dlx_postRoute_hold.summary}
 
