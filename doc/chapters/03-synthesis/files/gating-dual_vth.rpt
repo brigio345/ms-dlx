@@ -3,7 +3,7 @@
 Report : clock_gating
 Design : dlx
 Version: O-2018.06-SP4
-Date   : Tue Sep  8 13:20:51 2020
+Date   : Wed Sep  9 19:03:36 2020
 ****************************************
 
 
@@ -12,11 +12,11 @@ Date   : Tue Sep  8 13:20:51 2020
           ------------------------------------------------------------
           |    Number of Clock gating elements    |       32         |
           |                                       |                  |
-          |    Number of Gated registers          |  1130 (76.35%)   |
+          |    Number of Gated registers          |  1136 (75.38%)   |
           |                                       |                  |
-          |    Number of Ungated registers        |   350 (23.65%)   |
+          |    Number of Ungated registers        |   371 (24.62%)   |
           |                                       |                  |
-          |    Total number of registers          |     1480         |
+          |    Total number of registers          |     1507         |
           ------------------------------------------------------------
 
 
