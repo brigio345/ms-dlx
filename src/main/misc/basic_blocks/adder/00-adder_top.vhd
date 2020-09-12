@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
--- P4 adder: adder made up of a sum generator connected to a carry generator
+-- p4_adder: adder made up of a sum generator connected to a carry generator
 entity p4_adder is
 	generic (
 		N_BIT:			integer := 32;

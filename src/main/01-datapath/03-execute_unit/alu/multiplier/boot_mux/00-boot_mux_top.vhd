@@ -20,10 +20,10 @@ begin
 	A_NEG <= std_logic_vector(-signed(I_A));
 
 	with I_B select O_Y <=
-		I_A					when "001" | "010",
-		I_A(2 * N_BIT - 2 downto 0) & '0'	when "011",
-		A_NEG(2 * N_BIT - 2 downto 0) & '0'	when "100",
-		A_NEG					when "101" | "110",
-		(others => '0')				when others;
+		I_A					when "001" | "010",	-- A
+		I_A(2 * N_BIT - 2 downto 0) & '0'	when "011",		-- 2A
+		A_NEG(2 * N_BIT - 2 downto 0) & '0'	when "100",		-- -2A
+		A_NEG					when "101" | "110",	-- -A
+		(others => '0')				when others;		-- 0
 end BEHAVIORAL;
 

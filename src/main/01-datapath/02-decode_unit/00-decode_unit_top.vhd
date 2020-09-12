@@ -5,8 +5,9 @@ use work.types.all;
 use work.utilities.all;
 
 -- decode_unit:
+--	* forward data from following stages
 --	* extract data from encoded instruction
---	* extend operands
+--	* extend immediate operands
 --	* read from registerfile
 --	* compute branch target
 --	* compare sources with 0 and with destination of other instructions
@@ -112,9 +113,7 @@ architecture MIXED of decode_unit is
 
 	signal SRC_A:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal SRC_B:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
-	signal DST:	std_logic_vector(RF_ADDR_SZ - 1 downto 0);
 	signal A:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
-	signal B:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal IMM:	std_logic_vector(IMM_SZ - 1 downto 0);
 	signal IMM_EXT:	std_logic_vector(RF_DATA_SZ - 1 downto 0);
 	signal OFF:	std_logic_vector(OFF_SZ - 1 downto 0);
@@ -157,12 +156,6 @@ begin
 	O_RD1_ADDR	<= SRC_A;
 	O_RD2_ADDR	<= SRC_B;
 
-	with I_SEL_DST select DST <=
-		(others => '0')		when DST_NO,
-		(others => '1')		when DST_LINK,
-		I_IR(I_DST_RANGE)	when DST_IMM,
-		I_IR(R_DST_RANGE)	when others;
-
 	-- outputs to CU
 	O_ZERO_SRC_A		<= '1' when (SRC_A = (SRC_A'range => '0')) else '0';
 	O_ZERO_SRC_B		<= '1' when (SRC_B = (SRC_B'range => '0')) else '0';
@@ -183,6 +176,10 @@ begin
 	O_FUNC	<= I_IR(FUNC_RANGE);
 
 	-- outputs to WB stage
-	O_DST	<= DST;
+	with I_SEL_DST select O_DST <=
+		(others => '0')		when DST_NO,
+		(others => '1')		when DST_LINK,
+		I_IR(I_DST_RANGE)	when DST_IMM,
+		I_IR(R_DST_RANGE)	when others;
 end MIXED;
 

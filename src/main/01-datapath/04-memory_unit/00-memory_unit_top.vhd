@@ -5,7 +5,12 @@ use work.coding.all;
 use work.types.all;
 use work.utilities.all;
 
--- memory_unit: forward signals to data memory
+-- memory_unit:
+--	* forward data from following stages
+--	* disable memory access if address exceeds data memory size
+--	* align address according to access size
+--	* read/write data memory
+--	* manage endianness conversions
 entity memory_unit is
 	port (
 		-- I_ENDIAN: specify endianness of data memory

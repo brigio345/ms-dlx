@@ -8,6 +8,7 @@ use work.utilities.all;
 --	* select PC (NPC or branch target)
 --	* read IR from instruction memory at address PC
 --	* compute Next PC (PC + 4)
+--	* manage endianness conversions
 entity fetch_unit is
 	port (
 		-- I_ENDIAN: specify endianness of instruction memory

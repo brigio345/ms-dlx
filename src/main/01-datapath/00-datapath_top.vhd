@@ -4,6 +4,7 @@ use work.coding.all;
 use work.types.all;
 use work.utilities.all;
 
+-- datapath: interconnects all the stages and pipeline registers of datapath
 entity datapath is
 	port (
 		I_CLK:			in std_logic;
