@@ -58,11 +58,11 @@ When the \textbf{reset signal} is:
 		\hline
 		\rowcolor{gray!50}
 		Signal & Meaning \\
-		\textit{ENDIAN} & \textit{'0'}: big endian; \textit{'1'}: little endian \\
+		\texttt{ENDIAN} & \texttt{'0'}: big endian; \texttt{'1'}: little endian \\
 		\rowcolor{gray!25}
-		\textit{I\_MEM\_SZ} & Size (in lines) of the physical intruction
+		\texttt{I\_MEM\_SZ} & Size (in lines) of the physical intruction
 			memory (max $2^{32}$) \\
-		\textit{D\_MEM\_SZ} & Size (in lines) of the physical data memory 
+		\texttt{D\_MEM\_SZ} & Size (in lines) of the physical data memory 
 			(max $2^{32}$) \\
 		\hline
 	\end{tabular}
@@ -122,9 +122,12 @@ A modified version of \texttt{MULT} instruction between integer half words is
 supported too.
 
 \bigskip
-The programmer has at his disposal \textbf{32 general purpose integer 32-bits registers}.
-Register \texttt{R0} is actually a special register, which \textbf{always returns 0}
-when it is read and writing to it has no effect.
+There are \textbf{32 general purpose integer 32-bits registers} (\texttt{R0-R31})
+which can be used as sources or destination of instructions.
+
+\texttt{R0} has actually a special behaviour: when it is used as source it
+always \textbf{evaluates to 0} and when it is used as destination the writeback
+has no effect.
 
 \bigskip
 Figure \ref{fig:encoding} shows the encoding of each instruction type, while
@@ -248,9 +251,9 @@ display all the supported instructions.
 		\texttt{J} & \texttt{PC <= PC + 4 + signed(OFF)} \\
 		\rowcolor{gray!25}
 		\texttt{JAL} & \texttt{PC <= PC + 4 + signed(OFF); RF(R31) <= PC + 4} \\
-		\texttt{JR} & \texttt{PC <= RF(RS)} \\
+		\texttt{JR} & \texttt{PC <= RF(low\_5\_bits(OFF))} \\
 		\rowcolor{gray!25}
-		\texttt{JALR} & \texttt{PC <= RF(RS); RF(R31) <= PC + 4} \\
+		\texttt{JALR} & \texttt{PC <= RF(low\_5\_bits(OFF)); RF(R31) <= PC + 4} \\
 		\hline
 	\end{tabular}
 	\caption{J-type instructions supported by DLXY.}
