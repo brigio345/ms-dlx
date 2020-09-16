@@ -1,5 +1,5 @@
 set sim_root "."
-set asm_root "../../src/script/assembler"
+set asm_root "../../src/assembly"
 
 # simulate_dlx
 # 	* Argument(s):
@@ -19,8 +19,8 @@ proc simulate_dlx {asm_file {run_time 100}} {
 	}
 
 	# assemble asm code
-	exec perl $asm_root/assembler.bin/dlxasm.pl $asm_file
-	exec $asm_root/assembler.bin/conv2memory $asm_file.exe > $sim_root/test.asm.mem
+	exec perl $asm_root/assembler/dlxasm.pl $asm_file
+	exec $asm_root/assembler/conv2memory $asm_file.exe > $sim_root/test.asm.mem
 
 	# cleanup temporary files
 	exec rm $asm_file.exe $asm_file.exe.hdr
