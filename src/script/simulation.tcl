@@ -1,5 +1,5 @@
 set sim_root "."
-set asm_root "../../src/assembly"
+set asm_root "../../assembly"
 
 # simulate_dlx
 # 	* Argument(s):
