@@ -38,7 +38,7 @@ procedures useful for synthesis automation, compatible with
 				be synthesized (default is \texttt{dlx})
 			\item \texttt{time\_contraint}: maximum delay between
 				inputs and output and clock period in ns
-				(default is \texttt{1.0005})
+				(default is \texttt{2})
 			\item \texttt{lvt\_lib}: low threshold voltage library
 				(default is \texttt{CORE65LPLVT})
 			\item \texttt{hvt\_lib}: high threshold voltage library
@@ -72,7 +72,7 @@ procedures useful for synthesis automation, compatible with
 				be synthesized (default is \texttt{dlx})
 			\item \texttt{time\_contraint}: maximum delay between
 				inputs and output and clock period in ns
-				(default is \texttt{1.0005})
+				(default is \texttt{2})
 			\item \texttt{wire\_model}: (default is \texttt{5K\_hvratio\_1\_4})
 		\end{itemize}
 	\item \underline{Result:} \\
@@ -96,7 +96,7 @@ procedures useful for synthesis automation, compatible with
 \section{Reports}
 \subsection{Standard synthesis}
 \label{subsec:std_syn}
-The following reports have been obtained running
+The following reports have been obtained running:
 \begin{enumerate}
 	\item \texttt{analyze\_dir src/main}
 	\item \texttt{synthesize dlx 1.5}
@@ -120,10 +120,10 @@ This way the DLXY synthesis has been performed with the following setup:.
 \lstinputlisting{chapters/03-synthesis/files/gating-std.rpt}
 
 \subsection{Dual V-th synthesis}
-The following reports have been obtained running
+The following reports have been obtained running:
 \begin{enumerate}
 	\item \texttt{analyze\_dir src/main}
-	\item \texttt{synthesize\_dual\_vth}
+	\item \texttt{synthesize\_dual\_vth dlx 1.0005}
 \end{enumerate}
 
 \bigskip

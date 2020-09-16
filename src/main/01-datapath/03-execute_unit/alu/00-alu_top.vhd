@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.coding.all;
 
+-- alu: execute an arithmetic or logic operation
 entity alu is
 	generic (
 		N_BIT:	integer := 32

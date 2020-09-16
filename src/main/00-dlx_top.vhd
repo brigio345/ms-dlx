@@ -3,6 +3,7 @@ use IEEE.std_logic_1164.all;
 use work.coding.all;
 use work.types.all;
 
+-- dlx: top-level entity of the DLX core; connect control unit and datapath
 entity dlx is
 	port (
 		I_CLK:		in std_logic;

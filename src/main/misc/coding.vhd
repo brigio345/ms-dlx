@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+-- coding: contains all the constants related to instruction coding
 package coding is
 	-- Instruction fields sizes
 	constant INST_SZ:	integer := 32;

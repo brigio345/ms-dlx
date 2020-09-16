@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
 
--- config_register: store processor configuration
+-- config_register: store processor configuration in an asynchronous memory
 entity config_register is
 	port (
 		I_RST:		in std_logic;

@@ -3,7 +3,9 @@ use ieee.std_logic_1164.all;
 use work.coding.all;
 use work.types.all;
 
--- execute_unit: execute the ALU operation specified by I_ALUOP
+-- execute_unit:
+--	* forward data from following stages
+--	* execute the ALU operation specified by I_ALUOP
 entity execute_unit is
 	port (
 		-- from CU

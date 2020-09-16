@@ -1,6 +1,7 @@
-library IEEE;
-use IEEE.std_logic_1164.all;
+library ieee;
+use ieee.std_logic_1164.all;
 
+-- utilities: collection of common general purpose functions
 package utilities is
 	function swap_bytes (
 		i_data:	std_logic_vector
@@ -19,11 +20,6 @@ package utilities is
 		I_LENGTH:	integer
 	)
 	return std_logic_vector;
-
-	function std_logic_vector_image (
-		a:	std_logic_vector
-	)
-	return string;
 
 	function log2 (
 		i:	natural
@@ -80,18 +76,6 @@ package body utilities is
 		return (I_LENGTH - 1 downto I_DATA'length => '0') &
 			I_DATA(I_DATA'left downto 0);
 	end function zero_extend;
-
-	function std_logic_vector_image (
-		a:	 std_logic_vector
-	) return string is
-		variable str:	string(1 to a'length);
-	begin
-		for i in a'range loop
-			str(a'length - i) := std_logic'image(a(i))(2);
-		end loop;
-
-		return str;
-	end function;
 
 	function log2(i : natural) return integer is
 		variable temp    : integer := i;

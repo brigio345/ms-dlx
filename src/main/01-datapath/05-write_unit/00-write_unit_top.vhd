@@ -2,7 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use work.coding.all;
 
--- write_unit: manage writeback to register file
+-- write_unit:
+--	* writeback to register file
 entity write_unit is
 	port (
 		-- from CU

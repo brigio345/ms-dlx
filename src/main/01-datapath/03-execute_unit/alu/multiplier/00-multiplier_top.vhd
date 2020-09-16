@@ -2,6 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+-- boothmul: perform integer multiplication using Booth algorithm
 entity boothmul is
 	generic (
 		N_BIT:	integer := 32
@@ -48,7 +49,6 @@ begin
 			I_B(0) => '0',
 			O_Y => B_SUM(0)
 		);
-
 
 	-- repetitive network instantiation
 	net: for i in 1 to (N_BIT - 2) / 2 generate
