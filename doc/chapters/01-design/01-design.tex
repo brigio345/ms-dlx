@@ -118,15 +118,15 @@ The DLXY instruction set is a \textbf{subset of the original DLX} one:
 it supports all the \textbf{instructions involving integers} (except for
 \texttt{LHI}, which can be easily obtained using other instructions).
 
-A modified version of \texttt{MULT} instruction between integer half words is
+A modified version of \texttt{MULT} instruction between signed half words is
 supported too.
 
 \bigskip
 There are \textbf{32 general purpose integer 32-bits registers} (\texttt{R0-R31})
 which can be used as sources or destination of instructions.
 
-\texttt{R0} has actually a special behaviour: when it is used as source it
-always \textbf{evaluates to 0} and when it is used as destination the writeback
+\texttt{R0} has a special behaviour: when it is used as source it always
+\textbf{evaluates to 0} and when it is used as destination the writeback
 has no effect.
 
 \bigskip
@@ -353,7 +353,7 @@ mechanism leads to the fetch of a wrong instruction: this is a
 \textbf{control hazard}.
 
 \bigskip
-In order to solve control hazards, the control unit \textbf{transforms
+In order to solve control hazards, the control unit \textbf{converts
 the instruction following a taken branch into a \texttt{NOP}} (disabling any
 possible write, both to the register file and to the data memory, and disabling
 any possible taken branch), since that instruction shouldn't have been fetched,
@@ -484,11 +484,11 @@ The DLXY has been implemented in \texttt{VHDL}; most of the code is written in a
 
 \subsection{Datapath}
 The DLXY datapath is made up of \textbf{one unit for each pipeline stage}.
-Between each stage and the previous there are some \textbf{pipeline registers},
+Between each stage and the previous one there are some \textbf{pipeline registers},
 which contain both control and data signals and are loaded with new values every
 clock cycle.
 
-There is also a bunch of registers between the decode and the fetch units, which
+There is also a group of registers between the decode and the fetch units, which
 can be disabled in case of data hazards.
 
 \bigskip
@@ -566,8 +566,8 @@ In the schematics there are some common blocks, such as:
 	\label{fig:target_computer}
 \end{figure}
 \paragraph{Register file} \mbox{} \\
-The DLXY register file provides 2 asynchronous read ports and 1 synchronous
-write port.
+The DLXY register file provides \textbf{2 asynchronous read ports} and
+\textbf{1 synchronous write port}.
 
 \bigskip
 Since it is inserted in one of the most critical stages of the pipeline, it must
@@ -575,8 +575,8 @@ be simple and fast: no additional feature has been included.
 
 In particular, a \textit{windowed register file} has been discarded not only for
 the additional hardware complexity requirement, but also because it reduces the
-visible register space seen by the compiler: letting the compiler use the whole
-register file might end up in better optimizations.
+register space seen by the compiler: letting the compiler use the whole register
+file might end up in better optimizations.
 \subsubsection{Execute unit}
 \begin{figure}[H]
 	\centering
@@ -601,12 +601,12 @@ Among the explicitly described components there are:
 		Differently from the original structure, the DLXY adder accepts
 		a \textbf{carry in}, in order to support the subtraction
 		(since \texttt{-A = NOT (A) + 1}, if the second operand is
-		bitwise negated and the carry in is set to '1', the adder
+		bitwise negated and the carry in is set to \texttt{'1'}, the adder
 		performs a subtraction).
 
 		Another difference from the \texttt{P4} adder is that DLXY one
-		outputs an \textbf{overflow} signal, which is set to '1' whenever
-		a signed overflow is detected.
+		outputs an \textbf{overflow} signal, which is set to \texttt{'1'}
+		whenever a signed overflow occurs.
 	\item \textbf{Comparator}: \\
 		in order to limit the occupied area, it reuses the adder,
 		configured as subtractor: according to the subtraction result,
@@ -626,7 +626,7 @@ Among the explicitly described components there are:
 	\label{fig:memory_unit}
 \end{figure}
 
-\paragraph{Align address block} \mbox{} \\
+\paragraph{Align address} \mbox{} \\
 \begin{itemize}
 	\item \underline{Inputs}:
 		\begin{itemize}
