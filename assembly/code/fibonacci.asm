@@ -6,7 +6,7 @@ main:
 	end:
 	j end
 
-; compute the r1-th Fibonacci number
+; compute the r1-th Fibonacci number (returning it to r2)
 fibonacci:
 	addi r2,r0,#0	; set res to 0
 	sgti r3,r1,#0
