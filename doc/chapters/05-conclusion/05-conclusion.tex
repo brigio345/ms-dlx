@@ -1,0 +1,26 @@
+\chapter{Conclusion}
+\label{chap:conclusion}
+\paragraph{Philosophy} \mbox{} \\
+The DLXY was designed with \textbf{simplicity} in mind, both in architecture
+choices and in source code management, but it is very difficult to tackle all
+the issues without growing in complexity.
+
+\paragraph{Performance}	\mbox{} \\
+The DLXY performance is quite decent: it can run at a clock frequency around 1 GHz,
+requiring less than 7 mW of total power.
+
+\bigskip
+At the steady state the CPI is 1 but it can easily arise toward 2 due to the
+frequent presence of taken branches, each one requiring 2 clock cycles to be executed.
+An improvement could be achieved anticipating the unconditional branches detection
+in the fetch stage, in order to get them executed in 1 clock cycle, instead of 2.
+
+\paragraph{Further improvements} \mbox{} \\
+A list of possible additions or modifications to the DLXY may include:
+\begin{itemize}
+	\item advanced branch prediction techniques
+	\item interrupts and exceptions handling
+	\item division (introducing multi-cycle operations)
+	\item caches hierarchy
+\end{itemize}
+
