@@ -146,3 +146,23 @@ This way the DLXY synthesis has been performed with the following setup:.
 \paragraph{Threshold voltage group report} \mbox{} \\
 \lstinputlisting{chapters/03-synthesis/files/threshold-dual_vth.rpt}
 
+\subsection{Standard VS Dual V-th synthesis comparisons}
+\begin{table}[H]
+	\centering
+	\begin{tabular}{ccccc}
+		\hline
+		\rowcolor{gray!50}
+		Synthesis & Library & Clock period & Total power & Total area \\
+		Standard & NandGateOpenCellLibrary & 1.5 ns & 6.79 mW & 14371 \\
+		\rowcolor{gray!25}
+		Dual V-th & STcmos65 & 1.0005 ns & 6.75 mW & 31492 \\
+		\hline
+	\end{tabular}
+	\label{tab:syn_cmp}
+\end{table}
+
+A meaningful comparison is difficult since different libraries and different
+tools have been used for the different synthesis, but it is still interesting
+to note that the Dual V-th synthesis led to a much higher clock frequency with
+a sligltly lower total power consumption.
+
