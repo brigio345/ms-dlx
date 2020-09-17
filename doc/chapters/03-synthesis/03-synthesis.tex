@@ -155,17 +155,19 @@ This way the DLXY synthesis has been performed with the following setup:.
 		\hline
 		\rowcolor{gray!50}
 		Synthesis & Library & Clock period & Total power & Total area \\
-		Standard & NandGateOpenCellLibrary (45 nm) & 1.5 ns & 6.79 mW & 14371 \\
+		Standard & NandGateOpenCellLibrary (45 nm) & 1.5 ns & 6.79 mW & 14371 $\mu m^2$\\
 		\rowcolor{gray!25}
-		Dual V-th & STcmos65 (65 nm) & 1.0005 ns & 6.75 mW & 31492 \\
+		Dual V-th & STcmos65 (65 nm) & 1.0005 ns & 6.75 mW & 31492 $\mu m^2$\\
 		\hline
 	\end{tabular}
 	\label{tab:syn_cmp}
 \end{table}
 
-A meaningful comparison is difficult since different libraries and different
-tools have been used for the different synthesis, but it is worth noting that
-the Dual V-th synthesis led to a significantly higher clock frequency (+50\%)
+It is difficult to perform a meaningful comparison since different libraries and
+different tools have been used for the different synthesis, but it is worth noting
+that the Dual V-th synthesis led to a significantly higher clock frequency (+50\%)
 with a slightly lower total power consumption (at the expense of area, which is
-more than doubled), despite it used an older technology.
+more than doubled), despite it used an older technology: the better performance
+is probably made possible by the more advanced synthesizer while the lower power
+consumption is probably thanks to the more advanced synthesis technique.
 
