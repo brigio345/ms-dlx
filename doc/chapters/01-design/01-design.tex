@@ -60,7 +60,7 @@ When the \textbf{reset signal} is:
 		Signal & Meaning \\
 		\texttt{ENDIAN} & \texttt{'0'}: big endian; \texttt{'1'}: little endian \\
 		\rowcolor{gray!25}
-		\texttt{I\_MEM\_SZ} & Size (in lines) of the physical intruction
+		\texttt{I\_MEM\_SZ} & Size (in lines) of the physical instruction
 			memory (max $2^{32}$) \\
 		\texttt{D\_MEM\_SZ} & Size (in lines) of the physical data memory 
 			(max $2^{32}$) \\
@@ -125,7 +125,7 @@ supported too.
 There are \textbf{32 general purpose integer 32-bits registers} (\texttt{R0-R31})
 which can be used as sources or destination of instructions.
 
-\texttt{R0} has a special behaviour: when it is used as source it always
+\texttt{R0} has a special behavior: when it is used as source it always
 \textbf{evaluates to 0} and when it is used as destination the writeback
 has no effect.
 
@@ -384,7 +384,7 @@ another instruction $I_A$ destination operand and $I_B$ enters the pipeline
 before $I_A$ exits it.
 
 \bigskip
-The DLXY solves these hazards forwading data or inserting stalls, depending on
+The DLXY solves these hazards forwarding data or inserting stalls, depending on
 $I_A$ and $I_B$ instruction types and their relative position in the pipeline.
 
 \bigskip
@@ -498,7 +498,7 @@ Figure \ref{fig:datapath} shows an overview of the datapath internals.
 
 \bigskip
 The following subsections show a possible implementation for each datapath unit
-(the synthesizer might produce sligthly different circuits, with the same
+(the synthesizer might produce slightly different circuits, with the same
 functionality, depending on optimizations it applies).
 
 \bigskip
@@ -519,7 +519,7 @@ In the schematics there are some common blocks, such as:
 		\begin{itemize}
 			\item \underline{Input(s):} 2 unsigned data signals
 			\item \underline{Output(s):} result of comparison
-				(equality, unequality, magnitude) between the
+				(equality, inequality, magnitude) between the
 				inputs
 		\end{itemize}
 	\item \textbf{Extenders}:
@@ -702,7 +702,7 @@ The implementation style follows the \textbf{hardwired} principles: it is an
 ad-hoc combinational circuit (except for the configuration register), therefore
 it is possible to get \underline{better performance} and \underline{lower power}
 consumption (with respect to other styles, such as microprogrammed control units)
-at the expense of \underline{lower mantainability}.
+at the expense of \underline{lower maintainability}.
 
 \bigskip
 Since the DLXY is quite a simple core, the hardwired design style had been the

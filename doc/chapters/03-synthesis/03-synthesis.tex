@@ -25,7 +25,7 @@ procedures useful for synthesis automation, tested on
 		recursively analyzes all the entities contained in \texttt{dir},
 		using the \texttt{analyze} command. \\
 		Analysis starts from \textbf{deepest directory upwards} (in
-		\textbf{reverse alphanumerical order}): this, toghether with the
+		\textbf{reverse alphanumerical order}): this, together with the
 		files organization described in appendix
 		\ref{app:code_conventions} avoids any dependency analysis errors.
 \end{itemize}
@@ -36,7 +36,7 @@ procedures useful for synthesis automation, tested on
 		\begin{itemize}
 			\item \texttt{top\_entity}: name of top level entity to
 				be synthesized (default is \texttt{dlx})
-			\item \texttt{time\_contraint}: maximum delay between
+			\item \texttt{time\_constraint}: maximum delay between
 				inputs and output and clock period in ns
 				(default is \texttt{2})
 			\item \texttt{lvt\_lib}: low threshold voltage library
@@ -49,7 +49,7 @@ procedures useful for synthesis automation, tested on
 		\textbf{clock gating} enabled.
 		\begin{itemize}
 			\item \texttt{top\_entity-YYMMDDhhmm-postsyn.v}: verilog
-				file containing the post-sythesis netlist
+				file containing the post-synthesis netlist
 			\item \texttt{top\_entity-yyMMDDhhmm.sdc}
 			\item \texttt{top\_entity-YYMMDDhhmm-timing.rpt}: timing
 				report
@@ -58,7 +58,7 @@ procedures useful for synthesis automation, tested on
 			\item \texttt{top\_entity-YYMMDDhhmm-area.rpt}: area
 				report
 			\item \texttt{top\_entity-YYMMDDhhmm-threshold.rpt}:
-				thresold voltage group report
+				threshold voltage group report
 			\item \texttt{top\_entity-YYMMDDhhmm-gating.rpt}: clock
 				gating report
 		\end{itemize}
@@ -70,7 +70,7 @@ procedures useful for synthesis automation, tested on
 		\begin{itemize}
 			\item \texttt{top\_entity}: name of top level entity to
 				be synthesized (default is \texttt{dlx})
-			\item \texttt{time\_contraint}: maximum delay between
+			\item \texttt{time\_constraint}: maximum delay between
 				inputs and output and clock period in ns
 				(default is \texttt{2})
 			\item \texttt{wire\_model}: (default is \texttt{5K\_hvratio\_1\_4})
@@ -80,7 +80,7 @@ procedures useful for synthesis automation, tested on
 		\textbf{dual V$_{\text{th}}$} and \textbf{clock gating} enabled.
 		\begin{itemize}
 			\item \texttt{top\_entity-YYMMDDhhmm-postsyn.v}: verilog
-				file containing the post-sythesis netlist
+				file containing the post-synthesis netlist
 			\item \texttt{top\_entity-yyMMDDhhmm.sdc}
 			\item \texttt{top\_entity-YYMMDDhhmm-timing.rpt}: timing
 				report
@@ -166,6 +166,6 @@ This way the DLXY synthesis has been performed with the following setup:.
 A meaningful comparison is difficult since different libraries and different
 tools have been used for the different synthesis, but it is worth noting that
 the Dual V-th synthesis led to a significantly higher clock frequency (+50\%)
-with a sligltly lower total power consumption (at the expense of area, which is
+with a slightly lower total power consumption (at the expense of area, which is
 more than doubled), despite it used an older technology.
 
