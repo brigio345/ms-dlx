@@ -3,10 +3,14 @@
 
 \section{Files organization}
 The DLXY \texttt{VHDL} source code is placed in the \texttt{src} directory.
+
+\bigskip
 Synthesizable code is stored in \texttt{src/main} according to the following rules:
 \begin{itemize}
-	\item all files containing packages or entities used in different places
-		throughout the source code must be placed in \texttt{misc} directory
+	\item all files containing packages used in different places throughout
+		the source code must be placed in \texttt{packages} directory
+	\item all files containing entities used in different places throughout
+		the source code must be placed in \texttt{basic\_blocks} directory
 	\item if an entity \texttt{<ent\_name>} includes different components
 		(besides those contained in the \texttt{misc} directory):
 		\begin{itemize}

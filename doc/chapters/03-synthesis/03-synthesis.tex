@@ -9,8 +9,8 @@
 
 \section{Scripts}
 Script \texttt{src/script/synthesis.tcl} contains a set of \texttt{TCL}
-procedures useful for synthesis automation, compatible with
-\textit{DC Ultra - Version O-2018.06-SP4}.
+procedures useful for synthesis automation, tested on
+\textit{DC Ultra}, version \textit{F-2011.09-SP3} and \textit{O-2018.06-SP4}.
 
 \paragraph{\texttt{analyze\_dir}}
 \begin{itemize}
@@ -96,16 +96,17 @@ procedures useful for synthesis automation, compatible with
 \section{Reports}
 \subsection{Standard synthesis}
 \label{subsec:std_syn}
-The following reports have been obtained running:
+The following reports have been obtained running the following commands in
+\textit{DC Ultra} version \textit{F-2011.09-SP3}:
 \begin{enumerate}
 	\item \texttt{analyze\_dir src/main}
 	\item \texttt{synthesize dlx 1.5}
 \end{enumerate}
 
 \bigskip
-This way the DLXY synthesis has been performed with the following setup:.
+This way the DLXY synthesis has been performed with the following setup:
 \begin{itemize}
-	\item \underline{Library}: \textit{NandgateOpenCellLibrary}
+	\item \underline{Library}: \textit{NandgateOpenCellLibrary} (45 nm)
 	\item \underline{Clock period and maximum delay:} \texttt{1.5 ns}
 	\item \underline{Clock gating}
 \end{itemize}
@@ -120,7 +121,8 @@ This way the DLXY synthesis has been performed with the following setup:.
 \lstinputlisting{chapters/03-synthesis/files/gating-std.rpt}
 
 \subsection{Dual V-th synthesis}
-The following reports have been obtained running:
+The following reports have been obtained running the following commands in
+\textit{DC Ultra} version \textit{O-2018.06-SP4}:
 \begin{enumerate}
 	\item \texttt{analyze\_dir src/main}
 	\item \texttt{synthesize\_dual\_vth dlx 1.0005}
@@ -129,7 +131,7 @@ The following reports have been obtained running:
 \bigskip
 This way the DLXY synthesis has been performed with the following setup:.
 \begin{itemize}
-	\item \underline{Library}: \textit{STcmos65}
+	\item \underline{Library}: \textit{STcmos65} (65 nm)
 	\item \underline{Clock period and maximum delay:} \texttt{1.0005 ns}
 	\item \underline{Dual V-th}
 	\item \underline{Clock gating}
@@ -149,20 +151,21 @@ This way the DLXY synthesis has been performed with the following setup:.
 \subsection{Standard VS Dual V-th synthesis comparisons}
 \begin{table}[H]
 	\centering
-	\begin{tabular}{ccccc}
+	\begin{tabular}{lllll}
 		\hline
 		\rowcolor{gray!50}
 		Synthesis & Library & Clock period & Total power & Total area \\
-		Standard & NandGateOpenCellLibrary & 1.5 ns & 6.79 mW & 14371 \\
+		Standard & NandGateOpenCellLibrary (45 nm) & 1.5 ns & 6.79 mW & 14371 \\
 		\rowcolor{gray!25}
-		Dual V-th & STcmos65 & 1.0005 ns & 6.75 mW & 31492 \\
+		Dual V-th & STcmos65 (65 nm) & 1.0005 ns & 6.75 mW & 31492 \\
 		\hline
 	\end{tabular}
 	\label{tab:syn_cmp}
 \end{table}
 
 A meaningful comparison is difficult since different libraries and different
-tools have been used for the different synthesis, but it is still interesting
-to note that the Dual V-th synthesis led to a much higher clock frequency with
-a sligltly lower total power consumption.
+tools have been used for the different synthesis, but it is worth noting that
+the Dual V-th synthesis led to a significantly higher clock frequency (+50\%)
+with a sligltly lower total power consumption (at the expense of area, which is
+more than doubled), despite it used an older technology.
 

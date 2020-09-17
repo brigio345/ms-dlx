@@ -260,6 +260,11 @@ display all the supported instructions.
 	\label{tab:j_type_inst}
 \end{table}
 
+\subsubsection{Assembler}
+The code to be loaded to the instruction memory can be easily generated using
+the assembler located in \texttt{assembly/assembler}.
+In \texttt{assembly/code} there are also some example programs.
+
 \section{Architecture}
 The DLXY core is made up of two components: an hardwired \textbf{control unit}
 and a pipelined \textbf{datapath}.
@@ -457,16 +462,6 @@ Table \ref{tab:data_hazard} displays the data hazard management in detail.
 		$I_A$ is located when $I_B$ is in ID stage)}
 	\label{tab:data_hazard}
 \end{table}
-
-\subsubsection{Design style considerations}
-An \textbf{hardwired} control unit is an ad-hoc combinational circuit:
-this design style allows \underline{better performance} and \underline{lower power}
-consumption with respect to other styles, such as microprogrammed control units,
-at the expense of a \underline{lower mantainability}.
-
-\bigskip
-Since the DLXY is quite a simple core, the hardwired design style had been the
-natural choice.
 
 \section{Implementation}
 The DLXY has been implemented in \texttt{VHDL}; most of the code is written in a
@@ -680,5 +675,43 @@ there is no instruction requiring its value in MEM stage).
 	\frame{\includegraphics[width=.8\textwidth]{fwd_b}}
 	\caption{The DLXY forwarding subsystem for B operand.}
 	\label{fig:fwd_b}
+\end{figure}
+
+\subsection{Control unit}
+\subsubsection{Design style considerations}
+The DLXY control unit is made up of different components (as shown in figure
+\ref{fig:control_unit}):
+\begin{itemize}
+	\item \textbf{Configuration register}: asynchronous memory which stores
+		the processor configuration
+	\item \textbf{Instruction decoder}: combinational circuit which translates
+		the code of the instruction in the decode stage into control signals
+	\item \textbf{Data forwarder}: combinational circuit which generates the
+		signals controlling the forwarding subsystem
+	\item \textbf{Stall generator}: combinational circuit which introduces
+		stalls in the pipeline, when it is necessary for ensuring
+		correct results
+\end{itemize}
+
+It is worth noting that the control unit generates all the control signals
+needed by any instruction, in every pipeline stage: the \textbf{correct timing}
+of these signals is then ensured by the \textbf{pipeline registers}.
+
+\bigskip
+The implementation style follows the \textbf{hardwired} principles: it is an
+ad-hoc combinational circuit (except for the configuration register), therefore
+it is possible to get \underline{better performance} and \underline{lower power}
+consumption (with respect to other styles, such as microprogrammed control units)
+at the expense of \underline{lower mantainability}.
+
+\bigskip
+Since the DLXY is quite a simple core, the hardwired design style had been the
+natural choice.
+
+\begin{figure}[H]
+	\centering
+	\frame{\includegraphics[width=.7\textwidth]{control_unit}}
+	\caption{The DLXY control unit.}
+	\label{fig:control_unit}
 \end{figure}
 
